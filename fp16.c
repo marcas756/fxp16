@@ -1,0 +1,913 @@
+/*! \copyright
+    Copyright (c) 2017-2022, marco@bacchi.at
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+    1. Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    3. The name of the author may not be used to endorse or promote
+       products derived from this software without specific prior
+       written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
+    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+    INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+/*!
+    \file   fp.c
+
+    \brief  Signed fixed point implementation for small embedded project
+
+    \details
+*/
+
+#include "fp16.h"
+#include <math.h>
+#include <errno.h>
+#include <stdlib.h>
+
+
+
+
+
+
+/*!
+    \brief      Converts a float to a fixed point type
+    \details    Converts a float variable to a fixed point variable. Result gets
+                saturated if float exceeds fixed point limits.
+    \param[in]  var     Float variable to be converted
+    \param[in]  frac    Number of fracional bits
+
+    \returns    Fixed point interpretation of provided floating point number
+*/
+fp16_t fp16_flt2fp(float var, uint8_t frac)
+{
+   /*
+
+   To convert from floating-point to fixed-point, we follow this algorithm:
+
+   Calculate x = floating_input * 2^(fractional_bits)
+   Round x to the nearest whole number (e.g. round(x))
+   Store the rounded x in an integer container
+
+   */
+
+    var = round(var * (1 << frac));
+    fp16_sat_m(var);
+    return (fp16_t)var;
+}
+
+/*!
+    \brief      Converts a a fixed point type to float
+    \details    Converts a fixed point variable to a float variable.
+    \param[in]  var     Fixed point variable to be converted
+    \param[in]  frac    Number of fracional bits
+
+    \returns Floating point interpretation of provided fixed point number
+*/
+float fp16_fp2flt(fp16_t var, uint8_t frac)
+{
+    return ((float)(var)) / (1 << frac);
+
+
+}
+
+
+/*!
+    \brief      Converts an integer type to fixed point
+    \details    Converts an integer variable to a fixed point variable.
+    \param[in]  intpart  Integer variable to be converted
+    \param[in]  frac     Number of fracional bits
+
+    \returns Fixed point interpretation of provided integer number
+*/
+fp16_t fp16_int2fp(int16_t intpart, uint8_t frac)
+{
+
+    int32_t result = intpart;
+    result <<= frac;
+    fp16_sat_m(result);
+    return(fp16_t)result;
+}
+
+/*!
+    \brief      Right shifts fixed point number with rounding LSB
+    \details    Right shifts fixed point number with rounding LSB
+    \param      fp       Fixed point number to right shift
+    \param      shift     Number of bits to right shift
+
+    \returns Right shifted fixed point number with rounded LSB
+*/
+
+fp16_t fp16_rshift(fp16_t fp, uint8_t shift)
+{
+   int32_t result = fp;
+   fp16_rshift_m(result,shift);
+   fp16_sat_m(result);
+   return(fp16_t)result;
+}
+
+/*!
+    \brief      Left shifts fixed point number
+    \details    Left shifts fixed point number
+    \param      fp       Fixed point number to left shift
+    \param      shift     Number of bits to left shift
+
+    \returns Left shifted fixed point number
+*/
+fp16_t fp16_lshift(fp16_t fp, uint8_t shift)
+{
+   int32_t result = (int32_t)fp;
+   result<<=shift;
+   fp16_sat_m(result);
+   return(fp16_t)result;
+}
+
+
+
+/*!
+    \brief      Converts between fixed point number formats (Qx.y)
+    \details    Converts between fixed point number formats (Qx.y)
+    \param      fp       fixed point number to convert
+    \param      fracold     Old number of fracional bits
+    \param      fracnew     New number of fracional bits
+    \returns    Fixed point number in new fixed point format
+*/
+
+fp16_t fp16_fp2fp(fp16_t fp, uint8_t fracold, uint8_t fracnew)
+{
+   if ( fracold > fracnew )
+   {
+      fp = fp16_rshift(fp,fracold-fracnew);
+   }
+   else if ( fracold < fracnew )
+   {
+      fp = fp16_lshift(fp,fracnew-fracold);
+   }
+
+   return fp;
+}
+
+
+
+
+/*!
+    \brief      Adds two fixed point numbers
+    \details    Adds two fixed point numbers. Result gets saturated if it exceeds fixed point limits.
+
+                result = a + b
+
+                Be aware of that both fixed point numbers must be of same type (same number of fractional bits)!
+                Otherwise the result may be undefined.
+
+    \param[in]  summand1       First fixed point summand
+    \param[in]  summand2       Second fixed point summand
+
+
+    \returns Sum of first summand and second summand in fixed point format
+*/
+fp16_t fp16_add(fp16_t summand1, fp16_t summand2)
+{
+    int32_t result;
+    result = summand1+summand2;
+    fp16_sat_m(result);
+    return(fp16_t)result;
+}
+
+/*!
+    \brief     Subtracts two fixed point numbers
+    \details    Adds two fixed point number. Result gets saturated if it exceeds fixed point limits.
+
+                result = a - b
+
+                Be aware of that both fixed point numbers must be of same type (same number of fractional bits)!
+                Otherwise the result may be undefined.
+
+    \param[in]  minuend     Minuend
+    \param[in]  subtrahend  Subtrahend
+
+
+    \returns Difference of minuend and subtrahend in fixed point format
+*/
+
+fp16_t fp16_sub(fp16_t minuend, fp16_t subtrahend)
+{
+   int32_t result;
+   result = minuend-subtrahend;
+   fp16_sat_m(result);
+   return(fp16_t)result;
+}
+
+
+
+
+
+/*!
+    \brief      Multiplies two fixed point numbers
+    \details    Multiplies two fixed point numbers. The numbers may be of different fixed point format.
+                The result is in the fixed point format of the multiplicand (1st fixed point parameter).
+                Result gets saturated if it exceeds fixed point limits.
+
+                When performing an integer multiplication the product is 2xWL if both the multiplier and
+                multiplicand are WL long. If the integer multiplication is on fixed-point variables, the number of
+                integer and fractional bits in the product is the sum of the corresponding multiplier and
+                multiplicand Q-points.
+
+                result = a*b
+
+
+    \param[in]  mult1     multiplicator
+    \param[in]  mult2     multiplicant
+
+
+    \returns Product of multiplicator and multiplicant in fixed point format of multiplicator
+*/
+fp16_t fp16_mult(fp16_t mult1, uint8_t frac1, fp16_t mult2, uint8_t frac2)
+{
+    int32_t result;
+    result = (int32_t)mult1*(int32_t)mult2;
+    fp16_shift_m(result,frac2);
+    fp16_sat_m(result);
+    return (fp16_t)result;
+}
+
+
+/*!
+    \brief      Divides two fixed point numbers
+    \details    Divides two fixed point numbers
+
+                result = a/b
+
+
+    \param      divident     divident
+    \param      mult2     multiplicant
+
+
+    \returns a/b with fractional bits of b
+*/
+fp16_t fp16_div(fp16_t divident, uint8_t frac1, fp16_t divisor, uint8_t frac2)
+{
+  int32_t result = (divident<<frac2)/divisor;
+  fp16_sat_m(result);
+  return (fp16_t)result;
+}
+
+
+
+
+
+fp16_t fp16_ceil(fp16_t x, uint8_t xfrac)
+{
+
+   int32_t result = (int32_t)x&~((1<<xfrac)-1);
+
+   if(result == x)
+   {
+      return (fp16_t)result;
+   }
+
+   result+=(1<<(xfrac));
+   fp16_sat_m(result);
+
+   return (fp16_t)result;
+
+}
+
+
+
+
+fp16_t fp16_round(fp16_t x, uint8_t xfrac)
+{
+   int32_t result = x;
+
+   if (xfrac == 0 )
+   {
+      return x;
+   }
+
+   if( x < 0 )
+   {
+      result = -result;
+      result += (1<<(xfrac-1));
+      result &= ~((1<<xfrac)-1);
+      result = -result;
+   }
+   else
+   {
+      result += (1<<(xfrac-1));
+      result &= ~((1<<xfrac)-1);
+   }
+
+
+   fp16_sat_m(result);
+   return (fp16_t)result;
+}
+
+
+fp16_t fp16_fmod(fp16_t x, uint8_t xfrac, fp16_t y, uint8_t yfrac)
+{
+   if ( y == 0 )
+   {
+      return 0;
+   }
+
+   int32_t result = (x<<yfrac)/y;
+   fp16_intcast_m(result,xfrac);
+
+   result*=y;
+   fp16_rshift_m(result,yfrac);
+
+   result = x - result;
+   fp16_sat_m(result);
+   return (fp16_t)result;
+}
+
+
+
+int fp16_lround(fp16_t x, uint8_t xfrac)
+{
+   int32_t result = x;
+
+   if (xfrac == 0 )
+   {
+      return x;
+   }
+
+   if( x < 0 )
+   {
+      result = -result;
+      result += (1<<(xfrac-1));
+      result>>=xfrac;
+      result = -result;
+   }
+   else
+   {
+      result += (1<<(xfrac-1));
+      result>>=xfrac;
+   }
+
+
+   fp16_sat_m(result);
+   return (fp16_t)result;
+
+}
+
+
+
+
+
+fp16_t fp16_sqrt(fp16_t s, uint8_t sfrac)
+{
+	/* https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method */
+
+	if ( s == 0 )
+	{
+		return 0;
+	}
+
+    if ( fp16_signbit(s) )
+    {
+        errno = EDOM;
+        return 0;
+    }
+
+
+	int32_t x = 1<<sfrac;
+
+	for (int i = 0; i <= 10; i++)
+	{
+		x = (x+((s<<sfrac)/x));
+		fp16_rshift_m(x,1);
+	}
+
+	fp16_sat_m(x);
+	return x;
+}
+
+fp16_t lerp(fp16_t v0, fp16_t v1, fp16_t t) {
+
+
+
+  return v0 + t * (v1 - v0);
+}
+
+
+const int16_t fp16_sin_tab [] = {
+#if ( FP16_TRIG_TAB_SIZE  == 16 )
+0,
+-6270,
+-11585,
+-15137,
+-16384,
+-15137,
+-11585,
+-6270,
+0,
+6270,
+11585,
+15137,
+16384,
+15137,
+11585,
+6270,
+0,
+-6270,
+-11585,
+-15137,
+-16384,
+#elif ( FP16_TRIG_TAB_SIZE  == 32 )
+0,
+-3196,
+-6270,
+-9102,
+-11585,
+-13623,
+-15137,
+-16069,
+-16384,
+-16069,
+-15137,
+-13623,
+-11585,
+-9102,
+-6270,
+-3196,
+0,
+3196,
+6270,
+9102,
+11585,
+13623,
+15137,
+16069,
+16384,
+16069,
+15137,
+13623,
+11585,
+9102,
+6270,
+3196,
+0,
+-3196,
+-6270,
+-9102,
+-11585,
+-13623,
+-15137,
+-16069,
+-16384,
+-16069,
+#elif ( FP16_TRIG_TAB_SIZE  == 64 )
+0,
+-1606,
+-3196,
+-4756,
+-6270,
+-7723,
+-9102,
+-10394,
+-11585,
+-12665,
+-13623,
+-14449,
+-15137,
+-15679,
+-16069,
+-16305,
+-16384,
+-16305,
+-16069,
+-15679,
+-15137,
+-14449,
+-13623,
+-12665,
+-11585,
+-10394,
+-9102,
+-7723,
+-6270,
+-4756,
+-3196,
+-1606,
+0,
+1606,
+3196,
+4756,
+6270,
+7723,
+9102,
+10394,
+11585,
+12665,
+13623,
+14449,
+15137,
+15679,
+16069,
+16305,
+16384,
+16305,
+16069,
+15679,
+15137,
+14449,
+13623,
+12665,
+11585,
+10394,
+9102,
+7723,
+6270,
+4756,
+3196,
+1606,
+0,
+-1606,
+-3196,
+-4756,
+-6270,
+-7723,
+-9102,
+-10394,
+-11585,
+-12665,
+-13623,
+-14449,
+-15137,
+-15679,
+-16069,
+-16305,
+-16384,
+#else
+#error "Unknown value for FP16_SIN_TAB_SIZE"
+#endif /*FP16_TRIG_SIN_TAB_SIZE*/
+};
+
+const int16_t *fp16_cos_tab = &fp16_sin_tab[FP16_TRIG_TAB_SIZE/4];
+
+
+
+
+/*!
+    \brief      Computes sine or cosine of a provided angle
+    \details    Computes sine or cosine of a provided angle. The angle must be fixed point number in Q1.15 format.
+                The allowed range is from -1.0 to 0.999969482421875, representing an angle from
+                -PI to +PI in radians minus the fraction caused by the last LSB up to +PI.
+
+                The result returned is of fixed point type Q14 [-1.0,+1.0]
+
+    \param    fp        The angle must be fixed point number in Q1.15 format [-1.0,+1.0-LSB]
+    \param    tab       Table to use (either cos or sin)
+
+    \returns The result returned is of fixed point type Q2.14 [-1.0,+1.0]
+*/
+fp16_t fp16_sin_cos_helper(fp16_t fp, const int16_t *tab)
+{
+    uint32_t x1,x0;
+    uint16_t x;
+    uint8_t idx0,idx1;
+
+
+    /* adjust int16_t to uin16_t for indexing */
+    x = fp - INT16_MIN;
+
+    /* Get indexes of enclosing points */
+    idx0 = x / FP16_TRIG_SIN_TAB_RES;
+    idx1 = idx0 + 1;
+
+    /* Compute x-values of enclosing points */
+    x0 = idx0*FP16_TRIG_SIN_TAB_RES;
+    x1 = idx1*FP16_TRIG_SIN_TAB_RES;
+
+    /* Compute sine and adjust result
+
+        Linear interpolation :
+        y = y0+t*(y1-y0)
+        t = (x-x0)/(x1-x0)
+    */
+
+    return tab[idx0]+
+            ((x-x0)*(tab[idx1]-tab[idx0]))
+            /(x1-x0);
+}
+
+/*!
+    \brief      Computes tangens of a provided angle
+    \details    Computes tanges of a provided angle. The angle must be fixed point number in Q1.15 format.
+                The allowed range is from -1.0 to 0.999969482421875, representing an angle from
+                -PI to +PI in radians minus the fraction caused by the last LSB up to +PI.
+
+                If a domain error occurs, the global variable errno is set to EDOM.
+
+                The result returned is of fixed point type specified by parameter frac
+
+    \param    fp        The angle must be fixed point number in Q1.15 format [-1.0,+1.0-LSB]
+    \param    fract     Fractional bits of the result
+
+    \returns The result returned is of fixed point type with fractional bits as defined by frac parameter
+*/
+fp16_t fp16_tan(fp16_t fp, uint8_t frac)
+{
+    int32_t result;
+
+    /* avoid division by zero */
+    if(fp ==  FP16_TRIG_Q15_ONE_HALF )
+    {
+        errno = EDOM;
+        return INT16_MAX;
+    }
+
+    /* avoid division by zero */
+    if(fp ==  FP16_TRIG_Q15_MINUS_ONE_HALF )
+    {
+        errno = EDOM;
+        return INT16_MIN;
+    }
+
+    result = (fp16_sin(fp)<<FP16_Q15)/fp16_cos(fp);
+    fp16_shift_m(result,FP16_Q15-frac);
+    fp16_sat_m(result);
+    return (fp16_t)result;
+}
+
+
+const int16_t fp16_asin_tab [] = {
+#if ( FP16_TRIG_TAB_SIZE  == 16 )
+-25736,
+-17456,
+-13895,
+-11061,
+-8579,
+-6298,
+-4140,
+-2053,
+0,
+2053,
+4140,
+6298,
+8579,
+11061,
+13895,
+17456,
+25736,
+#elif ( FP16_TRIG_TAB_SIZE  == 32 )
+-25736,
+-19913,
+-17456,
+-15539,
+-13895,
+-12420,
+-11061,
+-9788,
+-8579,
+-7419,
+-6298,
+-5207,
+-4140,
+-3090,
+-2053,
+-1025,
+0,
+1025,
+2053,
+3090,
+4140,
+5207,
+6298,
+7419,
+8579,
+9788,
+11061,
+12420,
+13895,
+15539,
+17456,
+19913,
+25736,
+#elif ( FP16_TRIG_TAB_SIZE  == 64 )
+-25736,
+-21629,
+-19913,
+-18585,
+-17456,
+-16453,
+-15539,
+-14691,
+-13895,
+-13140,
+-12420,
+-11728,
+-11061,
+-10415,
+-9788,
+-9176,
+-8579,
+-7993,
+-7419,
+-6854,
+-6298,
+-5749,
+-5207,
+-4671,
+-4140,
+-3613,
+-3090,
+-2571,
+-2053,
+-1538,
+-1025,
+-512,
+0,
+512,
+1025,
+1538,
+2053,
+2571,
+3090,
+3613,
+4140,
+4671,
+5207,
+5749,
+6298,
+6854,
+7419,
+7993,
+8579,
+9176,
+9788,
+10415,
+11061,
+11728,
+12420,
+13140,
+13895,
+14691,
+15539,
+16453,
+17456,
+18585,
+19913,
+21629,
+25736,
+#else
+#error "Unknown value for FP16_SIN_TAB_SIZE"
+#endif /*FP16_TRIG_SIN_TAB_SIZE*/
+};
+
+
+
+
+fp16_t fp16_asin(fp16_t fp)
+{
+
+    uint32_t x1,x0;
+    uint16_t x;
+    uint8_t idx0,idx1;
+
+
+    if(fp > FP16_TRIG_Q14_ONE )
+    {
+        errno = EDOM;
+        return FP16_Q14_M_PI_2;
+    }
+
+
+    if(fp < FP16_TRIG_Q14_MINUS_ONE)
+    {
+        errno = EDOM;
+        return -FP16_Q14_M_PI_2;
+    }
+
+    /* adjust int16_t to uin16_t for indexing */
+    x = fp - FP16_TRIG_Q14_MINUS_ONE;
+
+    /* Get indexes of enclosing points */
+    idx0 = x / FP16_TRIG_ASIN_TAB_RES;
+    idx1 = idx0 + 1;
+
+    /* Compute x-values of enclosing points */
+    x0 = idx0*FP16_TRIG_ASIN_TAB_RES;
+    x1 = idx1*FP16_TRIG_ASIN_TAB_RES;
+
+    /* Compute sine and adjust result
+
+        Linear interpolation :
+        y = y0+t*(y1-y0)
+        t = (x-x0)/(x1-x0)
+    */
+
+    return fp16_asin_tab[idx0]+
+            ((x-x0)*(fp16_asin_tab[idx1]-fp16_asin_tab[idx0]))
+            /(x1-x0);
+}
+
+fp16_t fp16_atan(fp16_t fp, uint8_t frac)
+{
+
+    // atan(x) = asin(x/sqrt(1+x*x))
+
+    int32_t result = fp*fp;
+    fp16_rshift_m(result,frac);
+    result += (1<<frac);
+    fp16_sat_m(result);
+    result = (fp<<frac)/fp16_sqrt(result,frac);
+    fp16_sat_m(result);
+    return fp16_asin(fp16_fp2fp(result,frac,FP16_Q14));
+}
+
+fp16_t fp16_copysign(fp16_t x, fp16_t y)
+{
+   int32_t result = abs((int32_t)x);
+
+   if(fp16_signbit(y))
+   {
+      result = -result;
+   }
+
+   fp16_sat_m(result);
+
+   return (fp16_t)result;
+}
+
+
+
+
+/*!
+    \brief      Compute absolute value
+    \details    Returns the absolute value of x: |x|.
+
+
+    \param      x
+    \returns     absolute value of x
+
+*/
+fp16_t fp16_fabs (fp16_t x)
+{
+   int32_t result = (x < 0) ? (-(int32_t)x) : ((int32_t)x);
+   fp16_sat_m(result);
+   return result;
+}
+
+
+/*!
+    \brief      Compute absolute value (operates on int values)
+    \details    Returns the absolute value of x: |int(x)|.
+
+
+    \param     x
+    \returns   absolute value of int(x)
+
+*/
+fp16_t fp16_abs (fp16_t x, uint8_t frac)
+{
+   int32_t result = (x < 0) ? (-(int32_t)x) : ((int32_t)x);
+   result&=~((1<<frac)-1);
+   fp16_sat_m(result);
+   return result;
+}
+
+
+
+
+
+
+/*!
+    \brief      Multiply-add
+    \details    Returns x*y+z.
+
+    \param     x
+    \param     xfrac
+    \param     y
+    \param     yfrac
+    \param     z
+    \param     zfrac
+
+    \returns   x*y+z with fractional bits of z
+
+*/
+fp16_t fp16_fma (fp16_t x, uint8_t xfrac, fp16_t y, uint8_t yfrac, fp16_t z, uint8_t zfrac)
+{
+   int32_t result;
+   result = (int32_t)x*(int32_t)y;
+   fp16_shift_m(result,xfrac+yfrac-zfrac);
+   result += z;
+   fp16_sat_m(result);
+   return (fp16_t)result;
+}
+
