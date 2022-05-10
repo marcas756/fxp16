@@ -843,6 +843,11 @@ UNITTEST_TESTCASE(fp16_acos)
     }
 }
 
+
+
+
+
+
 UNITTEST_TESTCASE(fp16_atan)
 {
     for (float flt = fp16_props[FP16_Q11].min; flt <= fp16_props[FP16_Q11].max  ; flt+=fp16_props[FP16_Q11].prec)
@@ -860,6 +865,37 @@ UNITTEST_TESTCASE(fp16_atan)
         // UNITTEST_PRINTF("%0.15f\n",fp16_fp2flt(fp,FP16_Q14));
     }
 }
+
+
+
+#define EXP_MAX_ERR_POS     2.203499
+#define EXP_MAX_ERR_NEG     0.007813
+
+
+UNITTEST_TESTCASE(fp16_exp)
+{
+    for (float flt = fp16_props[FP16_Q8].min; flt <= fp16_props[FP16_Q8].max  ; flt+=fp16_props[FP16_Q8].prec)
+    {
+        fp16_t fp = fp16_flt2fp(flt,FP16_Q8);
+        fp = fp16_exp(fp,FP16_Q8);
+
+        if (flt > 0)
+        {
+            UNITTEST_ASSERT("Unexpected result",fabs(f_saturate(exp(flt),fp16_props[FP16_Q8].min,fp16_props[FP16_Q8].max)-fp16_fp2flt(fp,FP16_Q8)) <= EXP_MAX_ERR_POS);
+
+        }
+        else
+        {
+            UNITTEST_ASSERT("Unexpected result",fabs(f_saturate(exp(flt),fp16_props[FP16_Q8].min,fp16_props[FP16_Q8].max)-fp16_fp2flt(fp,FP16_Q8)) <= EXP_MAX_ERR_NEG);
+        }
+
+        //UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,f_saturate(exp(flt),fp16_props[FP16_Q8].min,fp16_props[FP16_Q8].max),fp16_fp2flt(fp,FP16_Q8));
+
+    }
+}
+
+
+
 
 /* add additional unit test cases here */
 
@@ -891,7 +927,9 @@ UNITTEST_TESTSUITE(fp16)
    UNITTEST_EXEC_TESTCASE(fp16_cos);
    UNITTEST_EXEC_TESTCASE(fp16_asin);
    UNITTEST_EXEC_TESTCASE(fp16_acos);
-   UNITTEST_EXEC_TESTCASE(fp16_atan);
+   //UNITTEST_EXEC_TESTCASE(fp16_atan);
+    UNITTEST_EXEC_TESTCASE(fp16_exp);
+
 
 #else
 

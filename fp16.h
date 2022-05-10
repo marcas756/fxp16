@@ -372,6 +372,8 @@
 #define FP16_TRIG_Q14_ONE               (16384)
 #define FP16_TRIG_Q14_MINUS_ONE         (-16384)
 
+#define FP16_EXP_TAYLOR_ORDER           10
+
 typedef int16_t fp16_t; /*!< Type can be used for all Q configurations */
 
 
@@ -557,6 +559,12 @@ fp16_t fp16_tan(fp16_t fp, uint8_t frac);
 fp16_t fp16_asin(fp16_t fp);
 #define fp16_acos(fp) (FP16_Q13_M_PI_2 - fp16_fp2fp(fp16_asin(fp),FP16_Q14,FP16_Q13))
 fp16_t fp16_atan(fp16_t fp, uint8_t frac);
+
+
+
+fp16_t fp16_exp(fp16_t fp, uint8_t frac);
+fp16_t fp16_ln(fp16_t fp, uint8_t frac);
+
 
 
 /* Rounding and remainder functions */

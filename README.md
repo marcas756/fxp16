@@ -84,7 +84,7 @@ Trailing 0 indicates no failed testcases
 
 Testrun :
 
-<UTTSB> fp16 "../unittest_fp16.c" "Apr 27 2022" "18:49:55"
+<UTTSB> fp16 "../unittest_fp16.c" "May 10 2022" "18:51:29"
 <UTTCB> fp16 fp16_check_shiftops
 <UTTCE> fp16 fp16_check_shiftops 0
 <UTTCB> fp16 fp16_precision
@@ -119,5 +119,11 @@ Testrun :
 <UTTCE> fp16 fp16_cos 0
 <UTTCB> fp16 fp16_asin
 <UTTCE> fp16 fp16_asin 0
+<UTTCB> fp16 fp16_acos
+<UTTCE> fp16 fp16_acos 0
+<UTTCB> fp16 fp16_exp
+<UTTCE> fp16 fp16_exp 0
 <UTTSE> fp16 0
+
+
 ```

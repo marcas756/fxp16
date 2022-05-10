@@ -38,6 +38,7 @@
 #include <math.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 
 
@@ -372,6 +373,8 @@ int fp16_lround(fp16_t x, uint8_t xfrac)
 fp16_t fp16_sqrt(fp16_t s, uint8_t sfrac)
 {
 	/* https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method */
+    // x[n+1] = (x[n] + s/x[n])/2
+
 
 	if ( s == 0 )
 	{
@@ -385,12 +388,12 @@ fp16_t fp16_sqrt(fp16_t s, uint8_t sfrac)
     }
 
 
-	int32_t x = 1<<sfrac;
+	int32_t x = 1<<sfrac; // start with 1.0
 
 	for (int i = 0; i <= 10; i++)
 	{
-		x = (x+((s<<sfrac)/x));
-		fp16_rshift_m(x,1);
+		x = (x+((s<<sfrac)/x));     //  x[n] + s/x[n]
+		fp16_rshift_m(x,1);         //  /2
 	}
 
 	fp16_sat_m(x);
@@ -554,8 +557,8 @@ const int16_t fp16_sin_tab [] = {
 -16305,
 -16384,
 #else
-#error "Unknown value for FP16_SIN_TAB_SIZE"
-#endif /*FP16_TRIG_SIN_TAB_SIZE*/
+#error "Unknown value for FP16_TRIG_TAB_SIZE"
+#endif /*FP16_TRIG_TAB_SIZE*/
 };
 
 const int16_t *fp16_cos_tab = &fp16_sin_tab[FP16_TRIG_TAB_SIZE/4];
@@ -766,8 +769,8 @@ const int16_t fp16_asin_tab [] = {
 21629,
 25736,
 #else
-#error "Unknown value for FP16_SIN_TAB_SIZE"
-#endif /*FP16_TRIG_SIN_TAB_SIZE*/
+#error "Unknown value for FP16_TRIG_TAB_SIZE"
+#endif /*FP16_TRIG_TAB_SIZE*/
 };
 
 
@@ -817,19 +820,59 @@ fp16_t fp16_asin(fp16_t fp)
             /(x1-x0);
 }
 
+/* unprecise */
 fp16_t fp16_atan(fp16_t fp, uint8_t frac)
 {
 
     // atan(x) = asin(x/sqrt(1+x*x))
 
-    int32_t result = fp*fp;
+    int32_t result = fp*fp+(1<<(2*frac));
     fp16_rshift_m(result,frac);
-    result += (1<<frac);
     fp16_sat_m(result);
     result = (fp<<frac)/fp16_sqrt(result,frac);
     fp16_sat_m(result);
     return fp16_asin(fp16_fp2fp(result,frac,FP16_Q14));
 }
+
+
+fp16_t fp16_exp(fp16_t fp, uint8_t frac)
+{
+    fp16_t one = 1<<frac;
+    int32_t result = one;
+    bool neg = false;
+
+    if(fp16_signbit(fp))
+    {
+        neg = true;
+        fp = fp16_copysign(fp,1);
+    }
+
+    int32_t fpshifted = fp<<frac;
+
+
+    for (uint8_t k = FP16_EXP_TAYLOR_ORDER; k > 0; k--)
+    {
+        result *= fpshifted/(k<<frac);
+        fp16_rshift_m(result,frac);
+        result += one;
+        fp16_sat_m(result);
+    }
+
+    if(neg)
+    {
+        return (one<<frac)/result; /* 1/e^abs(x) */
+    }
+
+
+    return result; /* e^abs(x)  */
+}
+
+
+
+
+
+
+
 
 fp16_t fp16_copysign(fp16_t x, fp16_t y)
 {
@@ -881,10 +924,6 @@ fp16_t fp16_abs (fp16_t x, uint8_t frac)
    fp16_sat_m(result);
    return result;
 }
-
-
-
-
 
 
 /*!
