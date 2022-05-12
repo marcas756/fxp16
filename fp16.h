@@ -564,7 +564,8 @@ fp16_t fp16_atan(fp16_t fp, uint8_t frac);
 
 fp16_t fp16_exp(fp16_t fp, uint8_t frac);
 fp16_t fp16_log(fp16_t fp, uint8_t frac);
-
+fp16_t fp16_log10(fp16_t x, uint8_t frac);
+fp16_t fp16_log2(fp16_t x, uint8_t frac);
 
 
 /* Rounding and remainder functions */

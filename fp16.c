@@ -881,7 +881,7 @@ If x is zero, it may cause a pole error (depending on the library implementation
 // which has cubic convergence to ln(x).
 fp16_t fp16_log(fp16_t x, uint8_t frac)
 {
-    int32_t y = 0;
+    fp16_t y = 0;
 
     /* If x is negative, it causes a domain error. */
     if ( x < 0 )
@@ -900,16 +900,25 @@ fp16_t fp16_log(fp16_t x, uint8_t frac)
     for (uint8_t n = 0; n < 4; n++)
     {
         fp16_t exp_y = fp16_exp(y,frac);
-        y+= ((x-exp_y)<<(frac+1))/(x+exp_y);
+        y += ((x-exp_y)<<(frac+1))/(x+exp_y);
     }
 
-    fp16_sat_m(y);
 
     return y;
 }
 
 
 
+fp16_t fp16_log10(fp16_t x, uint8_t frac)
+{
+  return (fp16_log(x,frac)<<frac)/fp16_log(10<<frac,frac);
+}
+
+
+fp16_t fp16_log2(fp16_t x, uint8_t frac)
+{
+  return (fp16_log(x,frac)<<frac)/fp16_log(2<<frac,frac);
+}
 
 
 
