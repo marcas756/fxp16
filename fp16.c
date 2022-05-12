@@ -837,7 +837,8 @@ fp16_t fp16_atan(fp16_t fp, uint8_t frac)
 
 fp16_t fp16_exp(fp16_t fp, uint8_t frac)
 {
-    fp16_t one = 1<<frac;
+    const fp16_t one = 1<<frac;
+
     int32_t result = one;
     bool neg = false;
 
@@ -848,7 +849,6 @@ fp16_t fp16_exp(fp16_t fp, uint8_t frac)
     }
 
     int32_t fpshifted = fp<<frac;
-
 
     for (uint8_t k = FP16_EXP_TAYLOR_ORDER; k > 0; k--)
     {
@@ -868,6 +868,45 @@ fp16_t fp16_exp(fp16_t fp, uint8_t frac)
 }
 
 
+/*
+Natural logarithm of x.
+If x is negative, it causes a domain error.
+If x is zero, it may cause a pole error (depending on the library implementation).
+ */
+//To compute the natural logarithm with many digits of precision, the Taylor series approach is not efficient since the convergence is slow. Especially if x is near 1, a good alternative is to use Halley's method or Newton's method to invert the exponential function, because the series of the exponential function converges more quickly. For finding the value of y to give exp(y) − x = 0 using Halley's method, or equivalently to give exp(y/2) − x exp(−y/2) = 0 using Newton's method, the iteration simplifies to
+// {\displaystyle y_{n+1}=y_{n}+2\cdot {\frac {x-\exp(y_{n})}{x+\exp(y_{n})}}}
+
+//Occording to Wikipedia, there is the Halley-Newton approximation method
+// Using Newton's method, the iteration simplifies to (implementation)
+// which has cubic convergence to ln(x).
+fp16_t fp16_log(fp16_t x, uint8_t frac)
+{
+    int32_t y = 0;
+
+    /* If x is negative, it causes a domain error. */
+    if ( x < 0 )
+    {
+       errno = EDOM;
+       return INT16_MIN;
+    }
+
+    /* If x is zero, it may cause a pole error  */
+    if ( x == 0 )
+    {
+       errno = ERANGE;
+       return INT16_MIN;
+    }
+
+    for (uint8_t n = 0; n < 4; n++)
+    {
+        fp16_t exp_y = fp16_exp(y,frac);
+        y+= ((x-exp_y)<<(frac+1))/(x+exp_y);
+    }
+
+    fp16_sat_m(y);
+
+    return y;
+}
 
 
 

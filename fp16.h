@@ -563,7 +563,7 @@ fp16_t fp16_atan(fp16_t fp, uint8_t frac);
 
 
 fp16_t fp16_exp(fp16_t fp, uint8_t frac);
-fp16_t fp16_ln(fp16_t fp, uint8_t frac);
+fp16_t fp16_log(fp16_t fp, uint8_t frac);
 
 
 

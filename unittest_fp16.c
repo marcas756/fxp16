@@ -895,6 +895,21 @@ UNITTEST_TESTCASE(fp16_exp)
 }
 
 
+#define LOG_MAX_ERR 0.3220100403
+
+UNITTEST_TESTCASE(fp16_log)
+{
+    for (float flt = fp16_props[FP16_Q8].prec; flt <= fp16_props[FP16_Q8].max  ; flt+=fp16_props[FP16_Q8].prec)
+    {
+        fp16_t fp = fp16_flt2fp(flt,FP16_Q8);
+        fp = fp16_log(fp,FP16_Q8);
+
+        UNITTEST_ASSERT("Unexpected result",fabs(f_saturate(log(flt),fp16_props[FP16_Q8].min,fp16_props[FP16_Q8].max)-fp16_fp2flt(fp,FP16_Q8)) <= LOG_MAX_ERR);
+
+        //UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,f_saturate(log(flt),fp16_props[FP16_Q8].min,fp16_props[FP16_Q8].max),fp16_fp2flt(fp,FP16_Q8));
+
+    }
+}
 
 
 /* add additional unit test cases here */
@@ -929,6 +944,7 @@ UNITTEST_TESTSUITE(fp16)
    UNITTEST_EXEC_TESTCASE(fp16_acos);
    //UNITTEST_EXEC_TESTCASE(fp16_atan);
     UNITTEST_EXEC_TESTCASE(fp16_exp);
+    UNITTEST_EXEC_TESTCASE(fp16_log);
 
 
 #else
