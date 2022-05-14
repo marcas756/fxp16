@@ -408,206 +408,38 @@ fp16_t lerp(fp16_t v0, fp16_t v1, fp16_t t) {
 }
 
 
-const int16_t fp16_sin_tab [] = {
-#if ( FP16_TRIG_TAB_SIZE  == 16 )
-0,
--6270,
--11585,
--15137,
--16384,
--15137,
--11585,
--6270,
-0,
-6270,
-11585,
-15137,
-16384,
-15137,
-11585,
-6270,
-0,
--6270,
--11585,
--15137,
--16384,
-#elif ( FP16_TRIG_TAB_SIZE  == 32 )
-0,
--3196,
--6270,
--9102,
--11585,
--13623,
--15137,
--16069,
--16384,
--16069,
--15137,
--13623,
--11585,
--9102,
--6270,
--3196,
-0,
-3196,
-6270,
-9102,
-11585,
-13623,
-15137,
-16069,
-16384,
-16069,
-15137,
-13623,
-11585,
-9102,
-6270,
-3196,
-0,
--3196,
--6270,
--9102,
--11585,
--13623,
--15137,
--16069,
--16384,
--16069,
-#elif ( FP16_TRIG_TAB_SIZE  == 64 )
-0,
--1606,
--3196,
--4756,
--6270,
--7723,
--9102,
--10394,
--11585,
--12665,
--13623,
--14449,
--15137,
--15679,
--16069,
--16305,
--16384,
--16305,
--16069,
--15679,
--15137,
--14449,
--13623,
--12665,
--11585,
--10394,
--9102,
--7723,
--6270,
--4756,
--3196,
--1606,
-0,
-1606,
-3196,
-4756,
-6270,
-7723,
-9102,
-10394,
-11585,
-12665,
-13623,
-14449,
-15137,
-15679,
-16069,
-16305,
-16384,
-16305,
-16069,
-15679,
-15137,
-14449,
-13623,
-12665,
-11585,
-10394,
-9102,
-7723,
-6270,
-4756,
-3196,
-1606,
-0,
--1606,
--3196,
--4756,
--6270,
--7723,
--9102,
--10394,
--11585,
--12665,
--13623,
--14449,
--15137,
--15679,
--16069,
--16305,
--16384,
-#else
-#error "Unknown value for FP16_TRIG_TAB_SIZE"
-#endif /*FP16_TRIG_TAB_SIZE*/
-};
-
-const int16_t *fp16_cos_tab = &fp16_sin_tab[FP16_TRIG_TAB_SIZE/4];
 
 
 
 
-/*!
-    \brief      Computes sine or cosine of a provided angle
-    \details    Computes sine or cosine of a provided angle. The angle must be fixed point number in Q1.15 format.
-                The allowed range is from -1.0 to 0.999969482421875, representing an angle from
-                -PI to +PI in radians minus the fraction caused by the last LSB up to +PI.
-
-                The result returned is of fixed point type Q14 [-1.0,+1.0]
-
-    \param    fp        The angle must be fixed point number in Q1.15 format [-1.0,+1.0-LSB]
-    \param    tab       Table to use (either cos or sin)
-
-    \returns The result returned is of fixed point type Q2.14 [-1.0,+1.0]
-*/
-fp16_t fp16_sin_cos_helper(fp16_t fp, const int16_t *tab)
+fp16_t fp16_sin(fp16_t fp)
 {
-    uint32_t x1,x0;
-    uint16_t x;
-    uint8_t idx0,idx1;
 
+    int64_t nom;
+    int32_t x = fp16_signbit(fp)?(-fp):(fp);
 
-    /* adjust int16_t to uin16_t for indexing */
-    x = fp - INT16_MIN;
+    /* Bhaskara I approximation */
+    /* https://datagenetics.com/blog/july12019/index.html */
+    x = (x*FP16_Q13_M_PI)>>FP16_Q15; //Q13
+    nom = ((FP16_Q13_M_PI-x)*x)>>FP16_Q11; //Q13
+    x = 5*((FP16_Q13_M_PI*FP16_Q13_M_PI)>>FP16_Q13)-nom; //Q13
+    x = (nom<<(FP16_Q14+2))/x; //Q14
 
-    /* Get indexes of enclosing points */
-    idx0 = x / FP16_TRIG_SIN_TAB_RES;
-    idx1 = idx0 + 1;
-
-    /* Compute x-values of enclosing points */
-    x0 = idx0*FP16_TRIG_SIN_TAB_RES;
-    x1 = idx1*FP16_TRIG_SIN_TAB_RES;
-
-    /* Compute sine and adjust result
-
-        Linear interpolation :
-        y = y0+t*(y1-y0)
-        t = (x-x0)/(x1-x0)
-    */
-
-    return tab[idx0]+
-            ((x-x0)*(tab[idx1]-tab[idx0]))
-            /(x1-x0);
+    return (fp16_t)fp16_signbit(fp)?(-x):(x);
 }
+
+fp16_t fp16_cos(fp16_t fp)
+{
+    int32_t x = fp+FP16_Q15_ONE_HALF;
+
+    if( x > INT16_MAX )
+    {
+        x -= UINT16_MAX;
+    }
+
+    return fp16_sin((fp16_t)x);
+}
+
 
 /*!
     \brief      Computes tangens of a provided angle
@@ -868,19 +700,23 @@ fp16_t fp16_exp(fp16_t fp, uint8_t frac)
 }
 
 
-/*
-Natural logarithm of x.
-If x is negative, it causes a domain error.
-If x is zero, it may cause a pole error (depending on the library implementation).
- */
-//To compute the natural logarithm with many digits of precision, the Taylor series approach is not efficient since the convergence is slow. Especially if x is near 1, a good alternative is to use Halley's method or Newton's method to invert the exponential function, because the series of the exponential function converges more quickly. For finding the value of y to give exp(y) − x = 0 using Halley's method, or equivalently to give exp(y/2) − x exp(−y/2) = 0 using Newton's method, the iteration simplifies to
-// {\displaystyle y_{n+1}=y_{n}+2\cdot {\frac {x-\exp(y_{n})}{x+\exp(y_{n})}}}
 
-//Occording to Wikipedia, there is the Halley-Newton approximation method
-// Using Newton's method, the iteration simplifies to (implementation)
-// which has cubic convergence to ln(x).
 fp16_t fp16_log(fp16_t x, uint8_t frac)
 {
+
+    /*
+    Natural logarithm of x.
+    If x is negative, it causes a domain error.
+    If x is zero, it may cause a pole error (depending on the library implementation).
+     */
+    //To compute the natural logarithm with many digits of precision, the Taylor series approach is not efficient since the convergence is slow. Especially if x is near 1, a good alternative is to use Halley's method or Newton's method to invert the exponential function, because the series of the exponential function converges more quickly. For finding the value of y to give exp(y) − x = 0 using Halley's method, or equivalently to give exp(y/2) − x exp(−y/2) = 0 using Newton's method, the iteration simplifies to
+    // {\displaystyle y_{n+1}=y_{n}+2\cdot {\frac {x-\exp(y_{n})}{x+\exp(y_{n})}}}
+
+    //Occording to Wikipedia, there is the Halley-Newton approximation method
+    // Using Newton's method, the iteration simplifies to (implementation)
+    // which has cubic convergence to ln(x).
+
+
     fp16_t y = 0;
 
     /* If x is negative, it causes a domain error. */
@@ -897,7 +733,7 @@ fp16_t fp16_log(fp16_t x, uint8_t frac)
        return INT16_MIN;
     }
 
-    for (uint8_t n = 0; n < 4; n++)
+    for (uint8_t n = 0; n < FP16_LOG_TAYLOR_ORDER; n++)
     {
         fp16_t exp_y = fp16_exp(y,frac);
         y += ((x-exp_y)<<(frac+1))/(x+exp_y);

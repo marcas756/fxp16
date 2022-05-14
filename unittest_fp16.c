@@ -732,33 +732,27 @@ UNITTEST_TESTCASE(fp16_sqrt)
     }
 }
 
-#if ( FP16_TRIG_TAB_SIZE  == 64 )
-    #define SIN_MAX_ERR 0.001264923027
-#elif ( FP16_TRIG_TAB_SIZE  == 32 )
-    #define SIN_MAX_ERR 0.0048564320224
-#elif ( FP16_TRIG_TAB_SIZE  == 16 )
-    #define SIN_MAX_ERR 0.018901254405
-#else
-#error "Unknown value for FP16_TRIG_TAB_SIZE"
-#endif
 
+#define SIN_MAX_ERR 0.00174436
 
 
 UNITTEST_TESTCASE(fp16_sin)
 {
 
-    for (float flt = fp16_props[FP16_Q15].min; flt <= fp16_props[FP16_Q15].max  ; flt+=fp16_props[FP16_Q15].prec)
+    for (float flt = fp16_props[FP16_Q15].min; flt <= fp16_props[FP16_Q15].max; flt+=fp16_props[FP16_Q15].prec)
     {
         fp16_t fp = fp16_flt2fp(flt,FP16_Q15);
         fp = fp16_sin(fp);
 
         UNITTEST_ASSERT("Unexpected result",fabs(sin(flt*M_PI)-fp16_fp2flt(fp,FP16_Q14)) <= SIN_MAX_ERR);
 
-        if (fabs(sin(flt*M_PI)-fp16_fp2flt(fp,FP16_Q14)) > SIN_MAX_ERR)
-
-            UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,sin(flt*M_PI),fp16_fp2flt(fp,FP16_Q14));
+        //UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,sin(flt*M_PI),fp16_fp2flt(fp,FP16_Q14));
     }
 }
+
+
+#define COS_MAX_ERR 0.0018385
+
 
 UNITTEST_TESTCASE(fp16_cos)
 {
@@ -770,10 +764,10 @@ UNITTEST_TESTCASE(fp16_cos)
 
 
 
-        UNITTEST_ASSERT("Unexpected result",fabs(cos(flt*M_PI)-fp16_fp2flt(fp,FP16_Q14)) <= SIN_MAX_ERR);
+        UNITTEST_ASSERT("Unexpected result",fabs(cos(flt*M_PI)-fp16_fp2flt(fp,FP16_Q14)) <= COS_MAX_ERR);
 
-        if (fabs(cos(flt*M_PI)-fp16_fp2flt(fp,FP16_Q14)) > SIN_MAX_ERR)
-         UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,cos(flt*M_PI),fp16_fp2flt(fp,FP16_Q14));
+
+        // UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,cos(flt*M_PI),fp16_fp2flt(fp,FP16_Q14));
     }
 }
 

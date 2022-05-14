@@ -39,7 +39,6 @@
 
 #include <stdint.h>
 
-
 #define FP16_Q0             (0)
 #define FP16_Q0_PREC        (1)
 #define FP16_Q0_MAX     (32767)
@@ -58,6 +57,17 @@
 #define FP16_Q0_M_LOG10E        (0)          /* 0.0 */
 #define FP16_Q0_M_LN2       (1)          /* 1.0 */
 #define FP16_Q0_M_LN10      (2)          /* 2.0 */
+#define FP16_Q0_ONE_EIGHTH      (0)          /* 0.0 */
+#define FP16_Q0_ONE_QUARTER     (0)          /* 0.0 */
+#define FP16_Q0_THREE_EIGHTHS       (0)          /* 0.0 */
+#define FP16_Q0_ONE_HALF        (0)          /* 0.0 */
+#define FP16_Q0_FIVE_EIGHTHS        (1)          /* 1.0 */
+#define FP16_Q0_THREE_QUARTERS      (1)          /* 1.0 */
+#define FP16_Q0_SEVEN_EIGHTHS       (1)          /* 1.0 */
+#define FP16_Q0_ONE_THIRD       (0)          /* 0.0 */
+#define FP16_Q0_TWO_THRIDS      (1)          /* 1.0 */
+#define FP16_Q0_ONE     (1)          /* 1.0 */
+#define FP16_Q0_MINUS_ONE       (-1)             /* -1.0 */
 
 
 #define FP16_Q1             (1)
@@ -78,6 +88,17 @@
 #define FP16_Q1_M_LOG10E        (1)          /* 0.5 */
 #define FP16_Q1_M_LN2       (1)          /* 0.5 */
 #define FP16_Q1_M_LN10      (5)          /* 2.5 */
+#define FP16_Q1_ONE_EIGHTH      (0)          /* 0.0 */
+#define FP16_Q1_ONE_QUARTER     (0)          /* 0.0 */
+#define FP16_Q1_THREE_EIGHTHS       (1)          /* 0.5 */
+#define FP16_Q1_ONE_HALF        (1)          /* 0.5 */
+#define FP16_Q1_FIVE_EIGHTHS        (1)          /* 0.5 */
+#define FP16_Q1_THREE_QUARTERS      (2)          /* 1.0 */
+#define FP16_Q1_SEVEN_EIGHTHS       (2)          /* 1.0 */
+#define FP16_Q1_ONE_THIRD       (1)          /* 0.5 */
+#define FP16_Q1_TWO_THRIDS      (1)          /* 0.5 */
+#define FP16_Q1_ONE     (2)          /* 1.0 */
+#define FP16_Q1_MINUS_ONE       (-2)             /* -1.0 */
 
 
 #define FP16_Q2             (2)
@@ -98,6 +119,17 @@
 #define FP16_Q2_M_LOG10E        (2)          /* 0.5 */
 #define FP16_Q2_M_LN2       (3)          /* 0.75 */
 #define FP16_Q2_M_LN10      (9)          /* 2.25 */
+#define FP16_Q2_ONE_EIGHTH      (0)          /* 0.0 */
+#define FP16_Q2_ONE_QUARTER     (1)          /* 0.25 */
+#define FP16_Q2_THREE_EIGHTHS       (2)          /* 0.5 */
+#define FP16_Q2_ONE_HALF        (2)          /* 0.5 */
+#define FP16_Q2_FIVE_EIGHTHS        (2)          /* 0.5 */
+#define FP16_Q2_THREE_QUARTERS      (3)          /* 0.75 */
+#define FP16_Q2_SEVEN_EIGHTHS       (4)          /* 1.0 */
+#define FP16_Q2_ONE_THIRD       (1)          /* 0.25 */
+#define FP16_Q2_TWO_THRIDS      (3)          /* 0.75 */
+#define FP16_Q2_ONE     (4)          /* 1.0 */
+#define FP16_Q2_MINUS_ONE       (-4)             /* -1.0 */
 
 
 #define FP16_Q3             (3)
@@ -118,6 +150,17 @@
 #define FP16_Q3_M_LOG10E        (3)          /* 0.375 */
 #define FP16_Q3_M_LN2       (6)          /* 0.75 */
 #define FP16_Q3_M_LN10      (18)             /* 2.25 */
+#define FP16_Q3_ONE_EIGHTH      (1)          /* 0.125 */
+#define FP16_Q3_ONE_QUARTER     (2)          /* 0.25 */
+#define FP16_Q3_THREE_EIGHTHS       (3)          /* 0.375 */
+#define FP16_Q3_ONE_HALF        (4)          /* 0.5 */
+#define FP16_Q3_FIVE_EIGHTHS        (5)          /* 0.625 */
+#define FP16_Q3_THREE_QUARTERS      (6)          /* 0.75 */
+#define FP16_Q3_SEVEN_EIGHTHS       (7)          /* 0.875 */
+#define FP16_Q3_ONE_THIRD       (3)          /* 0.375 */
+#define FP16_Q3_TWO_THRIDS      (5)          /* 0.625 */
+#define FP16_Q3_ONE     (8)          /* 1.0 */
+#define FP16_Q3_MINUS_ONE       (-8)             /* -1.0 */
 
 
 #define FP16_Q4             (4)
@@ -138,6 +181,17 @@
 #define FP16_Q4_M_LOG10E        (7)          /* 0.4375 */
 #define FP16_Q4_M_LN2       (11)             /* 0.6875 */
 #define FP16_Q4_M_LN10      (37)             /* 2.3125 */
+#define FP16_Q4_ONE_EIGHTH      (2)          /* 0.125 */
+#define FP16_Q4_ONE_QUARTER     (4)          /* 0.25 */
+#define FP16_Q4_THREE_EIGHTHS       (6)          /* 0.375 */
+#define FP16_Q4_ONE_HALF        (8)          /* 0.5 */
+#define FP16_Q4_FIVE_EIGHTHS        (10)             /* 0.625 */
+#define FP16_Q4_THREE_QUARTERS      (12)             /* 0.75 */
+#define FP16_Q4_SEVEN_EIGHTHS       (14)             /* 0.875 */
+#define FP16_Q4_ONE_THIRD       (5)          /* 0.3125 */
+#define FP16_Q4_TWO_THRIDS      (11)             /* 0.6875 */
+#define FP16_Q4_ONE     (16)             /* 1.0 */
+#define FP16_Q4_MINUS_ONE       (-16)            /* -1.0 */
 
 
 #define FP16_Q5             (5)
@@ -158,6 +212,17 @@
 #define FP16_Q5_M_LOG10E        (14)             /* 0.4375 */
 #define FP16_Q5_M_LN2       (22)             /* 0.6875 */
 #define FP16_Q5_M_LN10      (74)             /* 2.3125 */
+#define FP16_Q5_ONE_EIGHTH      (4)          /* 0.125 */
+#define FP16_Q5_ONE_QUARTER     (8)          /* 0.25 */
+#define FP16_Q5_THREE_EIGHTHS       (12)             /* 0.375 */
+#define FP16_Q5_ONE_HALF        (16)             /* 0.5 */
+#define FP16_Q5_FIVE_EIGHTHS        (20)             /* 0.625 */
+#define FP16_Q5_THREE_QUARTERS      (24)             /* 0.75 */
+#define FP16_Q5_SEVEN_EIGHTHS       (28)             /* 0.875 */
+#define FP16_Q5_ONE_THIRD       (11)             /* 0.34375 */
+#define FP16_Q5_TWO_THRIDS      (21)             /* 0.65625 */
+#define FP16_Q5_ONE     (32)             /* 1.0 */
+#define FP16_Q5_MINUS_ONE       (-32)            /* -1.0 */
 
 
 #define FP16_Q6             (6)
@@ -178,6 +243,17 @@
 #define FP16_Q6_M_LOG10E        (28)             /* 0.4375 */
 #define FP16_Q6_M_LN2       (44)             /* 0.6875 */
 #define FP16_Q6_M_LN10      (147)            /* 2.296875 */
+#define FP16_Q6_ONE_EIGHTH      (8)          /* 0.125 */
+#define FP16_Q6_ONE_QUARTER     (16)             /* 0.25 */
+#define FP16_Q6_THREE_EIGHTHS       (24)             /* 0.375 */
+#define FP16_Q6_ONE_HALF        (32)             /* 0.5 */
+#define FP16_Q6_FIVE_EIGHTHS        (40)             /* 0.625 */
+#define FP16_Q6_THREE_QUARTERS      (48)             /* 0.75 */
+#define FP16_Q6_SEVEN_EIGHTHS       (56)             /* 0.875 */
+#define FP16_Q6_ONE_THIRD       (21)             /* 0.328125 */
+#define FP16_Q6_TWO_THRIDS      (43)             /* 0.671875 */
+#define FP16_Q6_ONE     (64)             /* 1.0 */
+#define FP16_Q6_MINUS_ONE       (-64)            /* -1.0 */
 
 
 #define FP16_Q7             (7)
@@ -198,6 +274,17 @@
 #define FP16_Q7_M_LOG10E        (56)             /* 0.4375 */
 #define FP16_Q7_M_LN2       (89)             /* 0.6953125 */
 #define FP16_Q7_M_LN10      (295)            /* 2.3046875 */
+#define FP16_Q7_ONE_EIGHTH      (16)             /* 0.125 */
+#define FP16_Q7_ONE_QUARTER     (32)             /* 0.25 */
+#define FP16_Q7_THREE_EIGHTHS       (48)             /* 0.375 */
+#define FP16_Q7_ONE_HALF        (64)             /* 0.5 */
+#define FP16_Q7_FIVE_EIGHTHS        (80)             /* 0.625 */
+#define FP16_Q7_THREE_QUARTERS      (96)             /* 0.75 */
+#define FP16_Q7_SEVEN_EIGHTHS       (112)            /* 0.875 */
+#define FP16_Q7_ONE_THIRD       (43)             /* 0.3359375 */
+#define FP16_Q7_TWO_THRIDS      (85)             /* 0.6640625 */
+#define FP16_Q7_ONE     (128)            /* 1.0 */
+#define FP16_Q7_MINUS_ONE       (-128)           /* -1.0 */
 
 
 #define FP16_Q8             (8)
@@ -218,6 +305,17 @@
 #define FP16_Q8_M_LOG10E        (111)            /* 0.43359375 */
 #define FP16_Q8_M_LN2       (177)            /* 0.69140625 */
 #define FP16_Q8_M_LN10      (589)            /* 2.30078125 */
+#define FP16_Q8_ONE_EIGHTH      (32)             /* 0.125 */
+#define FP16_Q8_ONE_QUARTER     (64)             /* 0.25 */
+#define FP16_Q8_THREE_EIGHTHS       (96)             /* 0.375 */
+#define FP16_Q8_ONE_HALF        (128)            /* 0.5 */
+#define FP16_Q8_FIVE_EIGHTHS        (160)            /* 0.625 */
+#define FP16_Q8_THREE_QUARTERS      (192)            /* 0.75 */
+#define FP16_Q8_SEVEN_EIGHTHS       (224)            /* 0.875 */
+#define FP16_Q8_ONE_THIRD       (85)             /* 0.33203125 */
+#define FP16_Q8_TWO_THRIDS      (171)            /* 0.66796875 */
+#define FP16_Q8_ONE     (256)            /* 1.0 */
+#define FP16_Q8_MINUS_ONE       (-256)           /* -1.0 */
 
 
 #define FP16_Q9             (9)
@@ -238,6 +336,17 @@
 #define FP16_Q9_M_LOG10E        (222)            /* 0.43359375 */
 #define FP16_Q9_M_LN2       (355)            /* 0.693359375 */
 #define FP16_Q9_M_LN10      (1179)           /* 2.302734375 */
+#define FP16_Q9_ONE_EIGHTH      (64)             /* 0.125 */
+#define FP16_Q9_ONE_QUARTER     (128)            /* 0.25 */
+#define FP16_Q9_THREE_EIGHTHS       (192)            /* 0.375 */
+#define FP16_Q9_ONE_HALF        (256)            /* 0.5 */
+#define FP16_Q9_FIVE_EIGHTHS        (320)            /* 0.625 */
+#define FP16_Q9_THREE_QUARTERS      (384)            /* 0.75 */
+#define FP16_Q9_SEVEN_EIGHTHS       (448)            /* 0.875 */
+#define FP16_Q9_ONE_THIRD       (171)            /* 0.333984375 */
+#define FP16_Q9_TWO_THRIDS      (341)            /* 0.666015625 */
+#define FP16_Q9_ONE     (512)            /* 1.0 */
+#define FP16_Q9_MINUS_ONE       (-512)           /* -1.0 */
 
 
 #define FP16_Q10            (10)
@@ -258,6 +367,17 @@
 #define FP16_Q10_M_LOG10E       (445)            /* 0.4345703125 */
 #define FP16_Q10_M_LN2      (710)            /* 0.693359375 */
 #define FP16_Q10_M_LN10     (2358)           /* 2.302734375 */
+#define FP16_Q10_ONE_EIGHTH     (128)            /* 0.125 */
+#define FP16_Q10_ONE_QUARTER        (256)            /* 0.25 */
+#define FP16_Q10_THREE_EIGHTHS      (384)            /* 0.375 */
+#define FP16_Q10_ONE_HALF       (512)            /* 0.5 */
+#define FP16_Q10_FIVE_EIGHTHS       (640)            /* 0.625 */
+#define FP16_Q10_THREE_QUARTERS     (768)            /* 0.75 */
+#define FP16_Q10_SEVEN_EIGHTHS      (896)            /* 0.875 */
+#define FP16_Q10_ONE_THIRD      (341)            /* 0.3330078125 */
+#define FP16_Q10_TWO_THRIDS     (683)            /* 0.6669921875 */
+#define FP16_Q10_ONE        (1024)           /* 1.0 */
+#define FP16_Q10_MINUS_ONE      (-1024)          /* -1.0 */
 
 
 #define FP16_Q11            (11)
@@ -278,6 +398,17 @@
 #define FP16_Q11_M_LOG10E       (889)            /* 0.43408203125 */
 #define FP16_Q11_M_LN2      (1420)           /* 0.693359375 */
 #define FP16_Q11_M_LN10     (4716)           /* 2.302734375 */
+#define FP16_Q11_ONE_EIGHTH     (256)            /* 0.125 */
+#define FP16_Q11_ONE_QUARTER        (512)            /* 0.25 */
+#define FP16_Q11_THREE_EIGHTHS      (768)            /* 0.375 */
+#define FP16_Q11_ONE_HALF       (1024)           /* 0.5 */
+#define FP16_Q11_FIVE_EIGHTHS       (1280)           /* 0.625 */
+#define FP16_Q11_THREE_QUARTERS     (1536)           /* 0.75 */
+#define FP16_Q11_SEVEN_EIGHTHS      (1792)           /* 0.875 */
+#define FP16_Q11_ONE_THIRD      (683)            /* 0.33349609375 */
+#define FP16_Q11_TWO_THRIDS     (1365)           /* 0.66650390625 */
+#define FP16_Q11_ONE        (2048)           /* 1.0 */
+#define FP16_Q11_MINUS_ONE      (-2048)          /* -1.0 */
 
 
 #define FP16_Q12            (12)
@@ -298,6 +429,17 @@
 #define FP16_Q12_M_LOG10E       (1779)           /* 0.434326171875 */
 #define FP16_Q12_M_LN2      (2839)           /* 0.693115234375 */
 #define FP16_Q12_M_LN10     (9431)           /* 2.302490234375 */
+#define FP16_Q12_ONE_EIGHTH     (512)            /* 0.125 */
+#define FP16_Q12_ONE_QUARTER        (1024)           /* 0.25 */
+#define FP16_Q12_THREE_EIGHTHS      (1536)           /* 0.375 */
+#define FP16_Q12_ONE_HALF       (2048)           /* 0.5 */
+#define FP16_Q12_FIVE_EIGHTHS       (2560)           /* 0.625 */
+#define FP16_Q12_THREE_QUARTERS     (3072)           /* 0.75 */
+#define FP16_Q12_SEVEN_EIGHTHS      (3584)           /* 0.875 */
+#define FP16_Q12_ONE_THIRD      (1365)           /* 0.333251953125 */
+#define FP16_Q12_TWO_THRIDS     (2731)           /* 0.666748046875 */
+#define FP16_Q12_ONE        (4096)           /* 1.0 */
+#define FP16_Q12_MINUS_ONE      (-4096)          /* -1.0 */
 
 
 #define FP16_Q13            (13)
@@ -318,6 +460,17 @@
 #define FP16_Q13_M_LOG10E       (3558)           /* 0.434326171875 */
 #define FP16_Q13_M_LN2      (5678)           /* 0.693115234375 */
 #define FP16_Q13_M_LN10     (18863)          /* 2.3026123046875 */
+#define FP16_Q13_ONE_EIGHTH     (1024)           /* 0.125 */
+#define FP16_Q13_ONE_QUARTER        (2048)           /* 0.25 */
+#define FP16_Q13_THREE_EIGHTHS      (3072)           /* 0.375 */
+#define FP16_Q13_ONE_HALF       (4096)           /* 0.5 */
+#define FP16_Q13_FIVE_EIGHTHS       (5120)           /* 0.625 */
+#define FP16_Q13_THREE_QUARTERS     (6144)           /* 0.75 */
+#define FP16_Q13_SEVEN_EIGHTHS      (7168)           /* 0.875 */
+#define FP16_Q13_ONE_THIRD      (2731)           /* 0.3333740234375 */
+#define FP16_Q13_TWO_THRIDS     (5461)           /* 0.6666259765625 */
+#define FP16_Q13_ONE        (8192)           /* 1.0 */
+#define FP16_Q13_MINUS_ONE      (-8192)          /* -1.0 */
 
 
 #define FP16_Q14            (14)
@@ -338,6 +491,17 @@
 #define FP16_Q14_M_LOG10E       (7115)           /* 0.43426513671875 */
 #define FP16_Q14_M_LN2      (11357)          /* 0.69317626953125 */
 #define FP16_Q14_M_LN10     (32767)          /* 1.99993896484375 */
+#define FP16_Q14_ONE_EIGHTH     (2048)           /* 0.125 */
+#define FP16_Q14_ONE_QUARTER        (4096)           /* 0.25 */
+#define FP16_Q14_THREE_EIGHTHS      (6144)           /* 0.375 */
+#define FP16_Q14_ONE_HALF       (8192)           /* 0.5 */
+#define FP16_Q14_FIVE_EIGHTHS       (10240)          /* 0.625 */
+#define FP16_Q14_THREE_QUARTERS     (12288)          /* 0.75 */
+#define FP16_Q14_SEVEN_EIGHTHS      (14336)          /* 0.875 */
+#define FP16_Q14_ONE_THIRD      (5461)           /* 0.33331298828125 */
+#define FP16_Q14_TWO_THRIDS     (10923)          /* 0.66668701171875 */
+#define FP16_Q14_ONE        (16384)          /* 1.0 */
+#define FP16_Q14_MINUS_ONE      (-16384)             /* -1.0 */
 
 
 #define FP16_Q15            (15)
@@ -358,6 +522,18 @@
 #define FP16_Q15_M_LOG10E       (14231)          /* 0.434295654296875 */
 #define FP16_Q15_M_LN2      (22713)          /* 0.693145751953125 */
 #define FP16_Q15_M_LN10     (32767)          /* 0.999969482421875 */
+#define FP16_Q15_ONE_EIGHTH     (4096)           /* 0.125 */
+#define FP16_Q15_ONE_QUARTER        (8192)           /* 0.25 */
+#define FP16_Q15_THREE_EIGHTHS      (12288)          /* 0.375 */
+#define FP16_Q15_ONE_HALF       (16384)          /* 0.5 */
+#define FP16_Q15_FIVE_EIGHTHS       (20480)          /* 0.625 */
+#define FP16_Q15_THREE_QUARTERS     (24576)          /* 0.75 */
+#define FP16_Q15_SEVEN_EIGHTHS      (28672)          /* 0.875 */
+#define FP16_Q15_ONE_THIRD      (10923)          /* 0.333343505859375 */
+#define FP16_Q15_TWO_THRIDS     (21845)          /* 0.666656494140625 */
+#define FP16_Q15_ONE        (32767)          /* 0.999969482421875 */
+#define FP16_Q15_MINUS_ONE      (-32768)             /* -1.0 */
+
 
 
 
@@ -373,6 +549,7 @@
 #define FP16_TRIG_Q14_MINUS_ONE         (-16384)
 
 #define FP16_EXP_TAYLOR_ORDER           10
+#define FP16_LOG_TAYLOR_ORDER            4
 
 typedef int16_t fp16_t; /*!< Type can be used for all Q configurations */
 
@@ -522,19 +699,8 @@ extern const int16_t fp16_sin_tab[];
 
 fp16_t fp16_sin_cos_helper(fp16_t fp, const int16_t *tab);
 
-/*!
-    \brief      Computes cosine of a provided angle
-    \details    Computes cosine of a provided angle. The angle must be fixed point number in Q1.15 format.
-                The allowed range is from -1.0 to 0.999969482421875, representing an angle from
-                -PI to +PI in radians minus the fraction caused by the last LSB up to +PI.
 
-                The result returned is of fixed point type Q14 [-1.0,+1.0]
 
-    \param[in]  fp        The angle must be fixed point number in Q1.15 format [-1.0,+1.0-LSB]
-
-    \returns The result returned is of fixed point type Q2.14 [-1.0,+1.0]
-*/
-#define fp16_cos(fp) fp16_sin_cos_helper(fp,fp16_cos_tab)
 
 /*!
     \brief      Computes sine of a provided angle
@@ -548,11 +714,22 @@ fp16_t fp16_sin_cos_helper(fp16_t fp, const int16_t *tab);
 
     \returns The result returned is of fixed point type Q2.14 [-1.0,+1.0]
 */
-#define fp16_sin(fp) fp16_sin_cos_helper(fp,fp16_sin_tab)
+fp16_t fp16_sin(fp16_t fp);
 
 
+/*!
+    \brief      Computes cosine of a provided angle
+    \details    Computes cosine of a provided angle. The angle must be fixed point number in Q1.15 format.
+                The allowed range is from -1.0 to 0.999969482421875, representing an angle from
+                -PI to +PI in radians minus the fraction caused by the last LSB up to +PI.
 
+                The result returned is of fixed point type Q14 [-1.0,+1.0]
 
+    \param[in]  fp        The angle must be fixed point number in Q1.15 format [-1.0,+1.0-LSB]
+
+    \returns The result returned is of fixed point type Q2.14 [-1.0,+1.0]
+*/
+fp16_t fp16_cos(fp16_t fp);
 
 fp16_t fp16_tan(fp16_t fp, uint8_t frac);
 
