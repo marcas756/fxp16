@@ -390,7 +390,7 @@ fp16_t fp16_sqrt(fp16_t s, uint8_t sfrac)
 
 	int32_t x = 1<<sfrac; // start with 1.0
 
-	for (int i = 0; i <= 10; i++)
+	for (int i = 0; i < FP16_SQRT_RECURSIONS; i++)
 	{
 		x = (x+((s<<sfrac)/x));     //  x[n] + s/x[n]
 		fp16_rshift_m(x,1);         //  /2
@@ -481,132 +481,6 @@ fp16_t fp16_tan(fp16_t fp, uint8_t frac)
 }
 
 
-const int16_t fp16_asin_tab [] = {
-#if ( FP16_TRIG_TAB_SIZE  == 16 )
--25736,
--17456,
--13895,
--11061,
--8579,
--6298,
--4140,
--2053,
-0,
-2053,
-4140,
-6298,
-8579,
-11061,
-13895,
-17456,
-25736,
-#elif ( FP16_TRIG_TAB_SIZE  == 32 )
--25736,
--19913,
--17456,
--15539,
--13895,
--12420,
--11061,
--9788,
--8579,
--7419,
--6298,
--5207,
--4140,
--3090,
--2053,
--1025,
-0,
-1025,
-2053,
-3090,
-4140,
-5207,
-6298,
-7419,
-8579,
-9788,
-11061,
-12420,
-13895,
-15539,
-17456,
-19913,
-25736,
-#elif ( FP16_TRIG_TAB_SIZE  == 64 )
--25736,
--21629,
--19913,
--18585,
--17456,
--16453,
--15539,
--14691,
--13895,
--13140,
--12420,
--11728,
--11061,
--10415,
--9788,
--9176,
--8579,
--7993,
--7419,
--6854,
--6298,
--5749,
--5207,
--4671,
--4140,
--3613,
--3090,
--2571,
--2053,
--1538,
--1025,
--512,
-0,
-512,
-1025,
-1538,
-2053,
-2571,
-3090,
-3613,
-4140,
-4671,
-5207,
-5749,
-6298,
-6854,
-7419,
-7993,
-8579,
-9176,
-9788,
-10415,
-11061,
-11728,
-12420,
-13140,
-13895,
-14691,
-15539,
-16453,
-17456,
-18585,
-19913,
-21629,
-25736,
-#else
-#error "Unknown value for FP16_TRIG_TAB_SIZE"
-#endif /*FP16_TRIG_TAB_SIZE*/
-};
-
-
-
 /* pi/2-sqrt(1-x)*(a+b*x+c*x*x+d*x*x*x) */
 fp16_t fp16_asin(fp16_t fp)
 {
@@ -630,13 +504,10 @@ fp16_t fp16_asin(fp16_t fp)
         fp = -fp;
     }
 
-
     result = FP16_Q14_ASIN_C+((FP16_Q14_ASIN_D*fp)>>FP16_Q14);
     result = FP16_Q14_ASIN_B+((result*fp)>>FP16_Q14);
     result = FP16_Q14_ASIN_A+((result*fp)>>FP16_Q14);
     result = FP16_Q14_M_PI_2-((result*fp16_sqrt(FP16_Q14_ONE-fp,FP16_Q14))>>FP16_Q14);
-
-
 
     if (sign)
     {
@@ -677,7 +548,7 @@ fp16_t fp16_exp(fp16_t fp, uint8_t frac)
 
     int32_t fpshifted = fp<<frac;
 
-    for (uint8_t k = FP16_EXP_TAYLOR_ORDER; k > 0; k--)
+    for (uint8_t k = FP16_EXP_RECURSIONS; k > 0; k--)
     {
         result *= fpshifted/(k<<frac);
         fp16_rshift_m(result,frac);
@@ -728,7 +599,7 @@ fp16_t fp16_log(fp16_t x, uint8_t frac)
        return INT16_MIN;
     }
 
-    for (uint8_t n = 0; n < FP16_LOG_TAYLOR_ORDER; n++)
+    for (uint8_t n = 0; n < FP16_LOG_RECURSIONS; n++)
     {
         fp16_t exp_y = fp16_exp(y,frac);
         y += ((x-exp_y)<<(frac+1))/(x+exp_y);

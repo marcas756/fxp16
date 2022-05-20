@@ -551,8 +551,9 @@
 #define FP16_TRIG_Q14_ONE               (16384)
 #define FP16_TRIG_Q14_MINUS_ONE         (-16384)
 
-#define FP16_EXP_TAYLOR_ORDER           10
-#define FP16_LOG_TAYLOR_ORDER            4
+#define FP16_EXP_RECURSIONS           10
+#define FP16_LOG_RECURSIONS            4
+#define FP16_SQRT_RECURSIONS           11
 
 typedef int16_t fp16_t; /*!< Type can be used for all Q configurations */
 
@@ -697,13 +698,6 @@ fp16_t fp16_div(fp16_t divident, uint8_t frac1, fp16_t divisor, uint8_t frac2);
 
 /* Trigonometric functions */
 
-extern const int16_t *fp16_cos_tab;
-extern const int16_t fp16_sin_tab[];
-
-fp16_t fp16_sin_cos_helper(fp16_t fp, const int16_t *tab);
-
-
-
 
 /*!
     \brief      Computes sine of a provided angle
@@ -737,7 +731,7 @@ fp16_t fp16_cos(fp16_t fp);
 fp16_t fp16_tan(fp16_t fp, uint8_t frac);
 
 fp16_t fp16_asin(fp16_t fp);
-#define fp16_acos(fp) (FP16_Q13_M_PI_2 - fp16_fp2fp(fp16_asin(fp),FP16_Q14,FP16_Q13))
+#define fp16_acos(fp) (FP16_Q13_M_PI - fp16_asin(fp)>>1)
 fp16_t fp16_atan(fp16_t fp, uint8_t frac);
 
 

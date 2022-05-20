@@ -801,15 +801,7 @@ UNITTEST_TESTCASE(fp16_asin)
 }
 
 
-#if ( FP16_TRIG_TAB_SIZE  == 64 )
-    #define ACOS_MAX_ERR 0.0624684
-#elif ( FP16_TRIG_TAB_SIZE  == 32 )
-    #define ACOS_MAX_ERR 0.0882715
-#elif ( FP16_TRIG_TAB_SIZE  == 16 )
-    #define ACOS_MAX_ERR 0.124442
-#else
-#error "Unknown value for FP16_TRIG_TAB_SIZE"
-#endif
+#define ACOS_MAX_ERR 0.0002391
 
 
 UNITTEST_TESTCASE(fp16_acos)
@@ -821,17 +813,14 @@ UNITTEST_TESTCASE(fp16_acos)
 
         UNITTEST_ASSERT("Unexpected result",fabs(acos(flt)-fp16_fp2flt(fp,FP16_Q13)) <= ACOS_MAX_ERR);
 
-
-        //UNITTEST_ASSERT("Unexpected result",fabs(acos(flt)-fp16_fp2flt(fp,FP16_Q14)) <= ASIN_MAX_ERR);
-
-        //if(fabs(asin(flt)-fp16_fp2flt(fp,FP16_Q13)) > ACOS_MAX_ERR)
         //UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,acos(flt),fp16_fp2flt(fp,FP16_Q13));
-        //UNITTEST_PRINTF("%0.15f\n",fp16_fp2flt(fp,FP16_Q13));
+
     }
 }
 
 
 
+#define ATAN_MAX_ERR 0.00782
 
 
 
@@ -842,14 +831,11 @@ UNITTEST_TESTCASE(fp16_atan)
         fp16_t fp = fp16_flt2fp(flt,FP16_Q8);
         fp = fp16_atan(fp,FP16_Q8);
 
-        //UNITTEST_ASSERT("Unexpected result",fabs(acos(flt)-fp16_fp2flt(fp,FP16_Q13)) <= ACOS_MAX_ERR);
+        UNITTEST_ASSERT("Unexpected result",fabs(atan(flt)-fp16_fp2flt(fp,FP16_Q14)) <= ATAN_MAX_ERR);
 
 
-        //UNITTEST_ASSERT("Unexpected result",fabs(acos(flt)-fp16_fp2flt(fp,FP16_Q14)) <= ASIN_MAX_ERR);
+        //UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,atan(flt),fp16_fp2flt(fp,FP16_Q14));
 
-        //if(fabs(asin(flt)-fp16_fp2flt(fp,FP16_Q13)) > ACOS_MAX_ERR)
-        UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,atan(flt),fp16_fp2flt(fp,FP16_Q14));
-        // UNITTEST_PRINTF("%0.15f\n",fp16_fp2flt(fp,FP16_Q14));
     }
 }
 
@@ -962,7 +948,7 @@ UNITTEST_TESTSUITE(fp16)
    //UNITTEST_EXEC_TESTCASE(fp16_tan);
 
    UNITTEST_EXEC_TESTCASE(fp16_asin);
-  // UNITTEST_EXEC_TESTCASE(fp16_acos);
+   UNITTEST_EXEC_TESTCASE(fp16_acos);
    UNITTEST_EXEC_TESTCASE(fp16_atan);
 
 
