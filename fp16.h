@@ -542,7 +542,6 @@
 
 
 
-
 #define FP16_TRIG_TAB_SIZE           (64) /* 64,32 or 16 */
 #define FP16_TRIG_SIN_TAB_RES        (65536/FP16_TRIG_TAB_SIZE)
 #define FP16_TRIG_ASIN_TAB_RES       (32768/FP16_TRIG_TAB_SIZE)

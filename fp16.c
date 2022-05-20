@@ -610,7 +610,7 @@ const int16_t fp16_asin_tab [] = {
 /* pi/2-sqrt(1-x)*(a+b*x+c*x*x+d*x*x*x) */
 fp16_t fp16_asin(fp16_t fp)
 {
-    int64_t result;
+    int32_t result;
     bool sign = fp16_signbit(fp);
 
     if(fp > FP16_Q14_ONE)
@@ -646,21 +646,19 @@ fp16_t fp16_asin(fp16_t fp)
     return result;
 }
 
-/* unprecise */
+
 fp16_t fp16_atan(fp16_t fp, uint8_t frac)
 {
+    int64_t xx = fp<<(FP16_Q14-frac);
+    xx =(xx*xx)>>FP16_Q14;
 
-    int32_t x;
+    int32_t result = FP16_Q14_ONE+xx;
+    result = (xx<<FP16_Q14)/result;
+    result = fp16_sqrt(result,FP16_Q14);
 
+    result = fp16_asin(result);
 
-
-
-
-
-
-
-
-    return 0;
+    return (fp16_signbit(fp)?(-result):result);
 }
 
 

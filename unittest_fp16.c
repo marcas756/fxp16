@@ -848,7 +848,7 @@ UNITTEST_TESTCASE(fp16_atan)
         //UNITTEST_ASSERT("Unexpected result",fabs(acos(flt)-fp16_fp2flt(fp,FP16_Q14)) <= ASIN_MAX_ERR);
 
         //if(fabs(asin(flt)-fp16_fp2flt(fp,FP16_Q13)) > ACOS_MAX_ERR)
-        UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,atan(flt),fp16_fp2flt(fp,FP16_Q15));
+        UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,atan(flt),fp16_fp2flt(fp,FP16_Q14));
         // UNITTEST_PRINTF("%0.15f\n",fp16_fp2flt(fp,FP16_Q14));
     }
 }
