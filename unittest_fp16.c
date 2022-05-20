@@ -777,22 +777,15 @@ UNITTEST_TESTCASE(fp16_tan)
     for (float flt = fp16_props[FP16_Q15].min; flt <= fp16_props[FP16_Q15].max  ; flt+=fp16_props[FP16_Q15].prec)
     {
         fp16_t fp = fp16_flt2fp(flt,FP16_Q15);
-        fp = fp16_tan(fp,FP16_Q7);
+        fp = fp16_tan(fp,FP16_Q8);
 
-       // UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,f_saturate(tan(flt*M_PI),FP16_Q7_MIN,FP16_Q7_MAX),fp16_fp2flt(fp,FP16_Q7));
+       UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,f_saturate(tan(flt*M_PI),FP16_Q8_MIN,FP16_Q8_MAX),fp16_fp2flt(fp,FP16_Q8));
     }
 }
 
 
-#if ( FP16_TRIG_TAB_SIZE  == 64 )
-    #define ASIN_MAX_ERR 0.06246392
-#elif ( FP16_TRIG_TAB_SIZE  == 32 )
-    #define ASIN_MAX_ERR 0.088206
-#elif ( FP16_TRIG_TAB_SIZE  == 16 )
-    #define ASIN_MAX_ERR 0.12438
-#else
-#error "Unknown value for FP16_TRIG_TAB_SIZE"
-#endif
+
+#define ASIN_MAX_ERR 0.00018311
 
 UNITTEST_TESTCASE(fp16_asin)
 {
@@ -803,7 +796,7 @@ UNITTEST_TESTCASE(fp16_asin)
 
         UNITTEST_ASSERT("Unexpected result",fabs(asin(flt)-fp16_fp2flt(fp,FP16_Q14)) <= ASIN_MAX_ERR);
 
-        //UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,asin(flt),fp16_fp2flt(fp,FP16_Q14));
+        // UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,asin(flt),fp16_fp2flt(fp,FP16_Q14));
     }
 }
 
@@ -844,10 +837,10 @@ UNITTEST_TESTCASE(fp16_acos)
 
 UNITTEST_TESTCASE(fp16_atan)
 {
-    for (float flt = fp16_props[FP16_Q11].min; flt <= fp16_props[FP16_Q11].max  ; flt+=fp16_props[FP16_Q11].prec)
+    for (float flt = fp16_props[FP16_Q8].min; flt <= fp16_props[FP16_Q8].max  ; flt+=fp16_props[FP16_Q8].prec)
     {
-        fp16_t fp = fp16_flt2fp(flt,FP16_Q11);
-        fp = fp16_atan(fp,FP16_Q11);
+        fp16_t fp = fp16_flt2fp(flt,FP16_Q8);
+        fp = fp16_atan(fp,FP16_Q8);
 
         //UNITTEST_ASSERT("Unexpected result",fabs(acos(flt)-fp16_fp2flt(fp,FP16_Q13)) <= ACOS_MAX_ERR);
 
@@ -855,7 +848,7 @@ UNITTEST_TESTCASE(fp16_atan)
         //UNITTEST_ASSERT("Unexpected result",fabs(acos(flt)-fp16_fp2flt(fp,FP16_Q14)) <= ASIN_MAX_ERR);
 
         //if(fabs(asin(flt)-fp16_fp2flt(fp,FP16_Q13)) > ACOS_MAX_ERR)
-        UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,atan(flt),fp16_fp2flt(fp,FP16_Q14));
+        UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,atan(flt),fp16_fp2flt(fp,FP16_Q15));
         // UNITTEST_PRINTF("%0.15f\n",fp16_fp2flt(fp,FP16_Q14));
     }
 }
@@ -966,9 +959,13 @@ UNITTEST_TESTSUITE(fp16)
    UNITTEST_EXEC_TESTCASE(fp16_sqrt);
    UNITTEST_EXEC_TESTCASE(fp16_sin);
    UNITTEST_EXEC_TESTCASE(fp16_cos);
+   //UNITTEST_EXEC_TESTCASE(fp16_tan);
+
    UNITTEST_EXEC_TESTCASE(fp16_asin);
-   UNITTEST_EXEC_TESTCASE(fp16_acos);
-   //UNITTEST_EXEC_TESTCASE(fp16_atan);
+  // UNITTEST_EXEC_TESTCASE(fp16_acos);
+   UNITTEST_EXEC_TESTCASE(fp16_atan);
+
+
     UNITTEST_EXEC_TESTCASE(fp16_exp);
     UNITTEST_EXEC_TESTCASE(fp16_log);
     UNITTEST_EXEC_TESTCASE(fp16_log10);

@@ -535,6 +535,11 @@
 #define FP16_Q15_MINUS_ONE      (-32768)             /* -1.0 */
 
 
+#define FP16_Q14_ASIN_A     (25735)          /* 1.57073974609375 */
+#define FP16_Q14_ASIN_B     (-3479)          /* -0.21234130859375 */
+#define FP16_Q14_ASIN_C     (1241)           /* 0.07574462890625 */
+#define FP16_Q14_ASIN_D     (-331)           /* -0.02020263671875 */
+
 
 
 
@@ -542,8 +547,7 @@
 #define FP16_TRIG_SIN_TAB_RES        (65536/FP16_TRIG_TAB_SIZE)
 #define FP16_TRIG_ASIN_TAB_RES       (32768/FP16_TRIG_TAB_SIZE)
 
-#define FP16_TRIG_Q15_ONE_HALF           (16384)
-#define FP16_TRIG_Q15_MINUS_ONE_HALF     (-16384)
+
 
 #define FP16_TRIG_Q14_ONE               (16384)
 #define FP16_TRIG_Q14_MINUS_ONE         (-16384)

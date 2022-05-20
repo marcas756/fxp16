@@ -461,14 +461,14 @@ fp16_t fp16_tan(fp16_t fp, uint8_t frac)
     int32_t result;
 
     /* avoid division by zero */
-    if(fp ==  FP16_TRIG_Q15_ONE_HALF )
+    if(fp ==  FP16_Q15_ONE_HALF )
     {
         errno = EDOM;
         return INT16_MAX;
     }
 
     /* avoid division by zero */
-    if(fp ==  FP16_TRIG_Q15_MINUS_ONE_HALF )
+    if(fp ==  -FP16_Q15_ONE_HALF )
     {
         errno = EDOM;
         return INT16_MIN;
@@ -607,63 +607,60 @@ const int16_t fp16_asin_tab [] = {
 
 
 
-
+/* pi/2-sqrt(1-x)*(a+b*x+c*x*x+d*x*x*x) */
 fp16_t fp16_asin(fp16_t fp)
 {
+    int64_t result;
+    bool sign = fp16_signbit(fp);
 
-    uint32_t x1,x0;
-    uint16_t x;
-    uint8_t idx0,idx1;
-
-
-    if(fp > FP16_TRIG_Q14_ONE )
+    if(fp > FP16_Q14_ONE)
     {
         errno = EDOM;
-        return FP16_Q14_M_PI_2;
+        fp = FP16_Q14_ONE;
+    }
+
+    if(fp < FP16_Q14_MINUS_ONE)
+    {
+        errno = EDOM;
+        fp = FP16_Q14_MINUS_ONE;
+    }
+
+    if (sign)
+    {
+        fp = -fp;
     }
 
 
-    if(fp < FP16_TRIG_Q14_MINUS_ONE)
+    result = FP16_Q14_ASIN_C+((FP16_Q14_ASIN_D*fp)>>FP16_Q14);
+    result = FP16_Q14_ASIN_B+((result*fp)>>FP16_Q14);
+    result = FP16_Q14_ASIN_A+((result*fp)>>FP16_Q14);
+    result = FP16_Q14_M_PI_2-((result*fp16_sqrt(FP16_Q14_ONE-fp,FP16_Q14))>>FP16_Q14);
+
+
+
+    if (sign)
     {
-        errno = EDOM;
-        return -FP16_Q14_M_PI_2;
+        result = -result;
     }
 
-    /* adjust int16_t to uin16_t for indexing */
-    x = fp - FP16_TRIG_Q14_MINUS_ONE;
-
-    /* Get indexes of enclosing points */
-    idx0 = x / FP16_TRIG_ASIN_TAB_RES;
-    idx1 = idx0 + 1;
-
-    /* Compute x-values of enclosing points */
-    x0 = idx0*FP16_TRIG_ASIN_TAB_RES;
-    x1 = idx1*FP16_TRIG_ASIN_TAB_RES;
-
-    /* Compute sine and adjust result
-
-        Linear interpolation :
-        y = y0+t*(y1-y0)
-        t = (x-x0)/(x1-x0)
-    */
-
-    return fp16_asin_tab[idx0]+
-            ((x-x0)*(fp16_asin_tab[idx1]-fp16_asin_tab[idx0]))
-            /(x1-x0);
+    return result;
 }
 
 /* unprecise */
 fp16_t fp16_atan(fp16_t fp, uint8_t frac)
 {
 
-    // atan(x) = asin(x/sqrt(1+x*x))
+    int32_t x;
 
-    int32_t result = fp*fp+(1<<(2*frac));
-    fp16_rshift_m(result,frac);
-    fp16_sat_m(result);
-    result = (fp<<frac)/fp16_sqrt(result,frac);
-    fp16_sat_m(result);
-    return fp16_asin(fp16_fp2fp(result,frac,FP16_Q14));
+
+
+
+
+
+
+
+
+    return 0;
 }
 
 
