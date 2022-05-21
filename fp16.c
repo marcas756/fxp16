@@ -532,12 +532,11 @@ fp16_t fp16_atan(fp16_t fp, uint8_t frac)
     return (fp16_signbit(fp)?(-result):result);
 }
 
-
-fp16_t fp16_exp(fp16_t fp, uint8_t frac)
+int32_t fp32_exp(int32_t fp, uint8_t frac)
 {
     const fp16_t one = 1<<frac;
 
-    int32_t result = one;
+    int64_t result = one;
     bool neg = false;
 
     if(fp16_signbit(fp))
@@ -553,7 +552,11 @@ fp16_t fp16_exp(fp16_t fp, uint8_t frac)
         result *= fpshifted/(k<<frac);
         fp16_rshift_m(result,frac);
         result += one;
-        fp16_sat_m(result);
+
+        //fp16_sat_m(result);
+        if (result > INT32_MAX) { result = INT32_MAX; }
+        if (result < INT32_MIN) { result = INT32_MIN; }
+
     }
 
     if(neg)
@@ -562,7 +565,36 @@ fp16_t fp16_exp(fp16_t fp, uint8_t frac)
     }
 
 
+
     return result; /* e^abs(x)  */
+}
+
+
+fp16_t fp16_sinh(fp16_t fp, uint8_t frac)
+{
+    int32_t result = (fp32_exp(fp,frac) - fp32_exp(-fp,frac))>>1;
+    fp16_sat_m(result);
+    return result;
+}
+
+fp16_t fp16_cosh(fp16_t fp, uint8_t frac)
+{
+    int32_t result = (fp32_exp(fp,frac) + fp32_exp(-fp,frac))>>1;
+    fp16_sat_m(result);
+    return result;
+}
+
+fp16_t fp16_tanh(fp16_t fp, uint8_t frac)
+{
+    return ((fp16_sinh(fp,frac))<<frac)/fp16_cosh(fp,frac); // better solutions exist!
+}
+
+
+fp16_t fp16_exp(fp16_t fp, uint8_t frac)
+{
+   int32_t result = fp32_exp(fp, frac);
+   fp16_sat_m(result);
+   return result;
 }
 
 

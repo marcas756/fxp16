@@ -541,17 +541,7 @@
 #define FP16_Q14_ASIN_D     (-331)           /* -0.02020263671875 */
 
 
-
-#define FP16_TRIG_TAB_SIZE           (64) /* 64,32 or 16 */
-#define FP16_TRIG_SIN_TAB_RES        (65536/FP16_TRIG_TAB_SIZE)
-#define FP16_TRIG_ASIN_TAB_RES       (32768/FP16_TRIG_TAB_SIZE)
-
-
-
-#define FP16_TRIG_Q14_ONE               (16384)
-#define FP16_TRIG_Q14_MINUS_ONE         (-16384)
-
-#define FP16_EXP_RECURSIONS           10
+#define FP16_EXP_RECURSIONS           13
 #define FP16_LOG_RECURSIONS            4
 #define FP16_SQRT_RECURSIONS           11
 
@@ -735,6 +725,10 @@ fp16_t fp16_asin(fp16_t fp);
 fp16_t fp16_atan(fp16_t fp, uint8_t frac);
 
 
+
+fp16_t fp16_sinh(fp16_t fp, uint8_t frac);
+fp16_t fp16_cosh(fp16_t fp, uint8_t frac);
+fp16_t fp16_tanh(fp16_t fp, uint8_t frac);
 
 fp16_t fp16_exp(fp16_t fp, uint8_t frac);
 fp16_t fp16_log(fp16_t fp, uint8_t frac);
