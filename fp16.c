@@ -432,21 +432,7 @@ fp16_t fp16_cos(fp16_t fp)
 }
 
 
-/*!
-    \brief      Computes tangens of a provided angle
-    \details    Computes tanges of a provided angle. The angle must be fixed point number in Q1.15 format.
-                The allowed range is from -1.0 to 0.999969482421875, representing an angle from
-                -PI to +PI in radians minus the fraction caused by the last LSB up to +PI.
 
-                If a domain error occurs, the global variable errno is set to EDOM.
-
-                The result returned is of fixed point type specified by parameter frac
-
-    \param    fp        The angle must be fixed point number in Q1.15 format [-1.0,+1.0-LSB]
-    \param    fract     Fractional bits of the result
-
-    \returns The result returned is of fixed point type with fractional bits as defined by frac parameter
-*/
 fp16_t fp16_tan(fp16_t fp, uint8_t frac)
 {
     int32_t result;
@@ -626,16 +612,7 @@ fp16_t fp16_tanh(fp16_t fp, uint8_t frac)
 }
 
 
-fp16_t fp16_atanh(fp16_t fp, uint8_t frac)
-{
-    int64_t result = ((FP16_Q14_ONE+fp)<<FP16_Q14)/(FP16_Q14_ONE-fp);
-    result = fp32_log(result,FP16_Q14)>>1;
-    fp16_sat_m(result);
-    fp16_fp2fp(result,FP16_Q14,frac);
 
-
-    return result;
-}
 
 
 fp16_t fp16_exp(fp16_t fp, uint8_t frac)

@@ -34,6 +34,22 @@ fp16_div|Divides two fixed point numbers|
 |fp16_round|Round to nearest|
 |fp16_fmod|Compute remainder of division|
 
+### Trigonometric functions
+|Function|Brief documentation|
+|:-|:-|
+|fp16_cos|Compute cosine|
+|fp16_sin|Compute sine|
+|fp16_tan|Compute tangent|
+|fp16_acos|Compute arc cosine|
+|fp16_asin|Compute arc sine|
+|fp16_atan|Compute arc tangent|
+
+### Hyperbolic functions
+|Function|Brief documentation|
+|:-|:-|
+|fp16_cosh|Compute hyperbolic cosine|
+|fp16_sinh|Compute hyperbolic sine|
+|fp16_tanh|Compute hyperbolic tangent|
 
 ### Fixed-point manipulation functions
 |Function|Brief documentation|
@@ -57,7 +73,7 @@ fp16_div|Divides two fixed point numbers|
 |fp16_islessequal|Is less or equal|
 |fp16_islessgreater|Is less or greater|
 
-### fCommon mathematical operations and transformations 
+### Common mathematical operations and transformations 
 |Function|Brief documentation|
 |:-|:-|
 |fp16_fabs|Compute absolute value|
@@ -84,7 +100,7 @@ Trailing 0 indicates no failed testcases
 
 Testrun :
 
-<UTTSB> fp16 "../unittest_fp16.c" "May 12 2022" "20:18:53"
+<UTTSB> fp16 "../unittest_fp16.c" "May 27 2022" "07:59:14"
 <UTTCB> fp16 fp16_check_shiftops
 <UTTCE> fp16 fp16_check_shiftops 0
 <UTTCB> fp16 fp16_precision
@@ -121,6 +137,14 @@ Testrun :
 <UTTCE> fp16 fp16_asin 0
 <UTTCB> fp16 fp16_acos
 <UTTCE> fp16 fp16_acos 0
+<UTTCB> fp16 fp16_atan
+<UTTCE> fp16 fp16_atan 0
+<UTTCB> fp16 fp16_sinh
+<UTTCE> fp16 fp16_sinh 0
+<UTTCB> fp16 fp16_cosh
+<UTTCE> fp16 fp16_cosh 0
+<UTTCB> fp16 fp16_tanh
+<UTTCE> fp16 fp16_tanh 0
 <UTTCB> fp16 fp16_exp
 <UTTCE> fp16 fp16_exp 0
 <UTTCB> fp16 fp16_log
@@ -129,6 +153,8 @@ Testrun :
 <UTTCE> fp16 fp16_log10 0
 <UTTCB> fp16 fp16_log2
 <UTTCE> fp16 fp16_log2 0
+<UTTCB> fp16 fp16_pow
+<UTTCE> fp16 fp16_pow 0
 <UTTSE> fp16 0
 
 

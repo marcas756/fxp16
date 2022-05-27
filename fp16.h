@@ -710,27 +710,124 @@ fp16_t fp16_sin(fp16_t fp);
                 The allowed range is from -1.0 to 0.999969482421875, representing an angle from
                 -PI to +PI in radians minus the fraction caused by the last LSB up to +PI.
 
-                The result returned is of fixed point type Q14 [-1.0,+1.0]
 
-    \param[in]  fp        The angle must be fixed point number in Q1.15 format [-1.0,+1.0-LSB]
 
-    \returns The result returned is of fixed point type Q2.14 [-1.0,+1.0]
+    \param[in]  fp        The angle must be fixed point number in Q15 format [-1.0,+1.0-LSB]
+
+    \returns The result returned is of fixed point type Q14 [-1.0,+1.0]
 */
 fp16_t fp16_cos(fp16_t fp);
 
+/*!
+    \brief      Computes tangens of a provided angle
+    \details    Computes tanges of a provided angle. The angle must be fixed point number in Q1.15 format.
+                The allowed range is from -1.0 to 0.999969482421875, representing an angle from
+                -PI to +PI in radians minus the fraction caused by the last LSB up to +PI.
+
+                If a domain error occurs, the global variable errno is set to EDOM.
+
+
+
+    \param    fp        The angle must be fixed point number in Q15 format [-1.0,+1.0-LSB]
+    \param    fract     Fractional bits of the result
+
+    \returns The result returned is of fixed point type with fractional bits as defined by frac parameter
+*/
 fp16_t fp16_tan(fp16_t fp, uint8_t frac);
 
+
+/*!
+    \brief      Compute arc sine
+    \details    Returns the principal value of the arc sine of x, expressed in radians.
+                In trigonometrics, arc sine is the inverse operation of sine.
+
+                If a domain error occurs, the global variable errno is set to EDOM.
+
+
+
+    \param    fp        The angle must be fixed point number in Q14 format.
+                        Value whose arc sine is computed, in the interval [-1,+1].
+                        If the argument is out of this interval, a domain error occurs.
+
+
+    \returns The result returned is of fixed point type Q14 format. Principal arc sine of x, in the interval [-pi/2,+pi/2] radians. One radian is equivalent to 180/PI degrees.
+*/
 fp16_t fp16_asin(fp16_t fp);
+/*!
+    \brief      Compute arc cosine
+    \details    Returns the principal value of the arc cosine of x, expressed in radians.
+                In trigonometrics, arc cosine is the inverse operation of cosine.
+
+                If a domain error occurs, the global variable errno is set to EDOM.
+
+                The result returned is of fixed point type specified by parameter frac
+
+    \param    fp        The angle must be fixed point number in Q14 format.
+                        Value whose arc cosine is computed, in the interval [-1,+1].
+                        If the argument is out of this interval, a domain error occurs.
+
+
+    \returns The result returned is of fixed point type Q13 format. Principal arc cosine of x, in the interval [0,pi] radians. One radian is equivalent to 180/PI degrees.
+*/
 #define fp16_acos(fp) (FP16_Q13_M_PI - fp16_asin(fp)>>1)
+
+
+
+/*!
+    \brief              Compute arc tangent
+    \details            Returns the principal value of the arc tangent of x, expressed in radians.
+                        In trigonometrics, arc tangent is the inverse operation of tangent.
+                        Notice that because of the sign ambiguity, the function cannot determine with certainty in which quadrant the angle falls only by its tangent value. See atan2 for an alternative that takes a fractional argument instead.
+
+    \param    fp        Value whose arc tangent is computed.
+    \param    frac      Fixed point format of provided input parameter fp
+
+    \returns The result returned is of fixed point type Q14 format.
+             Principal arc tangent of x, in the interval [-pi/2,+pi/2] radians.
+             One radian is equivalent to 180/PI degrees.
+
+*/
 fp16_t fp16_atan(fp16_t fp, uint8_t frac);
 
+/* Hyperbolic functions */
 
 
+/*!
+    \brief              Compute hyperbolic sine
+    \details            Returns the hyperbolic sine of fp.
+
+    \param    fp        Value representing a hyperbolic angle.
+    \param    frac      Fixed point format of parameter fp.
+
+    \returns Hyperbolic sine of fp. The result returned is of fixed point type format defined by frac parameter.
+*/
 fp16_t fp16_sinh(fp16_t fp, uint8_t frac);
+
+
+/*!
+    \brief              Compute hyperbolic cosine
+    \details            Returns the hyperbolic sine of fp.
+
+    \param    fp        Value representing a hyperbolic angle.
+    \param    frac      Fixed point format of parameter fp.
+
+    \returns Hyperbolic cosine of fp. The result returned is of fixed point type format defined by frac parameter.
+*/
 fp16_t fp16_cosh(fp16_t fp, uint8_t frac);
+
+
+/*!
+    \brief              Compute hyperbolic tangent
+    \details            Returns the hyperbolic tangent of fp.
+
+    \param    fp        Value representing a hyperbolic angle.
+    \param    frac      Fixed point format of parameter fp.
+
+    \returns Hyperbolic tangent of fp. The result returned is of fixed point type format Q14.
+*/
 fp16_t fp16_tanh(fp16_t fp, uint8_t frac);
 
-fp16_t fp16_atanh(fp16_t fp, uint8_t frac);
+
 
 fp16_t fp16_exp(fp16_t fp, uint8_t frac);
 fp16_t fp16_log(fp16_t fp, uint8_t frac);

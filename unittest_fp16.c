@@ -1091,18 +1091,6 @@ UNITTEST_TESTCASE(fp16_pow)
 
 
 
-#define  ATANH_FRAC  FP16_Q8
-
-UNITTEST_TESTCASE(fp16_atanh)
-{
-    for (float flt = -1.0; flt <= +1.0  ; flt+=fp16_props[FP16_Q14].prec)
-    {
-        fp16_t fp = fp16_flt2fp(flt,FP16_Q14);
-        fp = fp16_atanh(fp,ATANH_FRAC);
-        //UNITTEST_ASSERT("Unexpected result",fabs(f_saturate(tanh(flt),fp16_props[FP16_Q8].min,fp16_props[FP16_Q8].max)-fp16_fp2flt(fp,FP16_Q14)) <= TANH_MAX_ERR);
-        UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,f_saturate(tanh(flt),fp16_props[TANH_FRAC].min,fp16_props[TANH_FRAC].max),fp16_fp2flt(fp,ATANH_FRAC));
-    }
-}
 
 /* add additional unit test cases here */
 
@@ -1141,7 +1129,7 @@ UNITTEST_TESTSUITE(fp16)
    UNITTEST_EXEC_TESTCASE(fp16_sinh);
    UNITTEST_EXEC_TESTCASE(fp16_cosh);
    UNITTEST_EXEC_TESTCASE(fp16_tanh);
-   //UNITTEST_EXEC_TESTCASE(fp16_atanh);
+
 
     UNITTEST_EXEC_TESTCASE(fp16_exp);
     UNITTEST_EXEC_TESTCASE(fp16_log);
