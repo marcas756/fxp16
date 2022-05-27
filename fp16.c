@@ -36,6 +36,7 @@
 
 #include "fp16.h"
 #include <math.h>
+#include <stdbool.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -390,7 +391,7 @@ fp16_t fp16_sqrt(fp16_t s, uint8_t sfrac)
 
 	int32_t x = 1<<sfrac; // start with 1.0
 
-	for (int i = 0; i < FP16_SQRT_RECURSIONS; i++)
+	for (int i = 0; i < FP16_SQRT_ITERATIONS; i++)
 	{
 		x = (x+((s<<sfrac)/x));     //  x[n] + s/x[n]
 		fp16_rshift_m(x,1);         //  /2
@@ -399,16 +400,6 @@ fp16_t fp16_sqrt(fp16_t s, uint8_t sfrac)
 	fp16_sat_m(x);
 	return x;
 }
-
-fp16_t lerp(fp16_t v0, fp16_t v1, fp16_t t) {
-
-
-
-  return v0 + t * (v1 - v0);
-}
-
-
-
 
 
 
@@ -547,7 +538,7 @@ int32_t fp32_exp(int32_t fp, uint8_t frac)
 
     int32_t fpshifted = fp<<frac;
 
-    for (uint8_t k = FP16_EXP_RECURSIONS; k > 0; k--)
+    for (uint8_t k = FP16_EXP_ITERATIONS; k > 0; k--)
     {
         result *= fpshifted/(k<<frac);
         fp16_rshift_m(result,frac);
@@ -569,6 +560,49 @@ int32_t fp32_exp(int32_t fp, uint8_t frac)
     return result; /* e^abs(x)  */
 }
 
+int32_t fp32_log(fp16_t x, uint8_t frac)
+{
+
+    /*
+    Natural logarithm of x.
+    If x is negative, it causes a domain error.
+    If x is zero, it may cause a pole error (depending on the library implementation).
+     */
+    //To compute the natural logarithm with many digits of precision, the Taylor series approach is not efficient since the convergence is slow. Especially if x is near 1, a good alternative is to use Halley's method or Newton's method to invert the exponential function, because the series of the exponential function converges more quickly. For finding the value of y to give exp(y) − x = 0 using Halley's method, or equivalently to give exp(y/2) − x exp(−y/2) = 0 using Newton's method, the iteration simplifies to
+    // {\displaystyle y_{n+1}=y_{n}+2\cdot {\frac {x-\exp(y_{n})}{x+\exp(y_{n})}}}
+
+    //Occording to Wikipedia, there is the Halley-Newton approximation method
+    // Using Newton's method, the iteration simplifies to (implementation)
+    // which has cubic convergence to ln(x).
+
+
+    int32_t y = 0;
+
+    /* If x is negative, it causes a domain error. */
+    if ( x < 0 )
+    {
+       errno = EDOM;
+       return INT32_MIN;
+    }
+
+    /* If x is zero, it may cause a pole error  */
+    if ( x == 0 )
+    {
+       errno = ERANGE;
+       return INT32_MIN;
+    }
+
+    for (uint8_t n = 0; n < FP16_LOG_ITERATIONS; n++)
+    {
+        int32_t exp_y = fp32_exp(y,frac);
+        y += ((x-exp_y)<<(frac+1))/(x+exp_y);
+
+    }
+
+
+    return y;
+}
+
 
 fp16_t fp16_sinh(fp16_t fp, uint8_t frac)
 {
@@ -586,7 +620,21 @@ fp16_t fp16_cosh(fp16_t fp, uint8_t frac)
 
 fp16_t fp16_tanh(fp16_t fp, uint8_t frac)
 {
-    return ((fp16_sinh(fp,frac))<<frac)/fp16_cosh(fp,frac); // better solutions exist!
+    int32_t result = ((fp16_sinh(fp,frac))<<frac)/fp16_cosh(fp,frac);
+    fp16_sat_m(result);
+    return (fp16_t)fp16_fp2fp(result,frac,FP16_Q14);
+}
+
+
+fp16_t fp16_atanh(fp16_t fp, uint8_t frac)
+{
+    int64_t result = ((FP16_Q14_ONE+fp)<<FP16_Q14)/(FP16_Q14_ONE-fp);
+    result = fp32_log(result,FP16_Q14)>>1;
+    fp16_sat_m(result);
+    fp16_fp2fp(result,FP16_Q14,frac);
+
+
+    return result;
 }
 
 
@@ -599,48 +647,12 @@ fp16_t fp16_exp(fp16_t fp, uint8_t frac)
 
 
 
-fp16_t fp16_log(fp16_t x, uint8_t frac)
+fp16_t fp16_log(fp16_t fp, uint8_t frac)
 {
-
-    /*
-    Natural logarithm of x.
-    If x is negative, it causes a domain error.
-    If x is zero, it may cause a pole error (depending on the library implementation).
-     */
-    //To compute the natural logarithm with many digits of precision, the Taylor series approach is not efficient since the convergence is slow. Especially if x is near 1, a good alternative is to use Halley's method or Newton's method to invert the exponential function, because the series of the exponential function converges more quickly. For finding the value of y to give exp(y) − x = 0 using Halley's method, or equivalently to give exp(y/2) − x exp(−y/2) = 0 using Newton's method, the iteration simplifies to
-    // {\displaystyle y_{n+1}=y_{n}+2\cdot {\frac {x-\exp(y_{n})}{x+\exp(y_{n})}}}
-
-    //Occording to Wikipedia, there is the Halley-Newton approximation method
-    // Using Newton's method, the iteration simplifies to (implementation)
-    // which has cubic convergence to ln(x).
-
-
-    fp16_t y = 0;
-
-    /* If x is negative, it causes a domain error. */
-    if ( x < 0 )
-    {
-       errno = EDOM;
-       return INT16_MIN;
-    }
-
-    /* If x is zero, it may cause a pole error  */
-    if ( x == 0 )
-    {
-       errno = ERANGE;
-       return INT16_MIN;
-    }
-
-    for (uint8_t n = 0; n < FP16_LOG_RECURSIONS; n++)
-    {
-        fp16_t exp_y = fp16_exp(y,frac);
-        y += ((x-exp_y)<<(frac+1))/(x+exp_y);
-    }
-
-
-    return y;
+    int32_t result = fp32_log(fp, frac);
+    fp16_sat_m(result);
+    return result;
 }
-
 
 
 fp16_t fp16_log10(fp16_t x, uint8_t frac)
@@ -654,6 +666,67 @@ fp16_t fp16_log2(fp16_t x, uint8_t frac)
   return (fp16_log(x,frac)<<frac)/fp16_log(2<<frac,frac);
 }
 
+
+
+
+
+fp16_t fp16_pow(fp16_t x,  fp16_t n, uint8_t frac)
+{
+
+    int32_t result = x;
+
+    /* If both base and exponent are zero, it may also cause a domain error on certain implementations. */
+    /* If base is zero and exponent is negative, it may cause a domain error or a pole error (or none, depending on the library implementation). */
+    if ( x == 0 )
+    {
+        if ( n <= 0 )
+        {
+            errno = EDOM;
+            return INT16_MAX;
+        }
+
+        return x;
+    }
+
+    // y = exp(n*ln(x))
+
+
+    if ( x < 0 )
+    {
+        /* If the base is finite negative and the exponent is finite but not an integer value, it causes a domain error. */
+
+        if( (n & ((1<<frac)-1)) != 0 )
+        {
+            errno = EDOM;
+            return 0;
+        }
+
+
+        result = fp32_log(-x,frac);
+        result = (result*n)>>frac;
+        result = fp32_exp(result,frac);
+
+
+        if ( fp16_fp2int(n,frac)&1  )
+        {
+            result = - result;
+        }
+
+
+
+    }
+    else /* ( x > 0 ) */
+    {
+        result = fp32_log(x,frac);
+        result = (result*n)>>frac;
+        result = fp32_exp(result,frac);
+    }
+
+
+    fp16_sat_m(result);
+    return (fp16_t)result;
+
+}
 
 
 fp16_t fp16_copysign(fp16_t x, fp16_t y)

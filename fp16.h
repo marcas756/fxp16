@@ -541,9 +541,9 @@
 #define FP16_Q14_ASIN_D     (-331)           /* -0.02020263671875 */
 
 
-#define FP16_EXP_RECURSIONS           13
-#define FP16_LOG_RECURSIONS            4
-#define FP16_SQRT_RECURSIONS           11
+#define FP16_EXP_ITERATIONS         13
+#define FP16_LOG_ITERATIONS         4
+#define FP16_SQRT_ITERATIONS        11
 
 typedef int16_t fp16_t; /*!< Type can be used for all Q configurations */
 
@@ -730,11 +730,13 @@ fp16_t fp16_sinh(fp16_t fp, uint8_t frac);
 fp16_t fp16_cosh(fp16_t fp, uint8_t frac);
 fp16_t fp16_tanh(fp16_t fp, uint8_t frac);
 
+fp16_t fp16_atanh(fp16_t fp, uint8_t frac);
+
 fp16_t fp16_exp(fp16_t fp, uint8_t frac);
 fp16_t fp16_log(fp16_t fp, uint8_t frac);
 fp16_t fp16_log10(fp16_t x, uint8_t frac);
 fp16_t fp16_log2(fp16_t x, uint8_t frac);
-
+fp16_t fp16_pow(fp16_t x,  fp16_t n, uint8_t frac);
 
 /* Rounding and remainder functions */
 

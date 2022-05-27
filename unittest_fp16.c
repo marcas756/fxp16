@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <fenv.h>
+#include <errno.h>
 
 #define REPETITIONS 100000
 
@@ -959,21 +960,147 @@ UNITTEST_TESTCASE(fp16_cosh)
     }
 }
 
-
 #define TANH_MAX_ERR 0.00590244
+#define  TANH_FRAC  FP16_Q8
+
+/*
+UNITTEST_TESTCASE(fp16_tanh)
+{
+    for (float flt = fp16_props[TANH_FRAC].min; flt <= fp16_props[TANH_FRAC].max  ; flt+=fp16_props[TANH_FRAC].prec)
+    {
+        fp16_t fp = fp16_flt2fp(flt,TANH_FRAC);
+        fp = fp16_tanh(fp,TANH_FRAC);
+        UNITTEST_ASSERT("Unexpected result",fabs(f_saturate(tanh(flt),fp16_props[FP16_Q8].min,fp16_props[FP16_Q8].max)-fp16_fp2flt(fp,FP16_Q14)) <= TANH_MAX_ERR);
+        //UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,f_saturate(tanh(flt),fp16_props[TANH_FRAC].min,fp16_props[TANH_FRAC].max),fp16_fp2flt(fp,FP16_Q14));
+    }
+}
+**/
+
 
 UNITTEST_TESTCASE(fp16_tanh)
 {
-    for (float flt = fp16_props[FP16_Q8].min; flt <= fp16_props[FP16_Q8].max  ; flt+=fp16_props[FP16_Q8].prec)
+    for (float flt = fp16_props[TANH_FRAC].min; flt <= fp16_props[TANH_FRAC].max  ; flt+=fp16_props[TANH_FRAC].prec)
     {
-        fp16_t fp = fp16_flt2fp(flt,FP16_Q8);
-        fp = fp16_tanh(fp,FP16_Q8);
+        fp16_t fp = fp16_flt2fp(flt,TANH_FRAC);
+        fp = fp16_tanh(fp,TANH_FRAC);
+        UNITTEST_ASSERT("Unexpected result",fabs(f_saturate(tanh(flt),fp16_props[FP16_Q8].min,fp16_props[FP16_Q8].max)-fp16_fp2flt(fp,FP16_Q14)) <= TANH_MAX_ERR);
+        //UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,f_saturate(tanh(flt),fp16_props[TANH_FRAC].min,fp16_props[TANH_FRAC].max),fp16_fp2flt(fp,FP16_Q14));
+    }
+}
 
 
-        UNITTEST_ASSERT("Unexpected result",fabs(f_saturate(tanh(flt),fp16_props[FP16_Q8].min,fp16_props[FP16_Q8].max)-fp16_fp2flt(fp,FP16_Q8)) <= TANH_MAX_ERR);
 
-        //UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,f_saturate(tanh(flt),fp16_props[FP16_Q8].min,fp16_props[FP16_Q8].max),fp16_fp2flt(fp,FP16_Q8));
+typedef struct {
+    uint8_t frac;
+    float nflt;
+    float maxerr;
+}ut_pow_tvec1_t;
 
+ut_pow_tvec1_t ut_pow_tvec1 [] = {
+        {FP16_Q8,   0.5,     0.072},
+        {FP16_Q8,   1,       1.04688},
+        {FP16_Q8,   1.5,     1.1985},
+        {FP16_Q8,   2,       0.97609},
+        {FP16_Q8,   2.5,     1.58067},
+        {FP16_Q8,   3,       1.63257},
+};
+
+
+UNITTEST_TESTCASE(fp16_pow)
+{
+    /* Check with positive base and exponent */
+
+    for(int idx = 0; idx < sizeof(ut_pow_tvec1)/sizeof(*ut_pow_tvec1); idx++)
+    {
+        float nflt = ut_pow_tvec1[idx].nflt;
+        uint8_t frac = ut_pow_tvec1[idx].frac;
+        float err, maxerr = 0;
+
+        for (float xflt = 0; xflt <= fp16_props[frac].max  ; xflt+=fp16_props[frac].prec)
+        {
+
+            fp16_t xfp = fp16_flt2fp(xflt,frac);
+            fp16_t nfp = fp16_flt2fp(nflt,frac);
+            xfp = fp16_pow(xfp,nfp,frac);
+
+            err = fabs(f_saturate(pow(xflt,nflt),fp16_props[FP16_Q8].min,fp16_props[frac].max)-fp16_fp2flt(xfp,frac));
+
+            if(err > maxerr)
+            {
+                maxerr = err;
+            }
+
+            UNITTEST_ASSERT("Unexpected result",err <= ut_pow_tvec1[idx].maxerr);
+        }
+
+        // UNITTEST_PRINTF("tvecidx %d: maxerr=%f\n",idx,maxerr);
+    }
+
+
+
+    /* Check Domain Errors */
+
+    /* i = sqrt(-1) */
+    /* If the base is finite negative and the exponent is finite but not an integer value, it causes a domain error. */
+    float nflt = 0.5;
+    float xflt = -1.0;
+
+    errno = 0;
+    UNITTEST_ASSERT("Unexpected result",errno == 0);
+
+    fp16_t xfp = fp16_flt2fp(xflt,FP16_Q8);
+    fp16_t nfp = fp16_flt2fp(nflt,FP16_Q8);
+    xfp = fp16_pow(xfp,nfp,FP16_Q8);
+
+    UNITTEST_ASSERT("Unexpected result",errno == EDOM);
+
+    /* If both base and exponent are zero, it may also cause a domain error on certain implementations. */
+
+    nflt = 0.0;
+    xflt = 0.0;
+
+    errno = 0;
+    UNITTEST_ASSERT("Unexpected result",errno == 0);
+
+    xfp = fp16_flt2fp(xflt,FP16_Q8);
+    nfp = fp16_flt2fp(nflt,FP16_Q8);
+    xfp = fp16_pow(xfp,nfp,FP16_Q8);
+
+    UNITTEST_ASSERT("Unexpected result",errno == EDOM);
+
+    /* If base is zero and exponent is negative, it may cause a domain error or a pole error (or none, depending on the library implementation). */
+
+    nflt = -1.0;
+    xflt = 0.0;
+
+    errno = 0;
+    UNITTEST_ASSERT("Unexpected result",errno == 0);
+
+    xfp = fp16_flt2fp(xflt,FP16_Q8);
+    nfp = fp16_flt2fp(nflt,FP16_Q8);
+    xfp = fp16_pow(xfp,nfp,FP16_Q8);
+
+    UNITTEST_ASSERT("Unexpected result",errno == EDOM);
+
+
+}
+
+
+
+
+
+
+
+#define  ATANH_FRAC  FP16_Q8
+
+UNITTEST_TESTCASE(fp16_atanh)
+{
+    for (float flt = -1.0; flt <= +1.0  ; flt+=fp16_props[FP16_Q14].prec)
+    {
+        fp16_t fp = fp16_flt2fp(flt,FP16_Q14);
+        fp = fp16_atanh(fp,ATANH_FRAC);
+        //UNITTEST_ASSERT("Unexpected result",fabs(f_saturate(tanh(flt),fp16_props[FP16_Q8].min,fp16_props[FP16_Q8].max)-fp16_fp2flt(fp,FP16_Q14)) <= TANH_MAX_ERR);
+        UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,f_saturate(tanh(flt),fp16_props[TANH_FRAC].min,fp16_props[TANH_FRAC].max),fp16_fp2flt(fp,ATANH_FRAC));
     }
 }
 
@@ -1014,13 +1141,14 @@ UNITTEST_TESTSUITE(fp16)
    UNITTEST_EXEC_TESTCASE(fp16_sinh);
    UNITTEST_EXEC_TESTCASE(fp16_cosh);
    UNITTEST_EXEC_TESTCASE(fp16_tanh);
-
+   //UNITTEST_EXEC_TESTCASE(fp16_atanh);
 
     UNITTEST_EXEC_TESTCASE(fp16_exp);
     UNITTEST_EXEC_TESTCASE(fp16_log);
     UNITTEST_EXEC_TESTCASE(fp16_log10);
     UNITTEST_EXEC_TESTCASE(fp16_log2);
 
+    UNITTEST_EXEC_TESTCASE(fp16_pow);
 
 #else
 
