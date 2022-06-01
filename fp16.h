@@ -544,6 +544,7 @@
 #define FP16_EXP_ITERATIONS         13
 #define FP16_LOG_ITERATIONS         4
 #define FP16_SQRT_ITERATIONS        11
+#define FP16_CBRT_ITERATIONS        17
 
 typedef int16_t fp16_t; /*!< Type can be used for all Q configurations */
 
@@ -664,6 +665,18 @@ fp16_t fp16_lshift(fp16_t fp, uint8_t shift);
     \returns     Returns the square root of x, with the same number of fractional bits as x.
 */
 fp16_t fp16_sqrt(fp16_t fp, uint8_t frac);
+
+/*!
+    \brief      Compute cubic root
+    \details    Returns the cubic root of fp.
+
+    \param      fp      Value whose cubic root is computed.
+    \param      frac    Number of fracional bits
+
+    \returns     Returns the cubic root of fp, with the same number of fractional bits as fp.
+*/
+fp16_t fp16_cbrt(fp16_t s, uint8_t sfrac);
+
 
 
 /*!

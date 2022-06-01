@@ -714,23 +714,107 @@ UNITTEST_TESTCASE(fp16_rint)
    }
 }
 
-#define SQRT_MAXERR_PREC    1.1715729  // *(prec/2)
+float sqrt_maxerr_best_effort [16] = {
+        0.644365,
+        0.322183,
+        0.147372,
+        0.071044,
+        0.034930,
+        0.017324,
+        0.008628,
+        0.004305,
+        0.002151,
+        0.001075,
+        0.000537,
+        0.000269,
+        0.000134,
+        0.000067,
+        0.000034,
+        0.000017,
+};
 
 UNITTEST_TESTCASE(fp16_sqrt)
 {
+    int tmp = FP16_Q1;
 
     for(int tmp = 0; tmp < sizeof(fp16_props)/sizeof(*fp16_props); tmp++)
     {
+        float maxerr = 0;
 
         for (float flt = 0; flt <= fp16_props[tmp].max  ; flt+=fp16_props[tmp].prec)
         {
             fp16_t fp = fp16_flt2fp(flt,fp16_props[tmp].fract);
             fp = fp16_sqrt(fp,fp16_props[tmp].fract);
 
-           UNITTEST_ASSERT("Unexpected result", fabs(sqrt(flt)-fp16_fp2flt(fp,fp16_props[tmp].fract)) <= (fp16_props[tmp].prec/2)*SQRT_MAXERR_PREC);
+            //UNITTEST_PRINTF("%f;%f;%f\n", flt, sqrt(flt),fp16_fp2flt(fp,fp16_props[tmp].fract));
+
+            float err = fabs(sqrt(flt)-fp16_fp2flt(fp,fp16_props[tmp].fract));
+
+            UNITTEST_ASSERT("Unexpected result", fabs(sqrt(flt)-fp16_fp2flt(fp,fp16_props[tmp].fract)) <= sqrt_maxerr_best_effort[tmp]);
+
+            if (err > maxerr)
+            {
+                maxerr = err;
+            }
+        }
+
+        //printf("%f,\n",tmp,maxerr*1.1);
+    }
+}
+
+
+float cbrt_maxerr_best_effort [16] = {
+        1.099593,
+        0.571826,
+        0.274866,
+        0.145397,
+        0.071236,
+        0.039832,
+        0.019887,
+        0.011322,
+        0.005568,
+        0.003513,
+        0.001441,
+        0.000892,
+        0.000537,
+        0.000239,
+        0.000252,
+        0.000140,
+};
+
+UNITTEST_TESTCASE(fp16_cbrt)
+{
+
+
+    for (int tmp = FP16_Q0; tmp < sizeof(fp16_props)/sizeof(*fp16_props); tmp++)
+    {
+        float maxerr = 0;
+
+        for (float flt = 0; flt <= fp16_props[tmp].max  ; flt+=fp16_props[tmp].prec)
+        {
+            fp16_t fp = fp16_flt2fp(flt,fp16_props[tmp].fract);
+            fp = fp16_cbrt(fp,fp16_props[tmp].fract);
+
+            float err = fabs(cbrt(flt)-fp16_fp2flt(fp,fp16_props[tmp].fract));
+
+            if (err > maxerr)
+            {
+                maxerr = err;
+            }
+
+
+             //UNITTEST_PRINTF("%f;%f;%f\n", flt, cbrt(flt),fp16_fp2flt(fp,fp16_props[tmp].fract));
+
+
+             UNITTEST_ASSERT("Unexpected result", err <= cbrt_maxerr_best_effort[tmp] );
 
         }
+
+        //printf("%f,\n",tmp,maxerr*1.1);
     }
+
+
+
 }
 
 
@@ -1118,6 +1202,7 @@ UNITTEST_TESTSUITE(fp16)
    UNITTEST_EXEC_TESTCASE(fp16_round);
    UNITTEST_EXEC_TESTCASE(fp16_lround);
    UNITTEST_EXEC_TESTCASE(fp16_sqrt);
+   UNITTEST_EXEC_TESTCASE(fp16_cbrt);
    UNITTEST_EXEC_TESTCASE(fp16_sin);
    UNITTEST_EXEC_TESTCASE(fp16_cos);
    //UNITTEST_EXEC_TESTCASE(fp16_tan);

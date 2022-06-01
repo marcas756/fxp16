@@ -402,6 +402,38 @@ fp16_t fp16_sqrt(fp16_t s, uint8_t sfrac)
 }
 
 
+fp16_t fp16_cbrt(fp16_t a, uint8_t afrac)
+{
+
+    /*
+        Newton's method
+        x[n+1] = (a/x[n]^2 + 2*x[n])/3
+    */
+
+
+    int32_t x = 1<<afrac;
+
+
+    if ( a == 0 )
+    {
+        return 0;
+    }
+
+    for(int tmp = 0; tmp < FP16_CBRT_ITERATIONS; tmp++)
+    {
+        int32_t xx = x*x;
+        fp16_rshift_m(xx,afrac);
+        x = (x<<1)+(a<<afrac)/xx;
+        x = x/3;
+    }
+
+
+
+
+    fp16_sat_m(x);
+    return (fp16_t)x;
+}
+
 
 fp16_t fp16_sin(fp16_t fp)
 {
