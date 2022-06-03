@@ -365,7 +365,7 @@ int fp16_lround(fp16_t x, uint8_t xfrac)
 
 
 
-int32_t fp32_sqrt(int32_t s, uint8_t sfrac)
+int32_t fp32_sqrt(int32_t s, uint8_t sfrac, uint8_t iter)
 {
     /* https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method */
     // x[n+1] = (x[n] + s/x[n])/2
@@ -384,7 +384,7 @@ int32_t fp32_sqrt(int32_t s, uint8_t sfrac)
 
     int32_t x = 1<<sfrac; // start with 1.0
 
-    for (int i = 0; i < FP16_SQRT_ITERATIONS; i++)
+    for (int i = 0; i < iter; i++)
     {
         x = (x+((s<<sfrac)/x));     //  x[n] + s/x[n]
         fp16_rshift_m(x,1);         //  /2
@@ -399,9 +399,10 @@ int32_t fp32_sqrt(int32_t s, uint8_t sfrac)
     return x;
 }
 
-fp16_t fp16_sqrt(fp16_t s, uint8_t sfrac)
+
+fp16_t fp16_sqrt_helper(fp16_t s, uint8_t sfrac, uint8_t iter)
 {
-    int32_t x = fp32_sqrt(s, sfrac);
+    int32_t x = fp32_sqrt(s, sfrac,iter);
 	fp16_sat_m(x);
 	return x;
 }
@@ -437,9 +438,9 @@ fp16_t fp16_cbrt(fp16_t a, uint8_t afrac)
 }
 
 
-fp16_t fp16_hypot(fp16_t a, fp16_t b, uint8_t frac)
+fp16_t fp16_hypot_helper(fp16_t a, fp16_t b, uint8_t frac, uint8_t iter)
 {
-    int32_t c = fp32_sqrt((a*a+b*b)>>frac,frac);
+    int32_t c = fp32_sqrt((a*a+b*b)>>frac,frac,iter);
     fp16_sat_m(c);
     return c;
 }

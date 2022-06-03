@@ -543,7 +543,8 @@
 
 #define FP16_EXP_ITERATIONS         13
 #define FP16_LOG_ITERATIONS         4
-#define FP16_SQRT_ITERATIONS        18
+#define FP16_SQRT_ITERATIONS        11
+#define FP16_HYPOT_ITERATIONS        18
 #define FP16_CBRT_ITERATIONS        17
 
 typedef int16_t fp16_t; /*!< Type can be used for all Q configurations */
@@ -664,7 +665,10 @@ fp16_t fp16_lshift(fp16_t fp, uint8_t shift);
 
     \returns     Returns the square root of x, with the same number of fractional bits as x.
 */
-fp16_t fp16_sqrt(fp16_t fp, uint8_t frac);
+
+
+fp16_t fp16_sqrt_helper(fp16_t fp, uint8_t frac, uint8_t iter);
+#define fp16_sqrt(fp,frac) fp16_sqrt_helper(fp,frac,FP16_SQRT_ITERATIONS)
 
 /*!
     \brief      Compute cubic root
@@ -691,7 +695,8 @@ fp16_t fp16_cbrt(fp16_t s, uint8_t sfrac);
 
     \returns     The square root of (x^2+y^2).
 */
-fp16_t fp16_hypot(fp16_t a, fp16_t b, uint8_t frac);
+fp16_t fp16_hypot_helper(fp16_t a, fp16_t b, uint8_t frac, uint8_t iter);
+#define fp16_hypot(a,b,frac) fp16_hypot_helper(a,b,frac,FP16_HYPOT_ITERATIONS)
 
 /*!
     \brief      Converts a fixed point type to integer
