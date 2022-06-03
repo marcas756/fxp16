@@ -51,6 +51,23 @@ fp16_div|Divides two fixed point numbers|
 |fp16_sinh|Compute hyperbolic sine|
 |fp16_tanh|Compute hyperbolic tangent|
 
+### Exponential and logarithmic functions
+|Function|Brief documentation|
+|:-|:-|
+|fp16_exp|Compute exponential function|
+|fp16_log|Compute natural logarithm|
+|fp16_log10|Compute common logarithm|
+|fp16_log2|Compute binary logarithm|
+
+
+### Power functions
+|Function|Brief documentation|
+|:-|:-|
+|fp16_pow|Raise to power|
+|fp16_sqrt|Compute square root|
+|fp16_cbrt|Compute cubic root|
+|fp16_hypot|Compute hypotenuse|
+
 ### Fixed-point manipulation functions
 |Function|Brief documentation|
 |:-|:-|
@@ -100,7 +117,7 @@ Trailing 0 indicates no failed testcases
 
 Testrun :
 
-<UTTSB> fp16 "../unittest_fp16.c" "May 27 2022" "07:59:14"
+<UTTSB> fp16 "../unittest_fp16.c" "Jun  3 2022" "18:45:24"
 <UTTCB> fp16 fp16_check_shiftops
 <UTTCE> fp16 fp16_check_shiftops 0
 <UTTCB> fp16 fp16_precision
@@ -129,6 +146,10 @@ Testrun :
 <UTTCE> fp16 fp16_lround 0
 <UTTCB> fp16 fp16_sqrt
 <UTTCE> fp16 fp16_sqrt 0
+<UTTCB> fp16 fp16_cbrt
+<UTTCE> fp16 fp16_cbrt 0
+<UTTCB> fp16 fp16_hypot
+<UTTCE> fp16 fp16_hypot 0
 <UTTCB> fp16 fp16_sin
 <UTTCE> fp16 fp16_sin 0
 <UTTCB> fp16 fp16_cos

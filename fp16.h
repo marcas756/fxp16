@@ -1,5 +1,5 @@
 /*! \copyright
-    Copyright (c) 2017, marco@bacchi.at
+    Copyright (c) 2017-2022, marco@bacchi.at
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -543,7 +543,7 @@
 
 #define FP16_EXP_ITERATIONS         13
 #define FP16_LOG_ITERATIONS         4
-#define FP16_SQRT_ITERATIONS        11
+#define FP16_SQRT_ITERATIONS        18
 #define FP16_CBRT_ITERATIONS        17
 
 typedef int16_t fp16_t; /*!< Type can be used for all Q configurations */
@@ -678,6 +678,20 @@ fp16_t fp16_sqrt(fp16_t fp, uint8_t frac);
 fp16_t fp16_cbrt(fp16_t s, uint8_t sfrac);
 
 
+
+/*!
+    \brief      Compute hypotenuse
+    \details    Returns the hypotenuse of a right-angled triangle whose legs are a and b.
+                The function returns what would be the square root of the sum of the squares of a and b
+                (as per the Pythagorean theorem), but without incurring in undue overflow or underflow of intermediate values.
+
+    \param      a       Floating point valuee corresponding to the legs (in this case a) of a right-angled triangle for which the hypotenuse is computed.
+    \param      b       Floating point values corresponding to the legs (in this case b) of a right-angled triangle for which the hypotenuse is computed.
+    \param      frac    Number of fracional bits
+
+    \returns     The square root of (x^2+y^2).
+*/
+fp16_t fp16_hypot(fp16_t a, fp16_t b, uint8_t frac);
 
 /*!
     \brief      Converts a fixed point type to integer

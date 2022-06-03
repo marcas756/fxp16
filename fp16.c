@@ -42,10 +42,6 @@
 #include <stdbool.h>
 
 
-
-
-
-
 /*!
     \brief      Converts a float to a fixed point type
     \details    Converts a float variable to a fixed point variable. Result gets
@@ -369,18 +365,15 @@ int fp16_lround(fp16_t x, uint8_t xfrac)
 
 
 
-
-
-fp16_t fp16_sqrt(fp16_t s, uint8_t sfrac)
+int32_t fp32_sqrt(int32_t s, uint8_t sfrac)
 {
-	/* https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method */
+    /* https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method */
     // x[n+1] = (x[n] + s/x[n])/2
 
-
-	if ( s == 0 )
-	{
-		return 0;
-	}
+    if ( s == 0 )
+    {
+        return 0;
+    }
 
     if ( fp16_signbit(s) )
     {
@@ -389,14 +382,26 @@ fp16_t fp16_sqrt(fp16_t s, uint8_t sfrac)
     }
 
 
-	int32_t x = 1<<sfrac; // start with 1.0
+    int32_t x = 1<<sfrac; // start with 1.0
 
-	for (int i = 0; i < FP16_SQRT_ITERATIONS; i++)
-	{
-		x = (x+((s<<sfrac)/x));     //  x[n] + s/x[n]
-		fp16_rshift_m(x,1);         //  /2
-	}
+    for (int i = 0; i < FP16_SQRT_ITERATIONS; i++)
+    {
+        x = (x+((s<<sfrac)/x));     //  x[n] + s/x[n]
+        fp16_rshift_m(x,1);         //  /2
+    }
 
+
+    //fp16_sat_m(result);
+    if (x > INT32_MAX) { x = INT32_MAX; }
+    if (x < INT32_MIN) { x = INT32_MIN; }
+
+
+    return x;
+}
+
+fp16_t fp16_sqrt(fp16_t s, uint8_t sfrac)
+{
+    int32_t x = fp32_sqrt(s, sfrac);
 	fp16_sat_m(x);
 	return x;
 }
@@ -427,11 +432,16 @@ fp16_t fp16_cbrt(fp16_t a, uint8_t afrac)
         x = x/3;
     }
 
-
-
-
     fp16_sat_m(x);
     return (fp16_t)x;
+}
+
+
+fp16_t fp16_hypot(fp16_t a, fp16_t b, uint8_t frac)
+{
+    int32_t c = fp32_sqrt((a*a+b*b)>>frac,frac);
+    fp16_sat_m(c);
+    return c;
 }
 
 
@@ -642,8 +652,6 @@ fp16_t fp16_tanh(fp16_t fp, uint8_t frac)
     fp16_sat_m(result);
     return (fp16_t)fp16_fp2fp(result,frac,FP16_Q14);
 }
-
-
 
 
 

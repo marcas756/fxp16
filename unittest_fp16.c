@@ -48,7 +48,7 @@
 #include <fenv.h>
 #include <errno.h>
 
-#define REPETITIONS 100000
+#define REPETITIONS 1000
 
  typedef struct {
     uint8_t fract;
@@ -812,11 +812,61 @@ UNITTEST_TESTCASE(fp16_cbrt)
 
         //printf("%f,\n",tmp,maxerr*1.1);
     }
-
-
-
 }
 
+float hypot_maxerr_best_effort [16] = {
+        1.781250,
+        0.892090,
+        0.448975,
+        0.220825,
+        0.110962,
+        0.055573,
+        0.027557,
+        0.016490,
+        0.016317,
+        0.061286,
+        0.036698,
+        0.032176,
+        0.018519,
+        0.015648,
+        0.011531,
+        0.008245,
+};
+
+UNITTEST_TESTCASE(fp16_hypot)
+{
+
+    for (int Qx = FP16_Q0; Qx < sizeof(fp16_props)/sizeof(*fp16_props); Qx++)
+    {
+
+        float maxerr = 0;
+
+        for(int rep = 0; rep < REPETITIONS; rep++)
+        {
+            float aflt = randf(fp16_props[Qx].min, fp16_props[Qx].max);
+            float bflt = randf(fp16_props[Qx].min, fp16_props[Qx].max);
+            float cflt = f_saturate(hypot(aflt,bflt),fp16_props[Qx].min,fp16_props[Qx].max);
+
+            fp16_t afp = fp16_flt2fp(aflt,Qx);
+            fp16_t bfp = fp16_flt2fp(bflt,Qx);
+            fp16_t cfp = fp16_hypot(afp,bfp,Qx);
+
+            float err = fabs(cflt-fp16_fp2flt(cfp,Qx));
+
+            UNITTEST_ASSERT("Unexpected result", err <= hypot_maxerr_best_effort[Qx] );
+
+            if (err > maxerr)
+            {
+                maxerr = err;
+            }
+
+            //UNITTEST_PRINTF("%f;%f\n", cflt, fp16_fp2flt(cfp,Qx));
+
+        }
+
+       // printf("%f,\n",maxerr*1.5);
+    }
+}
 
 #define SIN_MAX_ERR 0.00174436
 
@@ -1188,32 +1238,33 @@ UNITTEST_TESTSUITE(fp16)
 
 #if (!UNITTEST_DEVELOPMENT)
 
-   UNITTEST_EXEC_TESTCASE(fp16_check_shiftops);
-   UNITTEST_EXEC_TESTCASE(fp16_precision);
-   UNITTEST_EXEC_TESTCASE(fp16_ftofp_fptof);
-   UNITTEST_EXEC_TESTCASE(fp16_floor);
-   UNITTEST_EXEC_TESTCASE(fp16_ceil);
-   UNITTEST_EXEC_TESTCASE(fp16_trunc);
-   UNITTEST_EXEC_TESTCASE(fp16_fabs);
-   UNITTEST_EXEC_TESTCASE(fp16_abs);
-   UNITTEST_EXEC_TESTCASE(fp16_fmod);
-   UNITTEST_EXEC_TESTCASE(fp16_fp2int);
-   UNITTEST_EXEC_TESTCASE(fp16_int2fp);
-   UNITTEST_EXEC_TESTCASE(fp16_round);
-   UNITTEST_EXEC_TESTCASE(fp16_lround);
-   UNITTEST_EXEC_TESTCASE(fp16_sqrt);
-   UNITTEST_EXEC_TESTCASE(fp16_cbrt);
-   UNITTEST_EXEC_TESTCASE(fp16_sin);
-   UNITTEST_EXEC_TESTCASE(fp16_cos);
-   //UNITTEST_EXEC_TESTCASE(fp16_tan);
+    UNITTEST_EXEC_TESTCASE(fp16_check_shiftops);
+    UNITTEST_EXEC_TESTCASE(fp16_precision);
+    UNITTEST_EXEC_TESTCASE(fp16_ftofp_fptof);
+    UNITTEST_EXEC_TESTCASE(fp16_floor);
+    UNITTEST_EXEC_TESTCASE(fp16_ceil);
+    UNITTEST_EXEC_TESTCASE(fp16_trunc);
+    UNITTEST_EXEC_TESTCASE(fp16_fabs);
+    UNITTEST_EXEC_TESTCASE(fp16_abs);
+    UNITTEST_EXEC_TESTCASE(fp16_fmod);
+    UNITTEST_EXEC_TESTCASE(fp16_fp2int);
+    UNITTEST_EXEC_TESTCASE(fp16_int2fp);
+    UNITTEST_EXEC_TESTCASE(fp16_round);
+    UNITTEST_EXEC_TESTCASE(fp16_lround);
+    UNITTEST_EXEC_TESTCASE(fp16_sqrt);
+    UNITTEST_EXEC_TESTCASE(fp16_cbrt);
+    UNITTEST_EXEC_TESTCASE(fp16_hypot);
+    UNITTEST_EXEC_TESTCASE(fp16_sin);
+    UNITTEST_EXEC_TESTCASE(fp16_cos);
+    //UNITTEST_EXEC_TESTCASE(fp16_tan);
 
-   UNITTEST_EXEC_TESTCASE(fp16_asin);
-   UNITTEST_EXEC_TESTCASE(fp16_acos);
-   UNITTEST_EXEC_TESTCASE(fp16_atan);
+    UNITTEST_EXEC_TESTCASE(fp16_asin);
+    UNITTEST_EXEC_TESTCASE(fp16_acos);
+    UNITTEST_EXEC_TESTCASE(fp16_atan);
 
-   UNITTEST_EXEC_TESTCASE(fp16_sinh);
-   UNITTEST_EXEC_TESTCASE(fp16_cosh);
-   UNITTEST_EXEC_TESTCASE(fp16_tanh);
+    UNITTEST_EXEC_TESTCASE(fp16_sinh);
+    UNITTEST_EXEC_TESTCASE(fp16_cosh);
+    UNITTEST_EXEC_TESTCASE(fp16_tanh);
 
 
     UNITTEST_EXEC_TESTCASE(fp16_exp);
