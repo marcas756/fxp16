@@ -1,5 +1,5 @@
 # fp16
-16 bit fixed point math library  
+16 bit fixed point math library for memory constrained and computing power limited systems
 
 ## Implemented :
 ### Fixed point conversions  
