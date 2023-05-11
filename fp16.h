@@ -39,507 +39,617 @@
 
 #include <stdint.h>
 
-#define FP16_Q0             (0)
-#define FP16_Q0_PREC        (1)
-#define FP16_Q0_MAX     (32767)
-#define FP16_Q0_MIN     (-32768)
-
-#define FP16_Q0_M_E     (3)          /* 3.0 */
-#define FP16_Q0_M_PI        (3)          /* 3.0 */
-#define FP16_Q0_M_PI_2      (2)          /* 2.0 */
-#define FP16_Q0_M_PI_4      (1)          /* 1.0 */
-#define FP16_Q0_M_1_PI      (0)          /* 0.0 */
-#define FP16_Q0_M_2_PI      (1)          /* 1.0 */
-#define FP16_Q0_M_2_SQRTPI      (1)          /* 1.0 */
-#define FP16_Q0_M_SQRT2     (1)          /* 1.0 */
-#define FP16_Q0_M_SQRT1_2       (1)          /* 1.0 */
-#define FP16_Q0_M_LOG2E     (1)          /* 1.0 */
-#define FP16_Q0_M_LOG10E        (0)          /* 0.0 */
-#define FP16_Q0_M_LN2       (1)          /* 1.0 */
-#define FP16_Q0_M_LN10      (2)          /* 2.0 */
-#define FP16_Q0_ONE_EIGHTH      (0)          /* 0.0 */
-#define FP16_Q0_ONE_QUARTER     (0)          /* 0.0 */
-#define FP16_Q0_THREE_EIGHTHS       (0)          /* 0.0 */
-#define FP16_Q0_ONE_HALF        (0)          /* 0.0 */
-#define FP16_Q0_FIVE_EIGHTHS        (1)          /* 1.0 */
-#define FP16_Q0_THREE_QUARTERS      (1)          /* 1.0 */
-#define FP16_Q0_SEVEN_EIGHTHS       (1)          /* 1.0 */
-#define FP16_Q0_ONE_THIRD       (0)          /* 0.0 */
-#define FP16_Q0_TWO_THRIDS      (1)          /* 1.0 */
-#define FP16_Q0_ONE     (1)          /* 1.0 */
-#define FP16_Q0_MINUS_ONE       (-1)             /* -1.0 */
-
-
-#define FP16_Q1             (1)
-#define FP16_Q1_PREC        (0.5)
-#define FP16_Q1_MAX     (16383.5)
-#define FP16_Q1_MIN     (-16384.0)
-
-#define FP16_Q1_M_E     (5)          /* 2.5 */
-#define FP16_Q1_M_PI        (6)          /* 3.0 */
-#define FP16_Q1_M_PI_2      (3)          /* 1.5 */
-#define FP16_Q1_M_PI_4      (2)          /* 1.0 */
-#define FP16_Q1_M_1_PI      (1)          /* 0.5 */
-#define FP16_Q1_M_2_PI      (1)          /* 0.5 */
-#define FP16_Q1_M_2_SQRTPI      (2)          /* 1.0 */
-#define FP16_Q1_M_SQRT2     (3)          /* 1.5 */
-#define FP16_Q1_M_SQRT1_2       (1)          /* 0.5 */
-#define FP16_Q1_M_LOG2E     (3)          /* 1.5 */
-#define FP16_Q1_M_LOG10E        (1)          /* 0.5 */
-#define FP16_Q1_M_LN2       (1)          /* 0.5 */
-#define FP16_Q1_M_LN10      (5)          /* 2.5 */
-#define FP16_Q1_ONE_EIGHTH      (0)          /* 0.0 */
-#define FP16_Q1_ONE_QUARTER     (0)          /* 0.0 */
-#define FP16_Q1_THREE_EIGHTHS       (1)          /* 0.5 */
-#define FP16_Q1_ONE_HALF        (1)          /* 0.5 */
-#define FP16_Q1_FIVE_EIGHTHS        (1)          /* 0.5 */
-#define FP16_Q1_THREE_QUARTERS      (2)          /* 1.0 */
-#define FP16_Q1_SEVEN_EIGHTHS       (2)          /* 1.0 */
-#define FP16_Q1_ONE_THIRD       (1)          /* 0.5 */
-#define FP16_Q1_TWO_THRIDS      (1)          /* 0.5 */
-#define FP16_Q1_ONE     (2)          /* 1.0 */
-#define FP16_Q1_MINUS_ONE       (-2)             /* -1.0 */
+// --------------------------------------------------------------------------
+#define FP16_Q0                    (0)
+#define FP16_Q0_PREC               (1.0)
+#define FP16_Q0_MAX                (32767.0)
+#define FP16_Q0_MIN                (-32768.0)
+// --------------------------------------------------------------------------
+#define FP16_Q0_M_E                (3)                 // 3.0
+#define FP16_Q0_M_LOG2E            (1)                 // 1.0
+#define FP16_Q0_M_LOG10E           (0)                 // 0.0
+#define FP16_Q0_M_LN2              (1)                 // 1.0
+#define FP16_Q0_M_PI               (3)                 // 3.0
+#define FP16_Q0_M_PI_2             (2)                 // 2.0
+#define FP16_Q0_M_PI_4             (1)                 // 1.0
+#define FP16_Q0_M_1_PI             (0)                 // 0.0
+#define FP16_Q0_M_2_PI             (1)                 // 1.0
+#define FP16_Q0_M_2_SQRTPI         (1)                 // 1.0
+#define FP16_Q0_M_SQRT2            (1)                 // 1.0
+#define FP16_Q0_M_SQRT1_2          (1)                 // 1.0
+#define FP16_Q0_M_TWOPI            (6)                 // 6.0
+#define FP16_Q0_M_3PI_4            (2)                 // 2.0
+#define FP16_Q0_M_SQRTPI           (2)                 // 2.0
+#define FP16_Q0_M_SQRT3            (2)                 // 2.0
+#define FP16_Q0_M_IVLN10           (0)                 // 0.0
+#define FP16_Q0_M_LOG2_E           (1)                 // 1.0
+#define FP16_Q0_M_INVLN2           (1)                 // 1.0
+#define FP16_Q0_ONE_EIGHTH         (0)                 // 0.0
+#define FP16_Q0_ONE_QUARTER        (0)                 // 0.0
+#define FP16_Q0_THREE_EIGHTHS      (0)                 // 0.0
+#define FP16_Q0_ONE_HALF           (0)                 // 0.0
+#define FP16_Q0_FIVE_EIGHTHS       (1)                 // 1.0
+#define FP16_Q0_THREE_QUARTERS     (1)                 // 1.0
+#define FP16_Q0_SEVEN_EIGHTHS      (1)                 // 1.0
+#define FP16_Q0_ONE_THIRD          (0)                 // 0.0
+#define FP16_Q0_TWO_THIRDS         (1)                 // 1.0
+#define FP16_Q0_ONE                (1)                 // 1.0
+#define FP16_Q0_MINUS_ONE          (-1)                // -1.0
 
 
-#define FP16_Q2             (2)
-#define FP16_Q2_PREC        (0.25)
-#define FP16_Q2_MAX     (8191.75)
-#define FP16_Q2_MIN     (-8192.0)
-
-#define FP16_Q2_M_E     (11)             /* 2.75 */
-#define FP16_Q2_M_PI        (13)             /* 3.25 */
-#define FP16_Q2_M_PI_2      (6)          /* 1.5 */
-#define FP16_Q2_M_PI_4      (3)          /* 0.75 */
-#define FP16_Q2_M_1_PI      (1)          /* 0.25 */
-#define FP16_Q2_M_2_PI      (3)          /* 0.75 */
-#define FP16_Q2_M_2_SQRTPI      (5)          /* 1.25 */
-#define FP16_Q2_M_SQRT2     (6)          /* 1.5 */
-#define FP16_Q2_M_SQRT1_2       (3)          /* 0.75 */
-#define FP16_Q2_M_LOG2E     (6)          /* 1.5 */
-#define FP16_Q2_M_LOG10E        (2)          /* 0.5 */
-#define FP16_Q2_M_LN2       (3)          /* 0.75 */
-#define FP16_Q2_M_LN10      (9)          /* 2.25 */
-#define FP16_Q2_ONE_EIGHTH      (0)          /* 0.0 */
-#define FP16_Q2_ONE_QUARTER     (1)          /* 0.25 */
-#define FP16_Q2_THREE_EIGHTHS       (2)          /* 0.5 */
-#define FP16_Q2_ONE_HALF        (2)          /* 0.5 */
-#define FP16_Q2_FIVE_EIGHTHS        (2)          /* 0.5 */
-#define FP16_Q2_THREE_QUARTERS      (3)          /* 0.75 */
-#define FP16_Q2_SEVEN_EIGHTHS       (4)          /* 1.0 */
-#define FP16_Q2_ONE_THIRD       (1)          /* 0.25 */
-#define FP16_Q2_TWO_THRIDS      (3)          /* 0.75 */
-#define FP16_Q2_ONE     (4)          /* 1.0 */
-#define FP16_Q2_MINUS_ONE       (-4)             /* -1.0 */
-
-
-#define FP16_Q3             (3)
-#define FP16_Q3_PREC        (0.125)
-#define FP16_Q3_MAX     (4095.875)
-#define FP16_Q3_MIN     (-4096.0)
-
-#define FP16_Q3_M_E     (22)             /* 2.75 */
-#define FP16_Q3_M_PI        (25)             /* 3.125 */
-#define FP16_Q3_M_PI_2      (13)             /* 1.625 */
-#define FP16_Q3_M_PI_4      (6)          /* 0.75 */
-#define FP16_Q3_M_1_PI      (3)          /* 0.375 */
-#define FP16_Q3_M_2_PI      (5)          /* 0.625 */
-#define FP16_Q3_M_2_SQRTPI      (9)          /* 1.125 */
-#define FP16_Q3_M_SQRT2     (11)             /* 1.375 */
-#define FP16_Q3_M_SQRT1_2       (6)          /* 0.75 */
-#define FP16_Q3_M_LOG2E     (12)             /* 1.5 */
-#define FP16_Q3_M_LOG10E        (3)          /* 0.375 */
-#define FP16_Q3_M_LN2       (6)          /* 0.75 */
-#define FP16_Q3_M_LN10      (18)             /* 2.25 */
-#define FP16_Q3_ONE_EIGHTH      (1)          /* 0.125 */
-#define FP16_Q3_ONE_QUARTER     (2)          /* 0.25 */
-#define FP16_Q3_THREE_EIGHTHS       (3)          /* 0.375 */
-#define FP16_Q3_ONE_HALF        (4)          /* 0.5 */
-#define FP16_Q3_FIVE_EIGHTHS        (5)          /* 0.625 */
-#define FP16_Q3_THREE_QUARTERS      (6)          /* 0.75 */
-#define FP16_Q3_SEVEN_EIGHTHS       (7)          /* 0.875 */
-#define FP16_Q3_ONE_THIRD       (3)          /* 0.375 */
-#define FP16_Q3_TWO_THRIDS      (5)          /* 0.625 */
-#define FP16_Q3_ONE     (8)          /* 1.0 */
-#define FP16_Q3_MINUS_ONE       (-8)             /* -1.0 */
+// --------------------------------------------------------------------------
+#define FP16_Q1                    (1)
+#define FP16_Q1_PREC               (0.5)
+#define FP16_Q1_MAX                (16383.5)
+#define FP16_Q1_MIN                (-16384.0)
+// --------------------------------------------------------------------------
+#define FP16_Q1_M_E                (5)                 // 2.5
+#define FP16_Q1_M_LOG2E            (3)                 // 1.5
+#define FP16_Q1_M_LOG10E           (1)                 // 0.5
+#define FP16_Q1_M_LN2              (1)                 // 0.5
+#define FP16_Q1_M_PI               (6)                 // 3.0
+#define FP16_Q1_M_PI_2             (3)                 // 1.5
+#define FP16_Q1_M_PI_4             (2)                 // 1.0
+#define FP16_Q1_M_1_PI             (1)                 // 0.5
+#define FP16_Q1_M_2_PI             (1)                 // 0.5
+#define FP16_Q1_M_2_SQRTPI         (2)                 // 1.0
+#define FP16_Q1_M_SQRT2            (3)                 // 1.5
+#define FP16_Q1_M_SQRT1_2          (1)                 // 0.5
+#define FP16_Q1_M_TWOPI            (13)                // 6.5
+#define FP16_Q1_M_3PI_4            (5)                 // 2.5
+#define FP16_Q1_M_SQRTPI           (4)                 // 2.0
+#define FP16_Q1_M_SQRT3            (3)                 // 1.5
+#define FP16_Q1_M_IVLN10           (1)                 // 0.5
+#define FP16_Q1_M_LOG2_E           (3)                 // 1.5
+#define FP16_Q1_M_INVLN2           (3)                 // 1.5
+#define FP16_Q1_ONE_EIGHTH         (0)                 // 0.0
+#define FP16_Q1_ONE_QUARTER        (0)                 // 0.0
+#define FP16_Q1_THREE_EIGHTHS      (1)                 // 0.5
+#define FP16_Q1_ONE_HALF           (1)                 // 0.5
+#define FP16_Q1_FIVE_EIGHTHS       (1)                 // 0.5
+#define FP16_Q1_THREE_QUARTERS     (2)                 // 1.0
+#define FP16_Q1_SEVEN_EIGHTHS      (2)                 // 1.0
+#define FP16_Q1_ONE_THIRD          (1)                 // 0.5
+#define FP16_Q1_TWO_THIRDS         (1)                 // 0.5
+#define FP16_Q1_ONE                (2)                 // 1.0
+#define FP16_Q1_MINUS_ONE          (-2)                // -1.0
 
 
-#define FP16_Q4             (4)
-#define FP16_Q4_PREC        (0.0625)
-#define FP16_Q4_MAX     (2047.9375)
-#define FP16_Q4_MIN     (-2048.0)
-
-#define FP16_Q4_M_E     (43)             /* 2.6875 */
-#define FP16_Q4_M_PI        (50)             /* 3.125 */
-#define FP16_Q4_M_PI_2      (25)             /* 1.5625 */
-#define FP16_Q4_M_PI_4      (13)             /* 0.8125 */
-#define FP16_Q4_M_1_PI      (5)          /* 0.3125 */
-#define FP16_Q4_M_2_PI      (10)             /* 0.625 */
-#define FP16_Q4_M_2_SQRTPI      (18)             /* 1.125 */
-#define FP16_Q4_M_SQRT2     (23)             /* 1.4375 */
-#define FP16_Q4_M_SQRT1_2       (11)             /* 0.6875 */
-#define FP16_Q4_M_LOG2E     (23)             /* 1.4375 */
-#define FP16_Q4_M_LOG10E        (7)          /* 0.4375 */
-#define FP16_Q4_M_LN2       (11)             /* 0.6875 */
-#define FP16_Q4_M_LN10      (37)             /* 2.3125 */
-#define FP16_Q4_ONE_EIGHTH      (2)          /* 0.125 */
-#define FP16_Q4_ONE_QUARTER     (4)          /* 0.25 */
-#define FP16_Q4_THREE_EIGHTHS       (6)          /* 0.375 */
-#define FP16_Q4_ONE_HALF        (8)          /* 0.5 */
-#define FP16_Q4_FIVE_EIGHTHS        (10)             /* 0.625 */
-#define FP16_Q4_THREE_QUARTERS      (12)             /* 0.75 */
-#define FP16_Q4_SEVEN_EIGHTHS       (14)             /* 0.875 */
-#define FP16_Q4_ONE_THIRD       (5)          /* 0.3125 */
-#define FP16_Q4_TWO_THRIDS      (11)             /* 0.6875 */
-#define FP16_Q4_ONE     (16)             /* 1.0 */
-#define FP16_Q4_MINUS_ONE       (-16)            /* -1.0 */
-
-
-#define FP16_Q5             (5)
-#define FP16_Q5_PREC        (0.03125)
-#define FP16_Q5_MAX     (1023.96875)
-#define FP16_Q5_MIN     (-1024.0)
-
-#define FP16_Q5_M_E     (87)             /* 2.71875 */
-#define FP16_Q5_M_PI        (101)            /* 3.15625 */
-#define FP16_Q5_M_PI_2      (50)             /* 1.5625 */
-#define FP16_Q5_M_PI_4      (25)             /* 0.78125 */
-#define FP16_Q5_M_1_PI      (10)             /* 0.3125 */
-#define FP16_Q5_M_2_PI      (20)             /* 0.625 */
-#define FP16_Q5_M_2_SQRTPI      (36)             /* 1.125 */
-#define FP16_Q5_M_SQRT2     (45)             /* 1.40625 */
-#define FP16_Q5_M_SQRT1_2       (23)             /* 0.71875 */
-#define FP16_Q5_M_LOG2E     (46)             /* 1.4375 */
-#define FP16_Q5_M_LOG10E        (14)             /* 0.4375 */
-#define FP16_Q5_M_LN2       (22)             /* 0.6875 */
-#define FP16_Q5_M_LN10      (74)             /* 2.3125 */
-#define FP16_Q5_ONE_EIGHTH      (4)          /* 0.125 */
-#define FP16_Q5_ONE_QUARTER     (8)          /* 0.25 */
-#define FP16_Q5_THREE_EIGHTHS       (12)             /* 0.375 */
-#define FP16_Q5_ONE_HALF        (16)             /* 0.5 */
-#define FP16_Q5_FIVE_EIGHTHS        (20)             /* 0.625 */
-#define FP16_Q5_THREE_QUARTERS      (24)             /* 0.75 */
-#define FP16_Q5_SEVEN_EIGHTHS       (28)             /* 0.875 */
-#define FP16_Q5_ONE_THIRD       (11)             /* 0.34375 */
-#define FP16_Q5_TWO_THRIDS      (21)             /* 0.65625 */
-#define FP16_Q5_ONE     (32)             /* 1.0 */
-#define FP16_Q5_MINUS_ONE       (-32)            /* -1.0 */
+// --------------------------------------------------------------------------
+#define FP16_Q2                    (2)
+#define FP16_Q2_PREC               (0.25)
+#define FP16_Q2_MAX                (8191.75)
+#define FP16_Q2_MIN                (-8192.0)
+// --------------------------------------------------------------------------
+#define FP16_Q2_M_E                (11)                // 2.75
+#define FP16_Q2_M_LOG2E            (6)                 // 1.5
+#define FP16_Q2_M_LOG10E           (2)                 // 0.5
+#define FP16_Q2_M_LN2              (3)                 // 0.75
+#define FP16_Q2_M_PI               (13)                // 3.25
+#define FP16_Q2_M_PI_2             (6)                 // 1.5
+#define FP16_Q2_M_PI_4             (3)                 // 0.75
+#define FP16_Q2_M_1_PI             (1)                 // 0.25
+#define FP16_Q2_M_2_PI             (3)                 // 0.75
+#define FP16_Q2_M_2_SQRTPI         (5)                 // 1.25
+#define FP16_Q2_M_SQRT2            (6)                 // 1.5
+#define FP16_Q2_M_SQRT1_2          (3)                 // 0.75
+#define FP16_Q2_M_TWOPI            (25)                // 6.25
+#define FP16_Q2_M_3PI_4            (9)                 // 2.25
+#define FP16_Q2_M_SQRTPI           (7)                 // 1.75
+#define FP16_Q2_M_SQRT3            (7)                 // 1.75
+#define FP16_Q2_M_IVLN10           (2)                 // 0.5
+#define FP16_Q2_M_LOG2_E           (6)                 // 1.5
+#define FP16_Q2_M_INVLN2           (6)                 // 1.5
+#define FP16_Q2_ONE_EIGHTH         (0)                 // 0.0
+#define FP16_Q2_ONE_QUARTER        (1)                 // 0.25
+#define FP16_Q2_THREE_EIGHTHS      (2)                 // 0.5
+#define FP16_Q2_ONE_HALF           (2)                 // 0.5
+#define FP16_Q2_FIVE_EIGHTHS       (2)                 // 0.5
+#define FP16_Q2_THREE_QUARTERS     (3)                 // 0.75
+#define FP16_Q2_SEVEN_EIGHTHS      (4)                 // 1.0
+#define FP16_Q2_ONE_THIRD          (1)                 // 0.25
+#define FP16_Q2_TWO_THIRDS         (3)                 // 0.75
+#define FP16_Q2_ONE                (4)                 // 1.0
+#define FP16_Q2_MINUS_ONE          (-4)                // -1.0
 
 
-#define FP16_Q6             (6)
-#define FP16_Q6_PREC        (0.015625)
-#define FP16_Q6_MAX     (511.984375)
-#define FP16_Q6_MIN     (-512.0)
-
-#define FP16_Q6_M_E     (174)            /* 2.71875 */
-#define FP16_Q6_M_PI        (201)            /* 3.140625 */
-#define FP16_Q6_M_PI_2      (101)            /* 1.578125 */
-#define FP16_Q6_M_PI_4      (50)             /* 0.78125 */
-#define FP16_Q6_M_1_PI      (20)             /* 0.3125 */
-#define FP16_Q6_M_2_PI      (41)             /* 0.640625 */
-#define FP16_Q6_M_2_SQRTPI      (72)             /* 1.125 */
-#define FP16_Q6_M_SQRT2     (91)             /* 1.421875 */
-#define FP16_Q6_M_SQRT1_2       (45)             /* 0.703125 */
-#define FP16_Q6_M_LOG2E     (92)             /* 1.4375 */
-#define FP16_Q6_M_LOG10E        (28)             /* 0.4375 */
-#define FP16_Q6_M_LN2       (44)             /* 0.6875 */
-#define FP16_Q6_M_LN10      (147)            /* 2.296875 */
-#define FP16_Q6_ONE_EIGHTH      (8)          /* 0.125 */
-#define FP16_Q6_ONE_QUARTER     (16)             /* 0.25 */
-#define FP16_Q6_THREE_EIGHTHS       (24)             /* 0.375 */
-#define FP16_Q6_ONE_HALF        (32)             /* 0.5 */
-#define FP16_Q6_FIVE_EIGHTHS        (40)             /* 0.625 */
-#define FP16_Q6_THREE_QUARTERS      (48)             /* 0.75 */
-#define FP16_Q6_SEVEN_EIGHTHS       (56)             /* 0.875 */
-#define FP16_Q6_ONE_THIRD       (21)             /* 0.328125 */
-#define FP16_Q6_TWO_THRIDS      (43)             /* 0.671875 */
-#define FP16_Q6_ONE     (64)             /* 1.0 */
-#define FP16_Q6_MINUS_ONE       (-64)            /* -1.0 */
-
-
-#define FP16_Q7             (7)
-#define FP16_Q7_PREC        (0.0078125)
-#define FP16_Q7_MAX     (255.9921875)
-#define FP16_Q7_MIN     (-256.0)
-
-#define FP16_Q7_M_E     (348)            /* 2.71875 */
-#define FP16_Q7_M_PI        (402)            /* 3.140625 */
-#define FP16_Q7_M_PI_2      (201)            /* 1.5703125 */
-#define FP16_Q7_M_PI_4      (101)            /* 0.7890625 */
-#define FP16_Q7_M_1_PI      (41)             /* 0.3203125 */
-#define FP16_Q7_M_2_PI      (81)             /* 0.6328125 */
-#define FP16_Q7_M_2_SQRTPI      (144)            /* 1.125 */
-#define FP16_Q7_M_SQRT2     (181)            /* 1.4140625 */
-#define FP16_Q7_M_SQRT1_2       (91)             /* 0.7109375 */
-#define FP16_Q7_M_LOG2E     (185)            /* 1.4453125 */
-#define FP16_Q7_M_LOG10E        (56)             /* 0.4375 */
-#define FP16_Q7_M_LN2       (89)             /* 0.6953125 */
-#define FP16_Q7_M_LN10      (295)            /* 2.3046875 */
-#define FP16_Q7_ONE_EIGHTH      (16)             /* 0.125 */
-#define FP16_Q7_ONE_QUARTER     (32)             /* 0.25 */
-#define FP16_Q7_THREE_EIGHTHS       (48)             /* 0.375 */
-#define FP16_Q7_ONE_HALF        (64)             /* 0.5 */
-#define FP16_Q7_FIVE_EIGHTHS        (80)             /* 0.625 */
-#define FP16_Q7_THREE_QUARTERS      (96)             /* 0.75 */
-#define FP16_Q7_SEVEN_EIGHTHS       (112)            /* 0.875 */
-#define FP16_Q7_ONE_THIRD       (43)             /* 0.3359375 */
-#define FP16_Q7_TWO_THRIDS      (85)             /* 0.6640625 */
-#define FP16_Q7_ONE     (128)            /* 1.0 */
-#define FP16_Q7_MINUS_ONE       (-128)           /* -1.0 */
+// --------------------------------------------------------------------------
+#define FP16_Q3                    (3)
+#define FP16_Q3_PREC               (0.125)
+#define FP16_Q3_MAX                (4095.875)
+#define FP16_Q3_MIN                (-4096.0)
+// --------------------------------------------------------------------------
+#define FP16_Q3_M_E                (22)                // 2.75
+#define FP16_Q3_M_LOG2E            (12)                // 1.5
+#define FP16_Q3_M_LOG10E           (3)                 // 0.375
+#define FP16_Q3_M_LN2              (6)                 // 0.75
+#define FP16_Q3_M_PI               (25)                // 3.125
+#define FP16_Q3_M_PI_2             (13)                // 1.625
+#define FP16_Q3_M_PI_4             (6)                 // 0.75
+#define FP16_Q3_M_1_PI             (3)                 // 0.375
+#define FP16_Q3_M_2_PI             (5)                 // 0.625
+#define FP16_Q3_M_2_SQRTPI         (9)                 // 1.125
+#define FP16_Q3_M_SQRT2            (11)                // 1.375
+#define FP16_Q3_M_SQRT1_2          (6)                 // 0.75
+#define FP16_Q3_M_TWOPI            (50)                // 6.25
+#define FP16_Q3_M_3PI_4            (19)                // 2.375
+#define FP16_Q3_M_SQRTPI           (14)                // 1.75
+#define FP16_Q3_M_SQRT3            (14)                // 1.75
+#define FP16_Q3_M_IVLN10           (3)                 // 0.375
+#define FP16_Q3_M_LOG2_E           (12)                // 1.5
+#define FP16_Q3_M_INVLN2           (12)                // 1.5
+#define FP16_Q3_ONE_EIGHTH         (1)                 // 0.125
+#define FP16_Q3_ONE_QUARTER        (2)                 // 0.25
+#define FP16_Q3_THREE_EIGHTHS      (3)                 // 0.375
+#define FP16_Q3_ONE_HALF           (4)                 // 0.5
+#define FP16_Q3_FIVE_EIGHTHS       (5)                 // 0.625
+#define FP16_Q3_THREE_QUARTERS     (6)                 // 0.75
+#define FP16_Q3_SEVEN_EIGHTHS      (7)                 // 0.875
+#define FP16_Q3_ONE_THIRD          (3)                 // 0.375
+#define FP16_Q3_TWO_THIRDS         (5)                 // 0.625
+#define FP16_Q3_ONE                (8)                 // 1.0
+#define FP16_Q3_MINUS_ONE          (-8)                // -1.0
 
 
-#define FP16_Q8             (8)
-#define FP16_Q8_PREC        (0.00390625)
-#define FP16_Q8_MAX     (127.99609375)
-#define FP16_Q8_MIN     (-128.0)
-
-#define FP16_Q8_M_E     (696)            /* 2.71875 */
-#define FP16_Q8_M_PI        (804)            /* 3.140625 */
-#define FP16_Q8_M_PI_2      (402)            /* 1.5703125 */
-#define FP16_Q8_M_PI_4      (201)            /* 0.78515625 */
-#define FP16_Q8_M_1_PI      (81)             /* 0.31640625 */
-#define FP16_Q8_M_2_PI      (163)            /* 0.63671875 */
-#define FP16_Q8_M_2_SQRTPI      (289)            /* 1.12890625 */
-#define FP16_Q8_M_SQRT2     (362)            /* 1.4140625 */
-#define FP16_Q8_M_SQRT1_2       (181)            /* 0.70703125 */
-#define FP16_Q8_M_LOG2E     (369)            /* 1.44140625 */
-#define FP16_Q8_M_LOG10E        (111)            /* 0.43359375 */
-#define FP16_Q8_M_LN2       (177)            /* 0.69140625 */
-#define FP16_Q8_M_LN10      (589)            /* 2.30078125 */
-#define FP16_Q8_ONE_EIGHTH      (32)             /* 0.125 */
-#define FP16_Q8_ONE_QUARTER     (64)             /* 0.25 */
-#define FP16_Q8_THREE_EIGHTHS       (96)             /* 0.375 */
-#define FP16_Q8_ONE_HALF        (128)            /* 0.5 */
-#define FP16_Q8_FIVE_EIGHTHS        (160)            /* 0.625 */
-#define FP16_Q8_THREE_QUARTERS      (192)            /* 0.75 */
-#define FP16_Q8_SEVEN_EIGHTHS       (224)            /* 0.875 */
-#define FP16_Q8_ONE_THIRD       (85)             /* 0.33203125 */
-#define FP16_Q8_TWO_THRIDS      (171)            /* 0.66796875 */
-#define FP16_Q8_ONE     (256)            /* 1.0 */
-#define FP16_Q8_MINUS_ONE       (-256)           /* -1.0 */
-
-
-#define FP16_Q9             (9)
-#define FP16_Q9_PREC        (0.001953125)
-#define FP16_Q9_MAX     (63.998046875)
-#define FP16_Q9_MIN     (-64.0)
-
-#define FP16_Q9_M_E     (1392)           /* 2.71875 */
-#define FP16_Q9_M_PI        (1608)           /* 3.140625 */
-#define FP16_Q9_M_PI_2      (804)            /* 1.5703125 */
-#define FP16_Q9_M_PI_4      (402)            /* 0.78515625 */
-#define FP16_Q9_M_1_PI      (163)            /* 0.318359375 */
-#define FP16_Q9_M_2_PI      (326)            /* 0.63671875 */
-#define FP16_Q9_M_2_SQRTPI      (578)            /* 1.12890625 */
-#define FP16_Q9_M_SQRT2     (724)            /* 1.4140625 */
-#define FP16_Q9_M_SQRT1_2       (362)            /* 0.70703125 */
-#define FP16_Q9_M_LOG2E     (739)            /* 1.443359375 */
-#define FP16_Q9_M_LOG10E        (222)            /* 0.43359375 */
-#define FP16_Q9_M_LN2       (355)            /* 0.693359375 */
-#define FP16_Q9_M_LN10      (1179)           /* 2.302734375 */
-#define FP16_Q9_ONE_EIGHTH      (64)             /* 0.125 */
-#define FP16_Q9_ONE_QUARTER     (128)            /* 0.25 */
-#define FP16_Q9_THREE_EIGHTHS       (192)            /* 0.375 */
-#define FP16_Q9_ONE_HALF        (256)            /* 0.5 */
-#define FP16_Q9_FIVE_EIGHTHS        (320)            /* 0.625 */
-#define FP16_Q9_THREE_QUARTERS      (384)            /* 0.75 */
-#define FP16_Q9_SEVEN_EIGHTHS       (448)            /* 0.875 */
-#define FP16_Q9_ONE_THIRD       (171)            /* 0.333984375 */
-#define FP16_Q9_TWO_THRIDS      (341)            /* 0.666015625 */
-#define FP16_Q9_ONE     (512)            /* 1.0 */
-#define FP16_Q9_MINUS_ONE       (-512)           /* -1.0 */
+// --------------------------------------------------------------------------
+#define FP16_Q4                    (4)
+#define FP16_Q4_PREC               (0.0625)
+#define FP16_Q4_MAX                (2047.9375)
+#define FP16_Q4_MIN                (-2048.0)
+// --------------------------------------------------------------------------
+#define FP16_Q4_M_E                (43)                // 2.6875
+#define FP16_Q4_M_LOG2E            (23)                // 1.4375
+#define FP16_Q4_M_LOG10E           (7)                 // 0.4375
+#define FP16_Q4_M_LN2              (11)                // 0.6875
+#define FP16_Q4_M_PI               (50)                // 3.125
+#define FP16_Q4_M_PI_2             (25)                // 1.5625
+#define FP16_Q4_M_PI_4             (13)                // 0.8125
+#define FP16_Q4_M_1_PI             (5)                 // 0.3125
+#define FP16_Q4_M_2_PI             (10)                // 0.625
+#define FP16_Q4_M_2_SQRTPI         (18)                // 1.125
+#define FP16_Q4_M_SQRT2            (23)                // 1.4375
+#define FP16_Q4_M_SQRT1_2          (11)                // 0.6875
+#define FP16_Q4_M_TWOPI            (101)               // 6.3125
+#define FP16_Q4_M_3PI_4            (38)                // 2.375
+#define FP16_Q4_M_SQRTPI           (28)                // 1.75
+#define FP16_Q4_M_SQRT3            (28)                // 1.75
+#define FP16_Q4_M_IVLN10           (7)                 // 0.4375
+#define FP16_Q4_M_LOG2_E           (23)                // 1.4375
+#define FP16_Q4_M_INVLN2           (23)                // 1.4375
+#define FP16_Q4_ONE_EIGHTH         (2)                 // 0.125
+#define FP16_Q4_ONE_QUARTER        (4)                 // 0.25
+#define FP16_Q4_THREE_EIGHTHS      (6)                 // 0.375
+#define FP16_Q4_ONE_HALF           (8)                 // 0.5
+#define FP16_Q4_FIVE_EIGHTHS       (10)                // 0.625
+#define FP16_Q4_THREE_QUARTERS     (12)                // 0.75
+#define FP16_Q4_SEVEN_EIGHTHS      (14)                // 0.875
+#define FP16_Q4_ONE_THIRD          (5)                 // 0.3125
+#define FP16_Q4_TWO_THIRDS         (11)                // 0.6875
+#define FP16_Q4_ONE                (16)                // 1.0
+#define FP16_Q4_MINUS_ONE          (-16)               // -1.0
 
 
-#define FP16_Q10            (10)
-#define FP16_Q10_PREC       (0.0009765625)
-#define FP16_Q10_MAX        (31.9990234375)
-#define FP16_Q10_MIN        (-32.0)
-
-#define FP16_Q10_M_E        (2784)           /* 2.71875 */
-#define FP16_Q10_M_PI       (3217)           /* 3.1416015625 */
-#define FP16_Q10_M_PI_2     (1608)           /* 1.5703125 */
-#define FP16_Q10_M_PI_4     (804)            /* 0.78515625 */
-#define FP16_Q10_M_1_PI     (326)            /* 0.318359375 */
-#define FP16_Q10_M_2_PI     (652)            /* 0.63671875 */
-#define FP16_Q10_M_2_SQRTPI     (1155)           /* 1.1279296875 */
-#define FP16_Q10_M_SQRT2        (1448)           /* 1.4140625 */
-#define FP16_Q10_M_SQRT1_2      (724)            /* 0.70703125 */
-#define FP16_Q10_M_LOG2E        (1477)           /* 1.4423828125 */
-#define FP16_Q10_M_LOG10E       (445)            /* 0.4345703125 */
-#define FP16_Q10_M_LN2      (710)            /* 0.693359375 */
-#define FP16_Q10_M_LN10     (2358)           /* 2.302734375 */
-#define FP16_Q10_ONE_EIGHTH     (128)            /* 0.125 */
-#define FP16_Q10_ONE_QUARTER        (256)            /* 0.25 */
-#define FP16_Q10_THREE_EIGHTHS      (384)            /* 0.375 */
-#define FP16_Q10_ONE_HALF       (512)            /* 0.5 */
-#define FP16_Q10_FIVE_EIGHTHS       (640)            /* 0.625 */
-#define FP16_Q10_THREE_QUARTERS     (768)            /* 0.75 */
-#define FP16_Q10_SEVEN_EIGHTHS      (896)            /* 0.875 */
-#define FP16_Q10_ONE_THIRD      (341)            /* 0.3330078125 */
-#define FP16_Q10_TWO_THRIDS     (683)            /* 0.6669921875 */
-#define FP16_Q10_ONE        (1024)           /* 1.0 */
-#define FP16_Q10_MINUS_ONE      (-1024)          /* -1.0 */
-
-
-#define FP16_Q11            (11)
-#define FP16_Q11_PREC       (0.00048828125)
-#define FP16_Q11_MAX        (15.99951171875)
-#define FP16_Q11_MIN        (-16.0)
-
-#define FP16_Q11_M_E        (5567)           /* 2.71826171875 */
-#define FP16_Q11_M_PI       (6434)           /* 3.1416015625 */
-#define FP16_Q11_M_PI_2     (3217)           /* 1.57080078125 */
-#define FP16_Q11_M_PI_4     (1608)           /* 0.78515625 */
-#define FP16_Q11_M_1_PI     (652)            /* 0.318359375 */
-#define FP16_Q11_M_2_PI     (1304)           /* 0.63671875 */
-#define FP16_Q11_M_2_SQRTPI     (2311)           /* 1.12841796875 */
-#define FP16_Q11_M_SQRT2        (2896)           /* 1.4140625 */
-#define FP16_Q11_M_SQRT1_2      (1448)           /* 0.70703125 */
-#define FP16_Q11_M_LOG2E        (2955)           /* 1.44287109375 */
-#define FP16_Q11_M_LOG10E       (889)            /* 0.43408203125 */
-#define FP16_Q11_M_LN2      (1420)           /* 0.693359375 */
-#define FP16_Q11_M_LN10     (4716)           /* 2.302734375 */
-#define FP16_Q11_ONE_EIGHTH     (256)            /* 0.125 */
-#define FP16_Q11_ONE_QUARTER        (512)            /* 0.25 */
-#define FP16_Q11_THREE_EIGHTHS      (768)            /* 0.375 */
-#define FP16_Q11_ONE_HALF       (1024)           /* 0.5 */
-#define FP16_Q11_FIVE_EIGHTHS       (1280)           /* 0.625 */
-#define FP16_Q11_THREE_QUARTERS     (1536)           /* 0.75 */
-#define FP16_Q11_SEVEN_EIGHTHS      (1792)           /* 0.875 */
-#define FP16_Q11_ONE_THIRD      (683)            /* 0.33349609375 */
-#define FP16_Q11_TWO_THRIDS     (1365)           /* 0.66650390625 */
-#define FP16_Q11_ONE        (2048)           /* 1.0 */
-#define FP16_Q11_MINUS_ONE      (-2048)          /* -1.0 */
+// --------------------------------------------------------------------------
+#define FP16_Q5                    (5)
+#define FP16_Q5_PREC               (0.03125)
+#define FP16_Q5_MAX                (1023.96875)
+#define FP16_Q5_MIN                (-1024.0)
+// --------------------------------------------------------------------------
+#define FP16_Q5_M_E                (87)                // 2.71875
+#define FP16_Q5_M_LOG2E            (46)                // 1.4375
+#define FP16_Q5_M_LOG10E           (14)                // 0.4375
+#define FP16_Q5_M_LN2              (22)                // 0.6875
+#define FP16_Q5_M_PI               (101)               // 3.15625
+#define FP16_Q5_M_PI_2             (50)                // 1.5625
+#define FP16_Q5_M_PI_4             (25)                // 0.78125
+#define FP16_Q5_M_1_PI             (10)                // 0.3125
+#define FP16_Q5_M_2_PI             (20)                // 0.625
+#define FP16_Q5_M_2_SQRTPI         (36)                // 1.125
+#define FP16_Q5_M_SQRT2            (45)                // 1.40625
+#define FP16_Q5_M_SQRT1_2          (23)                // 0.71875
+#define FP16_Q5_M_TWOPI            (201)               // 6.28125
+#define FP16_Q5_M_3PI_4            (75)                // 2.34375
+#define FP16_Q5_M_SQRTPI           (57)                // 1.78125
+#define FP16_Q5_M_SQRT3            (55)                // 1.71875
+#define FP16_Q5_M_IVLN10           (14)                // 0.4375
+#define FP16_Q5_M_LOG2_E           (46)                // 1.4375
+#define FP16_Q5_M_INVLN2           (46)                // 1.4375
+#define FP16_Q5_ONE_EIGHTH         (4)                 // 0.125
+#define FP16_Q5_ONE_QUARTER        (8)                 // 0.25
+#define FP16_Q5_THREE_EIGHTHS      (12)                // 0.375
+#define FP16_Q5_ONE_HALF           (16)                // 0.5
+#define FP16_Q5_FIVE_EIGHTHS       (20)                // 0.625
+#define FP16_Q5_THREE_QUARTERS     (24)                // 0.75
+#define FP16_Q5_SEVEN_EIGHTHS      (28)                // 0.875
+#define FP16_Q5_ONE_THIRD          (11)                // 0.34375
+#define FP16_Q5_TWO_THIRDS         (21)                // 0.65625
+#define FP16_Q5_ONE                (32)                // 1.0
+#define FP16_Q5_MINUS_ONE          (-32)               // -1.0
 
 
-#define FP16_Q12            (12)
-#define FP16_Q12_PREC       (0.000244140625)
-#define FP16_Q12_MAX        (7.999755859375)
-#define FP16_Q12_MIN        (-8.0)
-
-#define FP16_Q12_M_E        (11134)          /* 2.71826171875 */
-#define FP16_Q12_M_PI       (12868)          /* 3.1416015625 */
-#define FP16_Q12_M_PI_2     (6434)           /* 1.57080078125 */
-#define FP16_Q12_M_PI_4     (3217)           /* 0.785400390625 */
-#define FP16_Q12_M_1_PI     (1304)           /* 0.318359375 */
-#define FP16_Q12_M_2_PI     (2608)           /* 0.63671875 */
-#define FP16_Q12_M_2_SQRTPI     (4622)           /* 1.12841796875 */
-#define FP16_Q12_M_SQRT2        (5793)           /* 1.414306640625 */
-#define FP16_Q12_M_SQRT1_2      (2896)           /* 0.70703125 */
-#define FP16_Q12_M_LOG2E        (5909)           /* 1.442626953125 */
-#define FP16_Q12_M_LOG10E       (1779)           /* 0.434326171875 */
-#define FP16_Q12_M_LN2      (2839)           /* 0.693115234375 */
-#define FP16_Q12_M_LN10     (9431)           /* 2.302490234375 */
-#define FP16_Q12_ONE_EIGHTH     (512)            /* 0.125 */
-#define FP16_Q12_ONE_QUARTER        (1024)           /* 0.25 */
-#define FP16_Q12_THREE_EIGHTHS      (1536)           /* 0.375 */
-#define FP16_Q12_ONE_HALF       (2048)           /* 0.5 */
-#define FP16_Q12_FIVE_EIGHTHS       (2560)           /* 0.625 */
-#define FP16_Q12_THREE_QUARTERS     (3072)           /* 0.75 */
-#define FP16_Q12_SEVEN_EIGHTHS      (3584)           /* 0.875 */
-#define FP16_Q12_ONE_THIRD      (1365)           /* 0.333251953125 */
-#define FP16_Q12_TWO_THRIDS     (2731)           /* 0.666748046875 */
-#define FP16_Q12_ONE        (4096)           /* 1.0 */
-#define FP16_Q12_MINUS_ONE      (-4096)          /* -1.0 */
-
-
-#define FP16_Q13            (13)
-#define FP16_Q13_PREC       (0.0001220703125)
-#define FP16_Q13_MAX        (3.9998779296875)
-#define FP16_Q13_MIN        (-4.0)
-
-#define FP16_Q13_M_E        (22268)          /* 2.71826171875 */
-#define FP16_Q13_M_PI       (25736)          /* 3.1416015625 */
-#define FP16_Q13_M_PI_2     (12868)          /* 1.57080078125 */
-#define FP16_Q13_M_PI_4     (6434)           /* 0.785400390625 */
-#define FP16_Q13_M_1_PI     (2608)           /* 0.318359375 */
-#define FP16_Q13_M_2_PI     (5215)           /* 0.6365966796875 */
-#define FP16_Q13_M_2_SQRTPI     (9244)           /* 1.12841796875 */
-#define FP16_Q13_M_SQRT2        (11585)          /* 1.4141845703125 */
-#define FP16_Q13_M_SQRT1_2      (5793)           /* 0.7071533203125 */
-#define FP16_Q13_M_LOG2E        (11819)          /* 1.4427490234375 */
-#define FP16_Q13_M_LOG10E       (3558)           /* 0.434326171875 */
-#define FP16_Q13_M_LN2      (5678)           /* 0.693115234375 */
-#define FP16_Q13_M_LN10     (18863)          /* 2.3026123046875 */
-#define FP16_Q13_ONE_EIGHTH     (1024)           /* 0.125 */
-#define FP16_Q13_ONE_QUARTER        (2048)           /* 0.25 */
-#define FP16_Q13_THREE_EIGHTHS      (3072)           /* 0.375 */
-#define FP16_Q13_ONE_HALF       (4096)           /* 0.5 */
-#define FP16_Q13_FIVE_EIGHTHS       (5120)           /* 0.625 */
-#define FP16_Q13_THREE_QUARTERS     (6144)           /* 0.75 */
-#define FP16_Q13_SEVEN_EIGHTHS      (7168)           /* 0.875 */
-#define FP16_Q13_ONE_THIRD      (2731)           /* 0.3333740234375 */
-#define FP16_Q13_TWO_THRIDS     (5461)           /* 0.6666259765625 */
-#define FP16_Q13_ONE        (8192)           /* 1.0 */
-#define FP16_Q13_MINUS_ONE      (-8192)          /* -1.0 */
+// --------------------------------------------------------------------------
+#define FP16_Q6                    (6)
+#define FP16_Q6_PREC               (0.015625)
+#define FP16_Q6_MAX                (511.984375)
+#define FP16_Q6_MIN                (-512.0)
+// --------------------------------------------------------------------------
+#define FP16_Q6_M_E                (174)               // 2.71875
+#define FP16_Q6_M_LOG2E            (92)                // 1.4375
+#define FP16_Q6_M_LOG10E           (28)                // 0.4375
+#define FP16_Q6_M_LN2              (44)                // 0.6875
+#define FP16_Q6_M_PI               (201)               // 3.140625
+#define FP16_Q6_M_PI_2             (101)               // 1.578125
+#define FP16_Q6_M_PI_4             (50)                // 0.78125
+#define FP16_Q6_M_1_PI             (20)                // 0.3125
+#define FP16_Q6_M_2_PI             (41)                // 0.640625
+#define FP16_Q6_M_2_SQRTPI         (72)                // 1.125
+#define FP16_Q6_M_SQRT2            (91)                // 1.421875
+#define FP16_Q6_M_SQRT1_2          (45)                // 0.703125
+#define FP16_Q6_M_TWOPI            (402)               // 6.28125
+#define FP16_Q6_M_3PI_4            (151)               // 2.359375
+#define FP16_Q6_M_SQRTPI           (113)               // 1.765625
+#define FP16_Q6_M_SQRT3            (111)               // 1.734375
+#define FP16_Q6_M_IVLN10           (28)                // 0.4375
+#define FP16_Q6_M_LOG2_E           (92)                // 1.4375
+#define FP16_Q6_M_INVLN2           (92)                // 1.4375
+#define FP16_Q6_ONE_EIGHTH         (8)                 // 0.125
+#define FP16_Q6_ONE_QUARTER        (16)                // 0.25
+#define FP16_Q6_THREE_EIGHTHS      (24)                // 0.375
+#define FP16_Q6_ONE_HALF           (32)                // 0.5
+#define FP16_Q6_FIVE_EIGHTHS       (40)                // 0.625
+#define FP16_Q6_THREE_QUARTERS     (48)                // 0.75
+#define FP16_Q6_SEVEN_EIGHTHS      (56)                // 0.875
+#define FP16_Q6_ONE_THIRD          (21)                // 0.328125
+#define FP16_Q6_TWO_THIRDS         (43)                // 0.671875
+#define FP16_Q6_ONE                (64)                // 1.0
+#define FP16_Q6_MINUS_ONE          (-64)               // -1.0
 
 
-#define FP16_Q14            (14)
-#define FP16_Q14_PREC       (6.103515625e-05)
-#define FP16_Q14_MAX        (1.99993896484375)
-#define FP16_Q14_MIN        (-2.0)
+// --------------------------------------------------------------------------
+#define FP16_Q7                    (7)
+#define FP16_Q7_PREC               (0.0078125)
+#define FP16_Q7_MAX                (255.9921875)
+#define FP16_Q7_MIN                (-256.0)
+// --------------------------------------------------------------------------
+#define FP16_Q7_M_E                (348)               // 2.71875
+#define FP16_Q7_M_LOG2E            (185)               // 1.4453125
+#define FP16_Q7_M_LOG10E           (56)                // 0.4375
+#define FP16_Q7_M_LN2              (89)                // 0.6953125
+#define FP16_Q7_M_PI               (402)               // 3.140625
+#define FP16_Q7_M_PI_2             (201)               // 1.5703125
+#define FP16_Q7_M_PI_4             (101)               // 0.7890625
+#define FP16_Q7_M_1_PI             (41)                // 0.3203125
+#define FP16_Q7_M_2_PI             (81)                // 0.6328125
+#define FP16_Q7_M_2_SQRTPI         (144)               // 1.125
+#define FP16_Q7_M_SQRT2            (181)               // 1.4140625
+#define FP16_Q7_M_SQRT1_2          (91)                // 0.7109375
+#define FP16_Q7_M_TWOPI            (804)               // 6.28125
+#define FP16_Q7_M_3PI_4            (302)               // 2.359375
+#define FP16_Q7_M_SQRTPI           (227)               // 1.7734375
+#define FP16_Q7_M_SQRT3            (222)               // 1.734375
+#define FP16_Q7_M_IVLN10           (56)                // 0.4375
+#define FP16_Q7_M_LOG2_E           (185)               // 1.4453125
+#define FP16_Q7_M_INVLN2           (185)               // 1.4453125
+#define FP16_Q7_ONE_EIGHTH         (16)                // 0.125
+#define FP16_Q7_ONE_QUARTER        (32)                // 0.25
+#define FP16_Q7_THREE_EIGHTHS      (48)                // 0.375
+#define FP16_Q7_ONE_HALF           (64)                // 0.5
+#define FP16_Q7_FIVE_EIGHTHS       (80)                // 0.625
+#define FP16_Q7_THREE_QUARTERS     (96)                // 0.75
+#define FP16_Q7_SEVEN_EIGHTHS      (112)               // 0.875
+#define FP16_Q7_ONE_THIRD          (43)                // 0.3359375
+#define FP16_Q7_TWO_THIRDS         (85)                // 0.6640625
+#define FP16_Q7_ONE                (128)               // 1.0
+#define FP16_Q7_MINUS_ONE          (-128)              // -1.0
 
-#define FP16_Q14_M_E        (32767)          /* 1.99993896484375 */
-#define FP16_Q14_M_PI       (32767)          /* 1.99993896484375 */
-#define FP16_Q14_M_PI_2     (25736)          /* 1.57080078125 */
-#define FP16_Q14_M_PI_4     (12868)          /* 0.785400390625 */
-#define FP16_Q14_M_1_PI     (5215)           /* 0.31829833984375 */
-#define FP16_Q14_M_2_PI     (10430)          /* 0.6365966796875 */
-#define FP16_Q14_M_2_SQRTPI     (18487)          /* 1.12835693359375 */
-#define FP16_Q14_M_SQRT2        (23170)          /* 1.4141845703125 */
-#define FP16_Q14_M_SQRT1_2      (11585)          /* 0.70709228515625 */
-#define FP16_Q14_M_LOG2E        (23637)          /* 1.44268798828125 */
-#define FP16_Q14_M_LOG10E       (7115)           /* 0.43426513671875 */
-#define FP16_Q14_M_LN2      (11357)          /* 0.69317626953125 */
-#define FP16_Q14_M_LN10     (32767)          /* 1.99993896484375 */
-#define FP16_Q14_ONE_EIGHTH     (2048)           /* 0.125 */
-#define FP16_Q14_ONE_QUARTER        (4096)           /* 0.25 */
-#define FP16_Q14_THREE_EIGHTHS      (6144)           /* 0.375 */
-#define FP16_Q14_ONE_HALF       (8192)           /* 0.5 */
-#define FP16_Q14_FIVE_EIGHTHS       (10240)          /* 0.625 */
-#define FP16_Q14_THREE_QUARTERS     (12288)          /* 0.75 */
-#define FP16_Q14_SEVEN_EIGHTHS      (14336)          /* 0.875 */
-#define FP16_Q14_ONE_THIRD      (5461)           /* 0.33331298828125 */
-#define FP16_Q14_TWO_THRIDS     (10923)          /* 0.66668701171875 */
-#define FP16_Q14_ONE        (16384)          /* 1.0 */
-#define FP16_Q14_MINUS_ONE      (-16384)             /* -1.0 */
+
+// --------------------------------------------------------------------------
+#define FP16_Q8                    (8)
+#define FP16_Q8_PREC               (0.00390625)
+#define FP16_Q8_MAX                (127.99609375)
+#define FP16_Q8_MIN                (-128.0)
+// --------------------------------------------------------------------------
+#define FP16_Q8_M_E                (696)               // 2.71875
+#define FP16_Q8_M_LOG2E            (369)               // 1.44140625
+#define FP16_Q8_M_LOG10E           (111)               // 0.43359375
+#define FP16_Q8_M_LN2              (177)               // 0.69140625
+#define FP16_Q8_M_PI               (804)               // 3.140625
+#define FP16_Q8_M_PI_2             (402)               // 1.5703125
+#define FP16_Q8_M_PI_4             (201)               // 0.78515625
+#define FP16_Q8_M_1_PI             (81)                // 0.31640625
+#define FP16_Q8_M_2_PI             (163)               // 0.63671875
+#define FP16_Q8_M_2_SQRTPI         (289)               // 1.12890625
+#define FP16_Q8_M_SQRT2            (362)               // 1.4140625
+#define FP16_Q8_M_SQRT1_2          (181)               // 0.70703125
+#define FP16_Q8_M_TWOPI            (1608)              // 6.28125
+#define FP16_Q8_M_3PI_4            (603)               // 2.35546875
+#define FP16_Q8_M_SQRTPI           (454)               // 1.7734375
+#define FP16_Q8_M_SQRT3            (443)               // 1.73046875
+#define FP16_Q8_M_IVLN10           (111)               // 0.43359375
+#define FP16_Q8_M_LOG2_E           (369)               // 1.44140625
+#define FP16_Q8_M_INVLN2           (369)               // 1.44140625
+#define FP16_Q8_ONE_EIGHTH         (32)                // 0.125
+#define FP16_Q8_ONE_QUARTER        (64)                // 0.25
+#define FP16_Q8_THREE_EIGHTHS      (96)                // 0.375
+#define FP16_Q8_ONE_HALF           (128)               // 0.5
+#define FP16_Q8_FIVE_EIGHTHS       (160)               // 0.625
+#define FP16_Q8_THREE_QUARTERS     (192)               // 0.75
+#define FP16_Q8_SEVEN_EIGHTHS      (224)               // 0.875
+#define FP16_Q8_ONE_THIRD          (85)                // 0.33203125
+#define FP16_Q8_TWO_THIRDS         (171)               // 0.66796875
+#define FP16_Q8_ONE                (256)               // 1.0
+#define FP16_Q8_MINUS_ONE          (-256)              // -1.0
 
 
-#define FP16_Q15            (15)
-#define FP16_Q15_PREC       (3.0517578125e-05)
-#define FP16_Q15_MAX        (0.999969482421875)
-#define FP16_Q15_MIN        (-1.0)
+// --------------------------------------------------------------------------
+#define FP16_Q9                    (9)
+#define FP16_Q9_PREC               (0.001953125)
+#define FP16_Q9_MAX                (63.998046875)
+#define FP16_Q9_MIN                (-64.0)
+// --------------------------------------------------------------------------
+#define FP16_Q9_M_E                (1392)              // 2.71875
+#define FP16_Q9_M_LOG2E            (739)               // 1.443359375
+#define FP16_Q9_M_LOG10E           (222)               // 0.43359375
+#define FP16_Q9_M_LN2              (355)               // 0.693359375
+#define FP16_Q9_M_PI               (1608)              // 3.140625
+#define FP16_Q9_M_PI_2             (804)               // 1.5703125
+#define FP16_Q9_M_PI_4             (402)               // 0.78515625
+#define FP16_Q9_M_1_PI             (163)               // 0.318359375
+#define FP16_Q9_M_2_PI             (326)               // 0.63671875
+#define FP16_Q9_M_2_SQRTPI         (578)               // 1.12890625
+#define FP16_Q9_M_SQRT2            (724)               // 1.4140625
+#define FP16_Q9_M_SQRT1_2          (362)               // 0.70703125
+#define FP16_Q9_M_TWOPI            (3217)              // 6.283203125
+#define FP16_Q9_M_3PI_4            (1206)              // 2.35546875
+#define FP16_Q9_M_SQRTPI           (907)               // 1.771484375
+#define FP16_Q9_M_SQRT3            (887)               // 1.732421875
+#define FP16_Q9_M_IVLN10           (222)               // 0.43359375
+#define FP16_Q9_M_LOG2_E           (739)               // 1.443359375
+#define FP16_Q9_M_INVLN2           (739)               // 1.443359375
+#define FP16_Q9_ONE_EIGHTH         (64)                // 0.125
+#define FP16_Q9_ONE_QUARTER        (128)               // 0.25
+#define FP16_Q9_THREE_EIGHTHS      (192)               // 0.375
+#define FP16_Q9_ONE_HALF           (256)               // 0.5
+#define FP16_Q9_FIVE_EIGHTHS       (320)               // 0.625
+#define FP16_Q9_THREE_QUARTERS     (384)               // 0.75
+#define FP16_Q9_SEVEN_EIGHTHS      (448)               // 0.875
+#define FP16_Q9_ONE_THIRD          (171)               // 0.333984375
+#define FP16_Q9_TWO_THIRDS         (341)               // 0.666015625
+#define FP16_Q9_ONE                (512)               // 1.0
+#define FP16_Q9_MINUS_ONE          (-512)              // -1.0
 
-#define FP16_Q15_M_E        (32767)          /* 0.999969482421875 */
-#define FP16_Q15_M_PI       (32767)          /* 0.999969482421875 */
-#define FP16_Q15_M_PI_2     (32767)          /* 0.999969482421875 */
-#define FP16_Q15_M_PI_4     (25736)          /* 0.785400390625 */
-#define FP16_Q15_M_1_PI     (10430)          /* 0.31829833984375 */
-#define FP16_Q15_M_2_PI     (20861)          /* 0.636627197265625 */
-#define FP16_Q15_M_2_SQRTPI     (32767)          /* 0.999969482421875 */
-#define FP16_Q15_M_SQRT2        (32767)          /* 0.999969482421875 */
-#define FP16_Q15_M_SQRT1_2      (23170)          /* 0.70709228515625 */
-#define FP16_Q15_M_LOG2E        (32767)          /* 0.999969482421875 */
-#define FP16_Q15_M_LOG10E       (14231)          /* 0.434295654296875 */
-#define FP16_Q15_M_LN2      (22713)          /* 0.693145751953125 */
-#define FP16_Q15_M_LN10     (32767)          /* 0.999969482421875 */
-#define FP16_Q15_ONE_EIGHTH     (4096)           /* 0.125 */
-#define FP16_Q15_ONE_QUARTER        (8192)           /* 0.25 */
-#define FP16_Q15_THREE_EIGHTHS      (12288)          /* 0.375 */
-#define FP16_Q15_ONE_HALF       (16384)          /* 0.5 */
-#define FP16_Q15_FIVE_EIGHTHS       (20480)          /* 0.625 */
-#define FP16_Q15_THREE_QUARTERS     (24576)          /* 0.75 */
-#define FP16_Q15_SEVEN_EIGHTHS      (28672)          /* 0.875 */
-#define FP16_Q15_ONE_THIRD      (10923)          /* 0.333343505859375 */
-#define FP16_Q15_TWO_THRIDS     (21845)          /* 0.666656494140625 */
-#define FP16_Q15_ONE        (32767)          /* 0.999969482421875 */
-#define FP16_Q15_MINUS_ONE      (-32768)             /* -1.0 */
 
+// --------------------------------------------------------------------------
+#define FP16_Q10                   (10)
+#define FP16_Q10_PREC              (0.0009765625)
+#define FP16_Q10_MAX               (31.9990234375)
+#define FP16_Q10_MIN               (-32.0)
+// --------------------------------------------------------------------------
+#define FP16_Q10_M_E               (2784)              // 2.71875
+#define FP16_Q10_M_LOG2E           (1477)              // 1.4423828125
+#define FP16_Q10_M_LOG10E          (445)               // 0.4345703125
+#define FP16_Q10_M_LN2             (710)               // 0.693359375
+#define FP16_Q10_M_PI              (3217)              // 3.1416015625
+#define FP16_Q10_M_PI_2            (1608)              // 1.5703125
+#define FP16_Q10_M_PI_4            (804)               // 0.78515625
+#define FP16_Q10_M_1_PI            (326)               // 0.318359375
+#define FP16_Q10_M_2_PI            (652)               // 0.63671875
+#define FP16_Q10_M_2_SQRTPI        (1155)              // 1.1279296875
+#define FP16_Q10_M_SQRT2           (1448)              // 1.4140625
+#define FP16_Q10_M_SQRT1_2         (724)               // 0.70703125
+#define FP16_Q10_M_TWOPI           (6434)              // 6.283203125
+#define FP16_Q10_M_3PI_4           (2413)              // 2.3564453125
+#define FP16_Q10_M_SQRTPI          (1815)              // 1.7724609375
+#define FP16_Q10_M_SQRT3           (1774)              // 1.732421875
+#define FP16_Q10_M_IVLN10          (445)               // 0.4345703125
+#define FP16_Q10_M_LOG2_E          (1477)              // 1.4423828125
+#define FP16_Q10_M_INVLN2          (1477)              // 1.4423828125
+#define FP16_Q10_ONE_EIGHTH        (128)               // 0.125
+#define FP16_Q10_ONE_QUARTER       (256)               // 0.25
+#define FP16_Q10_THREE_EIGHTHS     (384)               // 0.375
+#define FP16_Q10_ONE_HALF          (512)               // 0.5
+#define FP16_Q10_FIVE_EIGHTHS      (640)               // 0.625
+#define FP16_Q10_THREE_QUARTERS    (768)               // 0.75
+#define FP16_Q10_SEVEN_EIGHTHS     (896)               // 0.875
+#define FP16_Q10_ONE_THIRD         (341)               // 0.3330078125
+#define FP16_Q10_TWO_THIRDS        (683)               // 0.6669921875
+#define FP16_Q10_ONE               (1024)              // 1.0
+#define FP16_Q10_MINUS_ONE         (-1024)             // -1.0
+
+
+// --------------------------------------------------------------------------
+#define FP16_Q11                   (11)
+#define FP16_Q11_PREC              (0.00048828125)
+#define FP16_Q11_MAX               (15.99951171875)
+#define FP16_Q11_MIN               (-16.0)
+// --------------------------------------------------------------------------
+#define FP16_Q11_M_E               (5567)              // 2.71826171875
+#define FP16_Q11_M_LOG2E           (2955)              // 1.44287109375
+#define FP16_Q11_M_LOG10E          (889)               // 0.43408203125
+#define FP16_Q11_M_LN2             (1420)              // 0.693359375
+#define FP16_Q11_M_PI              (6434)              // 3.1416015625
+#define FP16_Q11_M_PI_2            (3217)              // 1.57080078125
+#define FP16_Q11_M_PI_4            (1608)              // 0.78515625
+#define FP16_Q11_M_1_PI            (652)               // 0.318359375
+#define FP16_Q11_M_2_PI            (1304)              // 0.63671875
+#define FP16_Q11_M_2_SQRTPI        (2311)              // 1.12841796875
+#define FP16_Q11_M_SQRT2           (2896)              // 1.4140625
+#define FP16_Q11_M_SQRT1_2         (1448)              // 0.70703125
+#define FP16_Q11_M_TWOPI           (12868)             // 6.283203125
+#define FP16_Q11_M_3PI_4           (4825)              // 2.35595703125
+#define FP16_Q11_M_SQRTPI          (3630)              // 1.7724609375
+#define FP16_Q11_M_SQRT3           (3547)              // 1.73193359375
+#define FP16_Q11_M_IVLN10          (889)               // 0.43408203125
+#define FP16_Q11_M_LOG2_E          (2955)              // 1.44287109375
+#define FP16_Q11_M_INVLN2          (2955)              // 1.44287109375
+#define FP16_Q11_ONE_EIGHTH        (256)               // 0.125
+#define FP16_Q11_ONE_QUARTER       (512)               // 0.25
+#define FP16_Q11_THREE_EIGHTHS     (768)               // 0.375
+#define FP16_Q11_ONE_HALF          (1024)              // 0.5
+#define FP16_Q11_FIVE_EIGHTHS      (1280)              // 0.625
+#define FP16_Q11_THREE_QUARTERS    (1536)              // 0.75
+#define FP16_Q11_SEVEN_EIGHTHS     (1792)              // 0.875
+#define FP16_Q11_ONE_THIRD         (683)               // 0.33349609375
+#define FP16_Q11_TWO_THIRDS        (1365)              // 0.66650390625
+#define FP16_Q11_ONE               (2048)              // 1.0
+#define FP16_Q11_MINUS_ONE         (-2048)             // -1.0
+
+
+// --------------------------------------------------------------------------
+#define FP16_Q12                   (12)
+#define FP16_Q12_PREC              (0.000244140625)
+#define FP16_Q12_MAX               (7.999755859375)
+#define FP16_Q12_MIN               (-8.0)
+// --------------------------------------------------------------------------
+#define FP16_Q12_M_E               (11134)             // 2.71826171875
+#define FP16_Q12_M_LOG2E           (5909)              // 1.442626953125
+#define FP16_Q12_M_LOG10E          (1779)              // 0.434326171875
+#define FP16_Q12_M_LN2             (2839)              // 0.693115234375
+#define FP16_Q12_M_PI              (12868)             // 3.1416015625
+#define FP16_Q12_M_PI_2            (6434)              // 1.57080078125
+#define FP16_Q12_M_PI_4            (3217)              // 0.785400390625
+#define FP16_Q12_M_1_PI            (1304)              // 0.318359375
+#define FP16_Q12_M_2_PI            (2608)              // 0.63671875
+#define FP16_Q12_M_2_SQRTPI        (4622)              // 1.12841796875
+#define FP16_Q12_M_SQRT2           (5793)              // 1.414306640625
+#define FP16_Q12_M_SQRT1_2         (2896)              // 0.70703125
+#define FP16_Q12_M_TWOPI           (25736)             // 6.283203125
+#define FP16_Q12_M_3PI_4           (9651)              // 2.356201171875
+#define FP16_Q12_M_SQRTPI          (7260)              // 1.7724609375
+#define FP16_Q12_M_SQRT3           (7094)              // 1.73193359375
+#define FP16_Q12_M_IVLN10          (1779)              // 0.434326171875
+#define FP16_Q12_M_LOG2_E          (5909)              // 1.442626953125
+#define FP16_Q12_M_INVLN2          (5909)              // 1.442626953125
+#define FP16_Q12_ONE_EIGHTH        (512)               // 0.125
+#define FP16_Q12_ONE_QUARTER       (1024)              // 0.25
+#define FP16_Q12_THREE_EIGHTHS     (1536)              // 0.375
+#define FP16_Q12_ONE_HALF          (2048)              // 0.5
+#define FP16_Q12_FIVE_EIGHTHS      (2560)              // 0.625
+#define FP16_Q12_THREE_QUARTERS    (3072)              // 0.75
+#define FP16_Q12_SEVEN_EIGHTHS     (3584)              // 0.875
+#define FP16_Q12_ONE_THIRD         (1365)              // 0.333251953125
+#define FP16_Q12_TWO_THIRDS        (2731)              // 0.666748046875
+#define FP16_Q12_ONE               (4096)              // 1.0
+#define FP16_Q12_MINUS_ONE         (-4096)             // -1.0
+
+
+// --------------------------------------------------------------------------
+#define FP16_Q13                   (13)
+#define FP16_Q13_PREC              (0.0001220703125)
+#define FP16_Q13_MAX               (3.9998779296875)
+#define FP16_Q13_MIN               (-4.0)
+// --------------------------------------------------------------------------
+#define FP16_Q13_M_E               (22268)             // 2.71826171875
+#define FP16_Q13_M_LOG2E           (11819)             // 1.4427490234375
+#define FP16_Q13_M_LOG10E          (3558)              // 0.434326171875
+#define FP16_Q13_M_LN2             (5678)              // 0.693115234375
+#define FP16_Q13_M_PI              (25736)             // 3.1416015625
+#define FP16_Q13_M_PI_2            (12868)             // 1.57080078125
+#define FP16_Q13_M_PI_4            (6434)              // 0.785400390625
+#define FP16_Q13_M_1_PI            (2608)              // 0.318359375
+#define FP16_Q13_M_2_PI            (5215)              // 0.6365966796875
+#define FP16_Q13_M_2_SQRTPI        (9244)              // 1.12841796875
+#define FP16_Q13_M_SQRT2           (11585)             // 1.4141845703125
+#define FP16_Q13_M_SQRT1_2         (5793)              // 0.7071533203125
+#define FP16_Q13_M_TWOPI           (EXCEEDS RANGE)
+#define FP16_Q13_M_3PI_4           (19302)             // 2.356201171875
+#define FP16_Q13_M_SQRTPI          (14520)             // 1.7724609375
+#define FP16_Q13_M_SQRT3           (14189)             // 1.7320556640625
+#define FP16_Q13_M_IVLN10          (3558)              // 0.434326171875
+#define FP16_Q13_M_LOG2_E          (11819)             // 1.4427490234375
+#define FP16_Q13_M_INVLN2          (11819)             // 1.4427490234375
+#define FP16_Q13_ONE_EIGHTH        (1024)              // 0.125
+#define FP16_Q13_ONE_QUARTER       (2048)              // 0.25
+#define FP16_Q13_THREE_EIGHTHS     (3072)              // 0.375
+#define FP16_Q13_ONE_HALF          (4096)              // 0.5
+#define FP16_Q13_FIVE_EIGHTHS      (5120)              // 0.625
+#define FP16_Q13_THREE_QUARTERS    (6144)              // 0.75
+#define FP16_Q13_SEVEN_EIGHTHS     (7168)              // 0.875
+#define FP16_Q13_ONE_THIRD         (2731)              // 0.3333740234375
+#define FP16_Q13_TWO_THIRDS        (5461)              // 0.6666259765625
+#define FP16_Q13_ONE               (8192)              // 1.0
+#define FP16_Q13_MINUS_ONE         (-8192)             // -1.0
+
+
+// --------------------------------------------------------------------------
+#define FP16_Q14                   (14)
+#define FP16_Q14_PREC              (6.103515625e-05)
+#define FP16_Q14_MAX               (1.99993896484375)
+#define FP16_Q14_MIN               (-2.0)
+// --------------------------------------------------------------------------
+#define FP16_Q14_M_E               (EXCEEDS RANGE)
+#define FP16_Q14_M_LOG2E           (23637)             // 1.44268798828125
+#define FP16_Q14_M_LOG10E          (7115)              // 0.43426513671875
+#define FP16_Q14_M_LN2             (11357)             // 0.69317626953125
+#define FP16_Q14_M_PI              (EXCEEDS RANGE)
+#define FP16_Q14_M_PI_2            (25736)             // 1.57080078125
+#define FP16_Q14_M_PI_4            (12868)             // 0.785400390625
+#define FP16_Q14_M_1_PI            (5215)              // 0.31829833984375
+#define FP16_Q14_M_2_PI            (10430)             // 0.6365966796875
+#define FP16_Q14_M_2_SQRTPI        (18487)             // 1.12835693359375
+#define FP16_Q14_M_SQRT2           (23170)             // 1.4141845703125
+#define FP16_Q14_M_SQRT1_2         (11585)             // 0.70709228515625
+#define FP16_Q14_M_TWOPI           (EXCEEDS RANGE)
+#define FP16_Q14_M_3PI_4           (EXCEEDS RANGE)
+#define FP16_Q14_M_SQRTPI          (29040)             // 1.7724609375
+#define FP16_Q14_M_SQRT3           (28378)             // 1.7320556640625
+#define FP16_Q14_M_IVLN10          (7115)              // 0.43426513671875
+#define FP16_Q14_M_LOG2_E          (23637)             // 1.44268798828125
+#define FP16_Q14_M_INVLN2          (23637)             // 1.44268798828125
+#define FP16_Q14_ONE_EIGHTH        (2048)              // 0.125
+#define FP16_Q14_ONE_QUARTER       (4096)              // 0.25
+#define FP16_Q14_THREE_EIGHTHS     (6144)              // 0.375
+#define FP16_Q14_ONE_HALF          (8192)              // 0.5
+#define FP16_Q14_FIVE_EIGHTHS      (10240)             // 0.625
+#define FP16_Q14_THREE_QUARTERS    (12288)             // 0.75
+#define FP16_Q14_SEVEN_EIGHTHS     (14336)             // 0.875
+#define FP16_Q14_ONE_THIRD         (5461)              // 0.33331298828125
+#define FP16_Q14_TWO_THIRDS        (10923)             // 0.66668701171875
+#define FP16_Q14_ONE               (16384)             // 1.0
+#define FP16_Q14_MINUS_ONE         (-16384)            // -1.0
+
+
+// --------------------------------------------------------------------------
+#define FP16_Q15                   (15)
+#define FP16_Q15_PREC              (3.0517578125e-05)
+#define FP16_Q15_MAX               (0.999969482421875)
+#define FP16_Q15_MIN               (-1.0)
+// --------------------------------------------------------------------------
+#define FP16_Q15_M_E               (EXCEEDS RANGE)
+#define FP16_Q15_M_LOG2E           (EXCEEDS RANGE)
+#define FP16_Q15_M_LOG10E          (14231)             // 0.434295654296875
+#define FP16_Q15_M_LN2             (22713)             // 0.693145751953125
+#define FP16_Q15_M_PI              (EXCEEDS RANGE)
+#define FP16_Q15_M_PI_2            (EXCEEDS RANGE)
+#define FP16_Q15_M_PI_4            (25736)             // 0.785400390625
+#define FP16_Q15_M_1_PI            (10430)             // 0.31829833984375
+#define FP16_Q15_M_2_PI            (20861)             // 0.636627197265625
+#define FP16_Q15_M_2_SQRTPI        (EXCEEDS RANGE)
+#define FP16_Q15_M_SQRT2           (EXCEEDS RANGE)
+#define FP16_Q15_M_SQRT1_2         (23170)             // 0.70709228515625
+#define FP16_Q15_M_TWOPI           (EXCEEDS RANGE)
+#define FP16_Q15_M_3PI_4           (EXCEEDS RANGE)
+#define FP16_Q15_M_SQRTPI          (EXCEEDS RANGE)
+#define FP16_Q15_M_SQRT3           (EXCEEDS RANGE)
+#define FP16_Q15_M_IVLN10          (14231)             // 0.434295654296875
+#define FP16_Q15_M_LOG2_E          (EXCEEDS RANGE)
+#define FP16_Q15_M_INVLN2          (EXCEEDS RANGE)
+#define FP16_Q15_ONE_EIGHTH        (4096)              // 0.125
+#define FP16_Q15_ONE_QUARTER       (8192)              // 0.25
+#define FP16_Q15_THREE_EIGHTHS     (12288)             // 0.375
+#define FP16_Q15_ONE_HALF          (16384)             // 0.5
+#define FP16_Q15_FIVE_EIGHTHS      (20480)             // 0.625
+#define FP16_Q15_THREE_QUARTERS    (24576)             // 0.75
+#define FP16_Q15_SEVEN_EIGHTHS     (28672)             // 0.875
+#define FP16_Q15_ONE_THIRD         (10923)             // 0.333343505859375
+#define FP16_Q15_TWO_THIRDS        (21845)             // 0.666656494140625
+#define FP16_Q15_ONE               (EXCEEDS RANGE)
+#define FP16_Q15_MINUS_ONE         (-32768)            // -1.0
 
 #define FP16_Q14_ASIN_A     (25735)          /* 1.57073974609375 */
 #define FP16_Q14_ASIN_B     (-3479)          /* -0.21234130859375 */
 #define FP16_Q14_ASIN_C     (1241)           /* 0.07574462890625 */
 #define FP16_Q14_ASIN_D     (-331)           /* -0.02020263671875 */
-
 
 #define FP16_EXP_ITERATIONS         13
 #define FP16_LOG_ITERATIONS         4
@@ -801,7 +911,7 @@ fp16_t fp16_asin(fp16_t fp);
 
     \returns The result returned is of fixed point type Q13 format. Principal arc cosine of x, in the interval [0,pi] radians. One radian is equivalent to 180/PI degrees.
 */
-#define fp16_acos(fp) (FP16_Q13_M_PI - fp16_asin(fp)>>1)
+#define fp16_acos(fp) (FP16_Q13_M_PI - (fp16_asin(fp)>>1))
 
 
 

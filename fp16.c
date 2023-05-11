@@ -445,21 +445,21 @@ fp16_t fp16_hypot_helper(fp16_t a, fp16_t b, uint8_t frac, uint8_t iter)
     return c;
 }
 
+#define FP32_SIN_5_PI_SQUARED_Q15 (1617036) // 49,348022005446793094172454999381
+#define FP32_SIN_PI_Q15 (102944)
 
 fp16_t fp16_sin(fp16_t fp)
 {
 
-    int64_t nom;
-    int32_t x = fp16_signbit(fp)?(-fp):(fp);
-
     /* Bhaskara I approximation */
     /* https://datagenetics.com/blog/july12019/index.html */
-    x = (x*FP16_Q13_M_PI)>>FP16_Q15; //Q13
-    nom = ((FP16_Q13_M_PI-x)*x)>>FP16_Q11; //Q13
-    x = 5*((FP16_Q13_M_PI*FP16_Q13_M_PI)>>FP16_Q13)-nom; //Q13
-    x = (nom<<(FP16_Q14+2))/x; //Q14
 
-    return (fp16_t)fp16_signbit(fp)?(-x):(x);
+
+
+
+
+
+    return (fp16_t)fp16_signbit(fp)?(-num):(num);
 }
 
 fp16_t fp16_cos(fp16_t fp)
