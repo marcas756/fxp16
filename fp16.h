@@ -646,6 +646,13 @@
 #define FP16_Q15_ONE               (EXCEEDS RANGE)
 #define FP16_Q15_MINUS_ONE         (-32768)            // -1.0
 
+
+
+
+
+
+
+
 #define FP16_Q14_ASIN_A     (25735)          /* 1.57073974609375 */
 #define FP16_Q14_ASIN_B     (-3479)          /* -0.21234130859375 */
 #define FP16_Q14_ASIN_C     (1241)           /* 0.07574462890625 */
@@ -679,8 +686,6 @@ typedef int16_t fp16_t; /*!< Type can be used for all Q configurations */
   \details    Macro to right shift fixed point number
   \param      result   Fixed point number to right shift (int32_t format)
   \param      shift    Number of bits to right shift
-
-
 */
 #define fp16_rshift_m(result,shift)               \
  do{                                              \
@@ -698,6 +703,8 @@ typedef int16_t fp16_t; /*!< Type can be used for all Q configurations */
        }                                          \
     }                                             \
  }while(0)
+
+
 
 
 /*!

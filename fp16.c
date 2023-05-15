@@ -42,6 +42,7 @@
 #include <stdbool.h>
 
 
+
 /*!
     \brief      Converts a float to a fixed point type
     \details    Converts a float variable to a fixed point variable. Result gets
@@ -113,9 +114,8 @@ fp16_t fp16_int2fp(int16_t intpart, uint8_t frac)
 fp16_t fp16_rshift(fp16_t fp, uint8_t shift)
 {
    int32_t result = fp;
-   fp16_rshift_m(result,shift);
-   fp16_sat_m(result);
-   return(fp16_t)result;
+   fp16_rshift_m(fp,shift);
+   return fp;
 }
 
 /*!
@@ -284,6 +284,9 @@ fp16_t fp16_ceil(fp16_t x, uint8_t xfrac)
 
 }
 
+/*
+
+*/
 
 
 
@@ -445,21 +448,69 @@ fp16_t fp16_hypot_helper(fp16_t a, fp16_t b, uint8_t frac, uint8_t iter)
     return c;
 }
 
-#define FP32_SIN_5_PI_SQUARED_Q15 (1617036) // 49,348022005446793094172454999381
-#define FP32_SIN_PI_Q15 (102944)
+
+
+#define FP32Q15_SIN_A (8)
+#define FP32Q15_SIN_B (102475)
+#define FP32Q15_SIN_C (6770)
+#define FP32Q15_SIN_D (-207128)
+#define FP32Q15_SIN_E (91436)
 
 fp16_t fp16_sin(fp16_t fp)
 {
+    int32_t x,xx,xxx,xxxx;
 
-    /* Bhaskara I approximation */
-    /* https://datagenetics.com/blog/july12019/index.html */
+    if ( fp > FP16_Q15_ONE_HALF )
+    {
+        x = fp;
+        x = (-FP16_Q15_MINUS_ONE)-x;
+    }
+    else if (fp < -FP16_Q15_ONE_HALF )
+    {
+        x = fp;
+        x -= FP16_Q15_MINUS_ONE;
+
+    }
+    else if (fp < 0)
+    {
+        x = -fp;
+    }
+    else
+    {
+        x = fp;
+    }
+
+    xx = (x*x)>>15;
+    xxx = (x*xx)>>15;
+    xxxx = (xx*xx)>>15;
+    x = (FP32Q15_SIN_B*x)>>15;
+    xx =(FP32Q15_SIN_C*xx)>>15;
+    xxx = (FP32Q15_SIN_D*xxx)>>15;
+    xxxx = (FP32Q15_SIN_E*xxxx)>>15;
+    x = (FP32Q15_SIN_A+x+xx+xxx+xxxx)>>1; // Q14
 
 
 
+    if ( fp > FP16_Q15_ONE_HALF )
+    {
+        fp = x;
+    }
+    else if (fp < -FP16_Q15_ONE_HALF )
+    {
+        fp = -x;
+    }
+    else if (fp < 0)
+    {
+        fp = -x;
+    }
+    else
+    {
+        fp = x;
+    }
 
 
 
-    return (fp16_t)fp16_signbit(fp)?(-num):(num);
+    return fp;
 }
 
 fp16_t fp16_cos(fp16_t fp)
@@ -478,7 +529,7 @@ fp16_t fp16_cos(fp16_t fp)
 
 fp16_t fp16_tan(fp16_t fp, uint8_t frac)
 {
-    int32_t result;
+    int32_t x;
 
     /* avoid division by zero */
     if(fp ==  FP16_Q15_ONE_HALF )
@@ -494,11 +545,13 @@ fp16_t fp16_tan(fp16_t fp, uint8_t frac)
         return INT16_MIN;
     }
 
-    result = (fp16_sin(fp)<<FP16_Q15)/fp16_cos(fp);
-    fp16_shift_m(result,FP16_Q15-frac);
-    fp16_sat_m(result);
-    return (fp16_t)result;
+    x = (fp16_sin(fp)<<FP16_Q15)/fp16_cos(fp);
+    x >>= (FP16_Q15-frac);
+    fp16_sat_m(x);
+
+    return (fp16_t)x;
 }
+
 
 
 /* pi/2-sqrt(1-x)*(a+b*x+c*x*x+d*x*x*x) */

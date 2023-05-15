@@ -76,6 +76,12 @@
        {FP16_Q15,FP16_Q15_PREC,FP16_Q15_MIN,FP16_Q15_MAX}
  };
 
+#define fp32q15_flt2fp(var) (int32_t)round(var * (1 << 15))
+
+void fp32q15_parameter(char* name, float value)
+{
+    UNITTEST_PRINTF("#define %s (%d)\n",name,fp32q15_flt2fp(value));
+}
 
 /*
   fixed-point multiplication & scaling.
@@ -868,57 +874,140 @@ UNITTEST_TESTCASE(fp16_hypot)
     }
 }
 
-#define SIN_MAX_ERR 0.00174436
+
+#define FP16_SIN_MAXERR 0.000328123569489
 
 
 UNITTEST_TESTCASE(fp16_sin)
 {
+/*
+    name:   Polynomial Regression (degree=4)
+    kind:   Regression
+    family: Linear Regressions
+    equation:   a + b*x + c*x^2 + ...
+    latexequation:  a + bx + cx^2 + ...
+    indep. variables:   1
 
-    for (float flt = fp16_props[FP16_Q15].min; flt <= fp16_props[FP16_Q15].max; flt+=fp16_props[FP16_Q15].prec)
+    Parameters:
+    a = 2,32864107282766E-04
+    b = 3,12729253913547E+00
+    c = 2,06593009910646E-01
+    d = -6,32103877726621E+00
+    e = 2,79041201245075E+00
+
+    Standard Error: 6,60126989556565E-05
+    Coefficient of Determination (r^2): 9,99999954011021E-01
+    Correlation Coefficient (r):    9,99999977005510E-01
+
+    Covariance matrix:
+        1,5246688743921404E-03  -3,6590935444089590E-02 2,5612872945402632E-01  -6,8298910012968306E-01 6,1467143183349193E-01
+        -3,6590935444089409E-02 1,1710975660346614E+00  -9,2226982479223807E+00 2,6233486211728174E+01  -2,4593611950208988E+01
+        2,5612872945402715E-01  -9,2226982479223913E+00 7,7474868420637975E+01  -2,2955789020826242E+02 2,2135826867823707E+02
+        -6,8298910012967984E-01 2,6233486211728177E+01  -2,2955789020826242E+02 6,9961700781794377E+02  -6,8868417911115932E+02
+        6,1467143183349338E-01  -2,4593611950209002E+01 2,2135826867823704E+02  -6,8868417911115932E+02 6,8868417911101210E+02
+
+    Parameter Standard Deviations:
+    a_stddev =  2,57759841857608E-06
+    b_stddev =  7,14371349721015E-05
+    c_stddev =  5,81042517827583E-04
+    d_stddev =  1,74605399125714E-03
+    e_stddev =  1,73235758736111E-03
+
+    Parameter Uncertainties, 95%:
+    a_unc = 5,05237340076204E-06
+    b_unc = 1,40024558503212E-04
+    c_unc = 1,13890656536234E-03
+    d_unc = 3,42245583258671E-03
+    e_unc = 3,39560939047545E-03
+*/
+    fp32q15_parameter("FP32Q15_SIN_A", 2.32864107282766E-04);
+    fp32q15_parameter("FP32Q15_SIN_B", 3.12729253913547E+00);
+    fp32q15_parameter("FP32Q15_SIN_C", 2.06593009910646E-01);
+    fp32q15_parameter("FP32Q15_SIN_D", -6.32103877726621E+00);
+    fp32q15_parameter("FP32Q15_SIN_E", 2.79041201245075E+00);
+
+    UNITTEST_PRINTF("x;sin-flt;sin-fp16;errabs\n");
+
+    float maxerr = 0;
+
+    for ( int xfp = INT16_MIN; xfp < INT16_MAX; xfp++ )
     {
-        fp16_t fp = fp16_flt2fp(flt,FP16_Q15);
-        fp = fp16_sin(fp);
+        float xflt = fp16_fp2flt(xfp,FP16_Q15);
+        float yflt = sin(xflt*M_PI);
+        float yfp = fp16_fp2flt(fp16_sin(xfp),FP16_Q14);
 
-        //UNITTEST_ASSERT("Unexpected result",fabs(sin(flt*M_PI)-fp16_fp2flt(fp,FP16_Q14)) <= SIN_MAX_ERR);
+        UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f;%0.15f\n", xflt, yflt,yfp, fabs(yflt-yfp));
 
-        //UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,sin(flt*M_PI),fp16_fp2flt(fp,FP16_Q14));
-
-       // UNITTEST_PRINTF("%d\n",(int32_t)round((M_PI) * (1 << FP16_Q15)));
+        if (fabs(yflt-yfp) > maxerr)
+        {
+            maxerr = fabs(yflt-yfp);
+        }
     }
+
+    UNITTEST_PRINTF("maxerr : %0.15f\n", maxerr);
+
+    UNITTEST_ASSERT("Maximum allowed error exceeded", maxerr <= FP16_SIN_MAXERR );
 }
 
 
-#define COS_MAX_ERR 0.0018385
-
+#define FP16_COS_MAXERR 0.000331913004629
 
 UNITTEST_TESTCASE(fp16_cos)
 {
 
-    for (float flt = fp16_props[FP16_Q15].min; flt <= fp16_props[FP16_Q15].max  ; flt+=fp16_props[FP16_Q15].prec)
+    UNITTEST_PRINTF("x;cos-flt;cos-fp16;errabs\n");
+
+    float maxerr = 0;
+
+    for ( int xfp = INT16_MIN; xfp < INT16_MAX; xfp++ )
     {
-        fp16_t fp = fp16_flt2fp(flt,FP16_Q15);
-        fp = fp16_cos(fp);
+        float xflt = fp16_fp2flt(xfp,FP16_Q15);
+        float yflt = cos(xflt*M_PI);
+        float yfp = fp16_fp2flt(fp16_cos(xfp),FP16_Q14);
 
+        UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f;%0.15f\n", xflt, yflt,yfp, fabs(yflt-yfp));
 
-
-        UNITTEST_ASSERT("Unexpected result",fabs(cos(flt*M_PI)-fp16_fp2flt(fp,FP16_Q14)) <= COS_MAX_ERR);
-
-
-        // UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,cos(flt*M_PI),fp16_fp2flt(fp,FP16_Q14));
+        if (fabs(yflt-yfp) > maxerr)
+        {
+            maxerr = fabs(yflt-yfp);
+        }
     }
+
+    UNITTEST_PRINTF("maxerr : %0.15f\n", maxerr);
+
+    UNITTEST_ASSERT("Maximum allowed error exceeded", maxerr <= FP16_SIN_MAXERR );
 }
+
+
+
 
 UNITTEST_TESTCASE(fp16_tan)
 {
 
-    for (float flt = fp16_props[FP16_Q15].min; flt <= fp16_props[FP16_Q15].max  ; flt+=fp16_props[FP16_Q15].prec)
-    {
-        fp16_t fp = fp16_flt2fp(flt,FP16_Q15);
-        fp = fp16_tan(fp,FP16_Q8);
 
-       UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,f_saturate(tan(flt*M_PI),FP16_Q8_MIN,FP16_Q8_MAX),fp16_fp2flt(fp,FP16_Q8));
+    UNITTEST_PRINTF("x;tan-flt;tan-fp16;errabs\n");
+
+    double maxerr = 0;
+
+    for ( int xfp = INT16_MIN; xfp < INT16_MAX; xfp++ )
+    {
+        double xflt = fp16_fp2flt(xfp,FP16_Q15);
+        double yflt = tan(xflt*M_PI);
+        double yfp = fp16_fp2flt(fp16_tan(xfp,FP16_Q8),FP16_Q8);
+
+        UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f;%0.15f\n", xflt, yflt,yfp, fabs(yflt-yfp));
+
+        if (fabs(yflt-yfp) > maxerr)
+        {
+            maxerr = fabs(yflt-yfp);
+        }
     }
+
+    UNITTEST_PRINTF("maxerr : %0.15f\n", maxerr);
+
+   // UNITTEST_ASSERT("Maximum allowed error exceeded", maxerr <= FP16_SIN_MAXERR );
 }
+
 
 
 
@@ -1278,7 +1367,7 @@ UNITTEST_TESTSUITE(fp16)
 
 #else
 
-   UNITTEST_EXEC_TESTCASE(fp16_sin);
+   UNITTEST_EXEC_TESTCASE(fp16_tan);
 
 
 #endif
