@@ -137,6 +137,49 @@ uint8_t randfp (fp16_t *fp)
 
 
 
+float fp16_chktrunc_floats [] = {1.25, 1.5, 1.75, -1.25, -1.5, -1.75};
+
+
+UNITTEST_TESTCASE(fp16_check_system_truncation)
+{
+    /* https://sestevenson.wordpress.com/2009/08/19/rounding-in-fixed-point-number-conversions/ */
+
+    for (uint8_t idx = 0; idx < sizeof(fp16_chktrunc_floats)/sizeof(*fp16_chktrunc_floats); idx++)
+    {
+        float flt = fp16_chktrunc_floats[idx];
+
+        /*
+        The first thing to determine is how these numbers will be represented in a 16 bit integer register.
+        Multiplying each by 4 (which is two to the power 2) gives the following result (in hexadecimal):
+        */
+        fp16_t fp = fp16_flt2fp(flt,FP16_Q2);
+
+        UNITTEST_PRINTF("%f -> fp16(Q2) = 0x%04X \n",flt,(uint16_t)fp);
+
+        /* Now if the numbers are truncated, the result is found by shifting right by two. Here are the results: */
+
+        UNITTEST_PRINTF("0x%04X truncated = 0x%04X = %d \n",(uint16_t)fp,(uint16_t)(fp>>2),(fp>>2));
+
+        /*
+        For the positive numbers, the result of truncation is that the fractional part is discarded.
+        The negative number results are more interesting. The result is that the fractional part is lost,
+        and the integer part has been reduced by one. If a series of these numbers had a mean of zero
+        before truncation, then the series would have a mean of less than zero after truncation.
+        Rounding is used to avoid this problem of introduced bias and to make results more accurate.
+        */
+
+        UNITTEST_ASSERT("Systems does not truncate properly", (fp>>2) == (signbit(flt)?(-2):(1)));
+
+    }
+
+
+
+
+
+
+}
+
+
 
 UNITTEST_TESTCASE(fp16_check_shiftops)
 {
@@ -372,16 +415,6 @@ UNITTEST_TESTCASE(fp16_fp2fp)
 
       }
    }
-
-
-
-
-
-
-
-
-
-
 }
 
 
@@ -400,8 +433,8 @@ UNITTEST_TESTCASE(fp16_rshift)
    {
       fp16_t fp = fp16_flt2fp(fp16_props[tmp].prec,fp16_props[tmp].fract);
 
-      fp16_t fp2 = fp16_rshift(fp,1);
-      fp16_t fp3 = fp16_rshift(-fp,1);
+      fp16_t fp2 = fp16_arshift(fp,1);
+      fp16_t fp3 = fp16_arshift(-fp,1);
 
 
       UNITTEST_PRINTF("%d; %0.15f, %0.15f %0.15f\n", fp16_props[tmp].fract , fp16_fp2flt(fp,fp16_props[tmp].fract), fp16_fp2flt(fp2,fp16_props[tmp].fract-1), fp16_fp2flt(fp3,fp16_props[tmp].fract-1));
@@ -1046,24 +1079,34 @@ UNITTEST_TESTCASE(fp16_acos)
 
 
 
-#define ATAN_MAX_ERR 0.00782
-
-
 
 UNITTEST_TESTCASE(fp16_atan)
 {
-    for (float flt = fp16_props[FP16_Q8].min; flt <= fp16_props[FP16_Q8].max  ; flt+=fp16_props[FP16_Q8].prec)
+    UNITTEST_PRINTF("x;atan-flt;atan-fp16;errabs\n");
+
+    float maxerr = 0;
+
+    for ( int xfp = INT16_MIN; xfp < INT16_MAX; xfp++ )
     {
-        fp16_t fp = fp16_flt2fp(flt,FP16_Q8);
-        fp = fp16_atan(fp,FP16_Q8);
-
-        UNITTEST_ASSERT("Unexpected result",fabs(atan(flt)-fp16_fp2flt(fp,FP16_Q14)) <= ATAN_MAX_ERR);
+        float xflt = fp16_fp2flt(xfp,FP16_Q8);
+        float yflt = atan(xflt*M_PI);
 
 
-        //UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f\n",flt,atan(flt),fp16_fp2flt(fp,FP16_Q14));
+        float yfp = fp16_fp2flt(fp16_atan(xfp,FP16_Q8),FP16_Q14);
 
+        UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f;%0.15f\n", xflt, yflt,yfp, fabs(yflt-yfp));
+
+        if (fabs(yflt-yfp) > maxerr)
+        {
+            maxerr = fabs(yflt-yfp);
+        }
     }
+
+    UNITTEST_PRINTF("maxerr : %0.15f\n", maxerr);
+
+    //UNITTEST_ASSERT("Maximum allowed error exceeded", maxerr <= FP16_SIN_MAXERR );
 }
+
 
 
 
@@ -1367,7 +1410,9 @@ UNITTEST_TESTSUITE(fp16)
 
 #else
 
-   UNITTEST_EXEC_TESTCASE(fp16_tan);
+   UNITTEST_EXEC_TESTCASE(fp16_atan);
+
+    // UNITTEST_EXEC_TESTCASE(fp16_check_system_truncation);
 
 
 #endif

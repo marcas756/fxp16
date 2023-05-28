@@ -41,6 +41,7 @@
 #include <stdio.h>
 
 #define UNITTEST_VERBOSE 1
+#define UNITTEST_TALKATIVE 1
 
 static int uttcerrcnt;
 static int uttserrcnt;

@@ -1,9 +1,6 @@
-# This is a sample Python script.
 import math
 import numpy
 
-# Press Umschalt+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
 flt_consts= {
     "M_E":math.e,
@@ -60,13 +57,10 @@ def print_define_part(x):
 def print_value_part(x):
     print('{0: <20}'.format(x),end="")
 
-
-
 def print_Qs():
 
     for q in range (0,16):
-        print()
-
+        print("// --------------------------------------------------------------------------")
         print_define_part("#define FP16_Q"+ str(q))
         print_value_part("("+str(q)+")")
         print()
@@ -82,28 +76,24 @@ def print_Qs():
         print_define_part("#define FP16_Q" + str(q) + "_MIN ")
         print_value_part("(" + str(fp16_fp2flt(numpy.iinfo(numpy.int16).min, q)) + ")")
         print()
-
-
+        print("// --------------------------------------------------------------------------")
 
         for key, flt in flt_consts.items():
 
             fp = fp16_flt2fp(flt, q)
 
             if fp != fp16_sat(fp):
+                print_define_part("#define FP32_Q" + str(q) + "_" + key)
+            else :
                 print_define_part("#define FP16_Q" + str(q) + "_" + key)
-                print_value_part("(EXCEEDS RANGE)")
-                print()
-                continue
 
-            print_define_part("#define FP16_Q" + str(q) + "_" + key)
             print_value_part("("+str(fp)+")")
-            print("/* " + str(fp16_fp2flt(fp,q)) + " */")
+            print("// " + str(fp16_fp2flt(fp,q)))
+
+        print()
+        print()
 
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-
     print_Qs()
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

@@ -102,33 +102,39 @@ fp16_t fp16_int2fp(int16_t intpart, uint8_t frac)
     return(fp16_t)result;
 }
 
-/*!
-    \brief      Right shifts fixed point number with rounding LSB
-    \details    Right shifts fixed point number with rounding LSB
-    \param      fp       Fixed point number to right shift
-    \param      shift     Number of bits to right shift
 
-    \returns Right shifted fixed point number with rounded LSB
-*/
+#if FP16CONF_ARSHIFT_W_ROUNDING
 
-fp16_t fp16_rshift(fp16_t fp, uint8_t shift)
+fp16_t fp16_arshift(fp16_t fp, uint8_t shift)
 {
-   int32_t result = fp;
-   fp16_rshift_m(fp,shift);
+   fpxx_arshift_m(fp,shift);
    return fp;
 }
+
+fp32_t fp32_arshift(fp32_t var,uint8_t rshift)
+{
+    fpxx_arshift_m(var,rshift);
+    return var;
+}
+
+#endif
 
 /*!
     \brief      Left shifts fixed point number
     \details    Left shifts fixed point number
+
+                A Left Arithmetic Shift of one position moves each bit to the left by one.
+                The vacant least significant bit (LSB) is filled with zero and the most
+                significant bit (MSB) is discarded. It is identical to Left Logical Shift.
+
     \param      fp       Fixed point number to left shift
     \param      shift     Number of bits to left shift
 
     \returns Left shifted fixed point number
 */
-fp16_t fp16_lshift(fp16_t fp, uint8_t shift)
+fp16_t fp16_alshift(fp16_t fp, uint8_t shift)
 {
-   int32_t result = (int32_t)fp;
+   fp32_t result = fp;
    result<<=shift;
    fp16_sat_m(result);
    return(fp16_t)result;
@@ -147,16 +153,10 @@ fp16_t fp16_lshift(fp16_t fp, uint8_t shift)
 
 fp16_t fp16_fp2fp(fp16_t fp, uint8_t fracold, uint8_t fracnew)
 {
-   if ( fracold > fracnew )
-   {
-      fp = fp16_rshift(fp,fracold-fracnew);
-   }
-   else if ( fracold < fracnew )
-   {
-      fp = fp16_lshift(fp,fracnew-fracold);
-   }
-
-   return fp;
+    fp32_t result = fp;
+    fpxx_ashift_m(result, fracold - fracnew);
+    fp16_sat_m(result);
+    return (fp16_t) result;
 }
 
 
@@ -235,9 +235,7 @@ fp16_t fp16_sub(fp16_t minuend, fp16_t subtrahend)
 */
 fp16_t fp16_mult(fp16_t mult1, uint8_t frac1, fp16_t mult2, uint8_t frac2)
 {
-    int32_t result;
-    result = (int32_t)mult1*(int32_t)mult2;
-    fp16_shift_m(result,frac2);
+    fp32_t result = fp32_arshift((fp32_t)mult1*(fp32_t)mult2,frac2);
     fp16_sat_m(result);
     return (fp16_t)result;
 }
@@ -251,26 +249,24 @@ fp16_t fp16_mult(fp16_t mult1, uint8_t frac1, fp16_t mult2, uint8_t frac2)
 
 
     \param      divident     divident
-    \param      mult2     multiplicant
+    \param      divisor      divisor
 
 
-    \returns a/b with fractional bits of b
+    \returns divident/divisor with fractional bits of divident
 */
 fp16_t fp16_div(fp16_t divident, uint8_t frac1, fp16_t divisor, uint8_t frac2)
 {
-  int32_t result = (divident<<frac2)/divisor;
+  fp32_t result = (divident<<frac2)/divisor;
   fp16_sat_m(result);
   return (fp16_t)result;
 }
 
 
 
-
-
 fp16_t fp16_ceil(fp16_t x, uint8_t xfrac)
 {
 
-   int32_t result = (int32_t)x&~((1<<xfrac)-1);
+   fp32_t result = (fp32_t)x&~((1<<xfrac)-1);
 
    if(result == x)
    {
@@ -283,11 +279,6 @@ fp16_t fp16_ceil(fp16_t x, uint8_t xfrac)
    return (fp16_t)result;
 
 }
-
-/*
-
-*/
-
 
 
 fp16_t fp16_round(fp16_t x, uint8_t xfrac)
@@ -329,7 +320,7 @@ fp16_t fp16_fmod(fp16_t x, uint8_t xfrac, fp16_t y, uint8_t yfrac)
    fp16_intcast_m(result,xfrac);
 
    result*=y;
-   fp16_rshift_m(result,yfrac);
+   fpxx_arshift_m(result,yfrac);
 
    result = x - result;
    fp16_sat_m(result);
@@ -390,7 +381,7 @@ int32_t fp32_sqrt(int32_t s, uint8_t sfrac, uint8_t iter)
     for (int i = 0; i < iter; i++)
     {
         x = (x+((s<<sfrac)/x));     //  x[n] + s/x[n]
-        fp16_rshift_m(x,1);         //  /2
+        fpxx_arshift_m(x,1);         //  /2
     }
 
 
@@ -431,7 +422,7 @@ fp16_t fp16_cbrt(fp16_t a, uint8_t afrac)
     for(int tmp = 0; tmp < FP16_CBRT_ITERATIONS; tmp++)
     {
         int32_t xx = x*x;
-        fp16_rshift_m(xx,afrac);
+        fpxx_arshift_m(xx,afrac);
         x = (x<<1)+(a<<afrac)/xx;
         x = x/3;
     }
@@ -458,7 +449,7 @@ fp16_t fp16_hypot_helper(fp16_t a, fp16_t b, uint8_t frac, uint8_t iter)
 
 fp16_t fp16_sin(fp16_t fp)
 {
-    int32_t x,xx,xxx,xxxx;
+    fp32_t x,xx,xxx,xxxx;
 
     if ( fp > FP16_Q15_ONE_HALF )
     {
@@ -480,16 +471,14 @@ fp16_t fp16_sin(fp16_t fp)
         x = fp;
     }
 
-    xx = (x*x)>>15;
-    xxx = (x*xx)>>15;
-    xxxx = (xx*xx)>>15;
-    x = (FP32Q15_SIN_B*x)>>15;
-    xx =(FP32Q15_SIN_C*xx)>>15;
-    xxx = (FP32Q15_SIN_D*xxx)>>15;
-    xxxx = (FP32Q15_SIN_E*xxxx)>>15;
-    x = (FP32Q15_SIN_A+x+xx+xxx+xxxx)>>1; // Q14
-
-
+    xx = fp32_arshift(x*x,15);   // Q15
+    xxx = fp32_arshift(x*xx,15); // Q15
+    xxxx = fp32_arshift(xx*xx,15);   // Q15
+    x = fp32_arshift(FP32Q15_SIN_B*x,15);    // Q15
+    xx = fp32_arshift(FP32Q15_SIN_C*xx,15);     // Q15
+    xxx = fp32_arshift(FP32Q15_SIN_D*xxx,15);    // Q15
+    xxxx = fp32_arshift(FP32Q15_SIN_E*xxxx,15); // Q15
+    x = fp32_arshift(FP32Q15_SIN_A+x+xx+xxx+xxxx,1); // Q14
 
     if ( fp > FP16_Q15_ONE_HALF )
     {
@@ -623,7 +612,7 @@ int32_t fp32_exp(int32_t fp, uint8_t frac)
     for (uint8_t k = FP16_EXP_ITERATIONS; k > 0; k--)
     {
         result *= fpshifted/(k<<frac);
-        fp16_rshift_m(result,frac);
+        fpxx_arshift_m(result,frac);
         result += one;
 
         //fp16_sat_m(result);
@@ -869,8 +858,10 @@ fp16_t fp16_abs (fp16_t x, uint8_t frac)
 fp16_t fp16_fma (fp16_t x, uint8_t xfrac, fp16_t y, uint8_t yfrac, fp16_t z, uint8_t zfrac)
 {
    int32_t result;
+   int8_t relshift = xfrac+yfrac-zfrac;
+
    result = (int32_t)x*(int32_t)y;
-   fp16_shift_m(result,xfrac+yfrac-zfrac);
+   fpxx_ashift_m(result,relshift);
    result += z;
    fp16_sat_m(result);
    return (fp16_t)result;

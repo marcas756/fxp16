@@ -37,8 +37,13 @@
 #ifndef _FP16_H_
 #define _FP16_H_
 
-#include <stdint.h>
+#define FP16_VERSION_MAJOR 0
+#define FP16_VERSION_MINOR 0
+#define FP16_VERSION_PATCH 1
 
+#warning "This lib is still in development"
+
+#include <stdint.h>
 // --------------------------------------------------------------------------
 #define FP16_Q0                    (0)
 #define FP16_Q0_PREC               (1.0)
@@ -551,7 +556,7 @@
 #define FP16_Q13_M_2_SQRTPI        (9244)              // 1.12841796875
 #define FP16_Q13_M_SQRT2           (11585)             // 1.4141845703125
 #define FP16_Q13_M_SQRT1_2         (5793)              // 0.7071533203125
-#define FP16_Q13_M_TWOPI           (EXCEEDS RANGE)
+#define FP32_Q13_M_TWOPI           (51472)             // 6.283203125
 #define FP16_Q13_M_3PI_4           (19302)             // 2.356201171875
 #define FP16_Q13_M_SQRTPI          (14520)             // 1.7724609375
 #define FP16_Q13_M_SQRT3           (14189)             // 1.7320556640625
@@ -577,11 +582,11 @@
 #define FP16_Q14_MAX               (1.99993896484375)
 #define FP16_Q14_MIN               (-2.0)
 // --------------------------------------------------------------------------
-#define FP16_Q14_M_E               (EXCEEDS RANGE)
+#define FP32_Q14_M_E               (44536)             // 2.71826171875
 #define FP16_Q14_M_LOG2E           (23637)             // 1.44268798828125
 #define FP16_Q14_M_LOG10E          (7115)              // 0.43426513671875
 #define FP16_Q14_M_LN2             (11357)             // 0.69317626953125
-#define FP16_Q14_M_PI              (EXCEEDS RANGE)
+#define FP32_Q14_M_PI              (51472)             // 3.1416015625
 #define FP16_Q14_M_PI_2            (25736)             // 1.57080078125
 #define FP16_Q14_M_PI_4            (12868)             // 0.785400390625
 #define FP16_Q14_M_1_PI            (5215)              // 0.31829833984375
@@ -589,8 +594,8 @@
 #define FP16_Q14_M_2_SQRTPI        (18487)             // 1.12835693359375
 #define FP16_Q14_M_SQRT2           (23170)             // 1.4141845703125
 #define FP16_Q14_M_SQRT1_2         (11585)             // 0.70709228515625
-#define FP16_Q14_M_TWOPI           (EXCEEDS RANGE)
-#define FP16_Q14_M_3PI_4           (EXCEEDS RANGE)
+#define FP32_Q14_M_TWOPI           (102944)            // 6.283203125
+#define FP32_Q14_M_3PI_4           (38604)             // 2.356201171875
 #define FP16_Q14_M_SQRTPI          (29040)             // 1.7724609375
 #define FP16_Q14_M_SQRT3           (28378)             // 1.7320556640625
 #define FP16_Q14_M_IVLN10          (7115)              // 0.43426513671875
@@ -615,25 +620,25 @@
 #define FP16_Q15_MAX               (0.999969482421875)
 #define FP16_Q15_MIN               (-1.0)
 // --------------------------------------------------------------------------
-#define FP16_Q15_M_E               (EXCEEDS RANGE)
-#define FP16_Q15_M_LOG2E           (EXCEEDS RANGE)
+#define FP32_Q15_M_E               (89073)             // 2.718292236328125
+#define FP32_Q15_M_LOG2E           (47274)             // 1.44268798828125
 #define FP16_Q15_M_LOG10E          (14231)             // 0.434295654296875
 #define FP16_Q15_M_LN2             (22713)             // 0.693145751953125
-#define FP16_Q15_M_PI              (EXCEEDS RANGE)
-#define FP16_Q15_M_PI_2            (EXCEEDS RANGE)
+#define FP32_Q15_M_PI              (102944)            // 3.1416015625
+#define FP32_Q15_M_PI_2            (51472)             // 1.57080078125
 #define FP16_Q15_M_PI_4            (25736)             // 0.785400390625
 #define FP16_Q15_M_1_PI            (10430)             // 0.31829833984375
 #define FP16_Q15_M_2_PI            (20861)             // 0.636627197265625
-#define FP16_Q15_M_2_SQRTPI        (EXCEEDS RANGE)
-#define FP16_Q15_M_SQRT2           (EXCEEDS RANGE)
+#define FP32_Q15_M_2_SQRTPI        (36975)             // 1.128387451171875
+#define FP32_Q15_M_SQRT2           (46341)             // 1.414215087890625
 #define FP16_Q15_M_SQRT1_2         (23170)             // 0.70709228515625
-#define FP16_Q15_M_TWOPI           (EXCEEDS RANGE)
-#define FP16_Q15_M_3PI_4           (EXCEEDS RANGE)
-#define FP16_Q15_M_SQRTPI          (EXCEEDS RANGE)
-#define FP16_Q15_M_SQRT3           (EXCEEDS RANGE)
+#define FP32_Q15_M_TWOPI           (205887)            // 6.283172607421875
+#define FP32_Q15_M_3PI_4           (77208)             // 2.356201171875
+#define FP32_Q15_M_SQRTPI          (58080)             // 1.7724609375
+#define FP32_Q15_M_SQRT3           (56756)             // 1.7320556640625
 #define FP16_Q15_M_IVLN10          (14231)             // 0.434295654296875
-#define FP16_Q15_M_LOG2_E          (EXCEEDS RANGE)
-#define FP16_Q15_M_INVLN2          (EXCEEDS RANGE)
+#define FP32_Q15_M_LOG2_E          (47274)             // 1.44268798828125
+#define FP32_Q15_M_INVLN2          (47274)             // 1.44268798828125
 #define FP16_Q15_ONE_EIGHTH        (4096)              // 0.125
 #define FP16_Q15_ONE_QUARTER       (8192)              // 0.25
 #define FP16_Q15_THREE_EIGHTHS     (12288)             // 0.375
@@ -643,13 +648,8 @@
 #define FP16_Q15_SEVEN_EIGHTHS     (28672)             // 0.875
 #define FP16_Q15_ONE_THIRD         (10923)             // 0.333343505859375
 #define FP16_Q15_TWO_THIRDS        (21845)             // 0.666656494140625
-#define FP16_Q15_ONE               (EXCEEDS RANGE)
+#define FP32_Q15_ONE               (32768)             // 1.0
 #define FP16_Q15_MINUS_ONE         (-32768)            // -1.0
-
-
-
-
-
 
 
 
@@ -664,45 +664,92 @@
 #define FP16_HYPOT_ITERATIONS        18
 #define FP16_CBRT_ITERATIONS        17
 
-typedef int16_t fp16_t; /*!< Type can be used for all Q configurations */
+typedef int16_t fp16_t;
+typedef int32_t fp32_t;
+
+
+#define fpxx_sat_m(var,min,max) \
+    do{var=(var<min)?(min):((var>max)?(max):(var));}while(0)
 
 
 /*!
-    \brief      Macro that saturates a result to fixed point limits
+    \brief      Macro that saturates a result to fixed point 16 bit limits
     \details    This macro checks if the int32_t result of a previously performed calculation
                 results in a fixed point overflow. If so the result is saturated to the
                 extends of the fixed point type.
     \param[in]  var     Fixed point int32_t result to be saturated
 */
 #define fp16_sat_m(var) \
-    do{ \
-        if (var > INT16_MAX) { var = INT16_MAX; } \
-        if (var < INT16_MIN) { var = INT16_MIN; } \
-    }while(0)
+        fpxx_sat_m(var,INT16_MIN,INT16_MAX)
+
 
 
 /*!
-  \brief      Macro to right shift fixed point number
-  \details    Macro to right shift fixed point number
-  \param      result   Fixed point number to right shift (int32_t format)
-  \param      shift    Number of bits to right shift
+    \brief      Macro that saturates a result to fixed point 32 bits limits
+    \details    This macro checks if the int64_t result of a previously performed calculation
+                results in a fixed point overflow. If so the result is saturated to the
+                extends of the fixed point type.
+    \param[in]  var     Fixed point int64_t result to be saturated
 */
-#define fp16_rshift_m(result,shift)               \
- do{                                              \
-    if (shift > 0 )                               \
-    {                                             \
-       if ( fp16_signbit(result) )                \
-       {                                          \
-          result = (-result)>>(shift-1);          \
-          result = -((result>>1)+(result&1));     \
-       }                                          \
-       else                                       \
-       {                                          \
-          result >>= (shift-1);                   \
-          result = (result>>1) + (result&1);      \
-       }                                          \
-    }                                             \
- }while(0)
+#define fp32_sat_m(var) \
+        fpxx_sat_m(var,INT32_MIN,INT32_MAX)
+
+
+/*!
+  \brief        Macro to arithmetically right shift fixed point number
+  \details      Macro to arithmetically right shift fixed point number
+
+                When shifting left, there is no difference between arithmetic and logical shift.
+
+                When shifting right, the type of shift depends on the type of the value being shifted.
+                A "logical" right shift by 1 bit shifts all the bits to the right and fills in the
+                leftmost bit with a 0.
+
+                An "arithmetic" shift leaves the original value in the leftmost bit.
+                The difference becomes important when dealing with negative numbers.)
+
+                When shifting an unsigned value, the >> operator in C is a logical shift.
+                When shifting a signed value, the >> operator is an arithmetic shift.
+
+  \param        result      Fixed point number to right shift (int32_t format)
+  \param        shift       Number of bits to right shift
+*/
+
+#define FP16CONF_ARSHIFT_W_ROUNDING 1
+
+#if FP16CONF_ARSHIFT_W_ROUNDING
+
+    #define fpxx_arshift_m(result,rshift)           \
+        result = (result)>>(rshift-1);              \
+        if (fp16_signbit(result))                   \
+        {                                           \
+            result = (result>>1) - (result&1);      \
+        }                                           \
+        else                                        \
+        {                                           \
+            result = (result>>1) + (result&1);      \
+        }
+
+
+
+
+#else
+    #define fpxx_arshift_m(result,rshift) do{result>>=rshift;}while(0)
+#endif
+
+#if FP16CONF_ARSHIFT_W_ROUNDING
+    fp32_t fp32_arshift(fp32_t var,uint8_t rshift);
+#else
+    #define fp32_arshift(var,rshift)    ((var)>>rshift)
+#endif
+
+
+#if FP16CONF_ARSHIFT_W_ROUNDING
+    fp16_t fp16_arshift(fp16_t fp, uint8_t shift);
+#else
+    #define fp16_arshift(var,rshift)    ((var)>>rshift)
+#endif
+
 
 
 
@@ -714,7 +761,7 @@ typedef int16_t fp16_t; /*!< Type can be used for all Q configurations */
   \param      shift    Number of bits to left shift
 
 */
-#define fp16_lshift_m(result,shift) do{ result<<=shift; }while(0)
+#define fpxx_alshift_m(result,shift) do{ result<<=shift; }while(0)
 
 
 /*!
@@ -723,24 +770,15 @@ typedef int16_t fp16_t; /*!< Type can be used for all Q configurations */
   \param      result   Fixed point number to left shift (int32_t format)
   \param      shift    Number of bits to shift (+ = rshift, - = lshift)
 */
-#define fp16_shift_m(result,shift)                \
+#define fpxx_ashift_m(result,shift)               \
  do {                                             \
     if ( shift > 0 )                              \
     {                                             \
-       if ( fp16_signbit(result) )                \
-       {                                          \
-          result = (-result)>>(shift-1);          \
-          result = -((result>>1)+(result&1));     \
-       }                                          \
-       else                                       \
-       {                                          \
-          result >>= (shift-1);                   \
-          result = (result>>1) + (result&1);      \
-       }                                          \
+        fpxx_arshift_m(result,shift);             \
     }                                             \
     else if( shift < 0 )                          \
     {                                             \
-       fp16_lshift_m(result,shift);               \
+       fpxx_alshift_m(result,-shift);             \
     }                                             \
  }while(0)
 
@@ -824,8 +862,6 @@ fp16_t fp16_hypot_helper(fp16_t a, fp16_t b, uint8_t frac, uint8_t iter);
     \returns Integer interpretation of provided fixed point number
 */
 #define fp16_fp2int(fp,frac) fp16_lround(fp,frac)
-
-
 
 /* Basic math operations */
 fp16_t fp16_add(fp16_t summand1, fp16_t summand2);
