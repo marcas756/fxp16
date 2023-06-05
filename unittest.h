@@ -39,12 +39,16 @@
 #define UNITTEST_H_
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #define UNITTEST_VERBOSE 1
 #define UNITTEST_TALKATIVE 1
 
 static int uttcerrcnt;
 static int uttserrcnt;
+
+#define UNITTEST_PROGRESS(var,start,stop) \
+    unittest_printf_progress(var,start,stop)
 
 #define UNITTEST_NEW_LOGFILE(filename) \
       FILE *fp = freopen(filename, "w" ,stdout); \
@@ -68,6 +72,28 @@ static int uttserrcnt;
     #define uttsb  "<UTTSB>"
     #define uttce  "<UTTCE>"
     #define uttse  "<UTTSE>"
+
+    static void unittest_printf_progress(float var, float start, float stop)
+    {
+        static clock_t prev_clock = 0;
+
+
+
+        if ( (clock() - prev_clock) <  CLOCKS_PER_SEC )
+        {
+            return;
+        }
+
+        prev_clock = clock();
+
+        var = var-start;
+        var /= stop-start;
+        var = var*100;
+
+
+
+        UNITTEST_PRINTF ("Progress %d %%\n",(int)var);
+    }
 
 
     static void unittest_printf_sss(const char *s1, const char *s2, const char *s3)

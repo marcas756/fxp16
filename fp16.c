@@ -518,7 +518,7 @@ fp16_t fp16_cos(fp16_t fp)
 
 fp16_t fp16_tan(fp16_t fp, uint8_t frac)
 {
-    int32_t x;
+    fp32_t x;
 
     /* avoid division by zero */
     if(fp ==  FP16_Q15_ONE_HALF )
@@ -535,9 +535,10 @@ fp16_t fp16_tan(fp16_t fp, uint8_t frac)
     }
 
     x = (fp16_sin(fp)<<FP16_Q15)/fp16_cos(fp);
-    x >>= (FP16_Q15-frac);
-    fp16_sat_m(x);
 
+
+    x = fp32_arshift(x,FP16_Q15-frac);
+    fp16_sat_m(x);
     return (fp16_t)x;
 }
 

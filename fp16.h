@@ -668,6 +668,11 @@ typedef int16_t fp16_t;
 typedef int32_t fp32_t;
 
 
+/*!
+    \brief      Macro that saturates a result to min and max
+    \details    This macro limits a variable to a minimum and maximum value
+    \param   var     Variable to be limited. Has to be able to hold minimum or maximum value.
+*/
 #define fpxx_sat_m(var,min,max) \
     do{var=(var<min)?(min):((var>max)?(max):(var));}while(0)
 
@@ -677,7 +682,7 @@ typedef int32_t fp32_t;
     \details    This macro checks if the int32_t result of a previously performed calculation
                 results in a fixed point overflow. If so the result is saturated to the
                 extends of the fixed point type.
-    \param[in]  var     Fixed point int32_t result to be saturated
+    \param   var     Fixed point int32_t result to be saturated
 */
 #define fp16_sat_m(var) \
         fpxx_sat_m(var,INT16_MIN,INT16_MAX)
@@ -719,23 +724,16 @@ typedef int32_t fp32_t;
 
 #if FP16CONF_ARSHIFT_W_ROUNDING
 
-    #define fpxx_arshift_m(result,rshift)           \
-        result = (result)>>(rshift-1);              \
-        if (fp16_signbit(result))                   \
-        {                                           \
-            result = (result>>1) - (result&1);      \
-        }                                           \
-        else                                        \
-        {                                           \
-            result = (result>>1) + (result&1);      \
-        }
-
-
-
+    #define fpxx_arshift_m(result,rshift)                                           \
+        do{                                                                         \
+            result = (result)>>(rshift-1);                                          \
+            result = fp16_signbit(result)?(result>>1):((result>>1) + (result&1));   \
+        }while(0)
 
 #else
     #define fpxx_arshift_m(result,rshift) do{result>>=rshift;}while(0)
 #endif
+
 
 #if FP16CONF_ARSHIFT_W_ROUNDING
     fp32_t fp32_arshift(fp32_t var,uint8_t rshift);
@@ -744,14 +742,12 @@ typedef int32_t fp32_t;
 #endif
 
 
+
 #if FP16CONF_ARSHIFT_W_ROUNDING
     fp16_t fp16_arshift(fp16_t fp, uint8_t shift);
 #else
     #define fp16_arshift(var,rshift)    ((var)>>rshift)
 #endif
-
-
-
 
 
 /*!

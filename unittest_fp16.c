@@ -104,10 +104,6 @@ fp16_t fp16_mult_q15(fp16_t a, fp16_t b)
     return (fp16_t) result;
 }
 
-
-
-
-
 float randf(float min, float max) {
     return  (max - min) * ((((float) rand()) / (float) RAND_MAX)) + min ;
 }
@@ -171,14 +167,45 @@ UNITTEST_TESTCASE(fp16_check_system_truncation)
         UNITTEST_ASSERT("Systems does not truncate properly", (fp>>2) == (signbit(flt)?(-2):(1)));
 
     }
-
-
-
-
-
-
 }
 
+UNITTEST_TESTCASE(fpxx_arshift_m)
+{
+
+    for (fp16_t num = INT16_MIN; num < INT16_MAX; num++)
+    {
+        fp16_t result = num;
+        fpxx_arshift_m(result,1);
+        UNITTEST_PRINTF("%d;%f;%d\n",num,num/2.0,result);
+        UNITTEST_ASSERT("Failed rounding LSB", result  == (fp16_t)round(num/2.0));
+    }
+}
+
+
+UNITTEST_TESTCASE(fp16_arshift)
+{
+
+    for (fp16_t num = INT16_MIN; num < INT16_MAX; num++)
+    {
+        fp16_t  result = fp16_arshift(num,1);
+        UNITTEST_PRINTF("%d;%f;%d\n",num,num/2.0,result);
+        UNITTEST_ASSERT("Failed rounding LSB", result  == (fp16_t)round(num/2.0));
+    }
+}
+
+
+UNITTEST_TESTCASE(fp32_arshift)
+{
+
+    for (int64_t num = INT32_MIN; num < INT32_MAX; num+=511)
+    {
+        fp32_t  result = fp32_arshift(num,1);
+        //UNITTEST_PRINTF("%d;%f;%d\n",num,num/2.0,result);
+        UNITTEST_ASSERT("Failed rounding LSB", result  == (fp32_t)round(num/2.0));
+
+        UNITTEST_PROGRESS(num,INT32_MIN,INT32_MAX);
+    }
+}
 
 
 UNITTEST_TESTCASE(fp16_check_shiftops)
@@ -1026,7 +1053,10 @@ UNITTEST_TESTCASE(fp16_tan)
     {
         double xflt = fp16_fp2flt(xfp,FP16_Q15);
         double yflt = tan(xflt*M_PI);
-        double yfp = fp16_fp2flt(fp16_tan(xfp,FP16_Q8),FP16_Q8);
+        double yfp = fp16_fp2flt(fp16_tan(xfp,FP16_Q12),FP16_Q12);
+
+        yflt = f_saturate(yflt, FP16_Q12_MIN, FP16_Q12_MAX);
+
 
         UNITTEST_PRINTF("%0.15f;%0.15f;%0.15f;%0.15f\n", xflt, yflt,yfp, fabs(yflt-yfp));
 
@@ -1349,8 +1379,6 @@ UNITTEST_TESTCASE(fp16_pow)
     xfp = fp16_pow(xfp,nfp,FP16_Q8);
 
     UNITTEST_ASSERT("Unexpected result",errno == EDOM);
-
-
 }
 
 
@@ -1410,11 +1438,12 @@ UNITTEST_TESTSUITE(fp16)
 
 #else
 
-   UNITTEST_EXEC_TESTCASE(fp16_atan);
+    UNITTEST_EXEC_TESTCASE(fp16_tan);
 
-    // UNITTEST_EXEC_TESTCASE(fp16_check_system_truncation);
-
-
+   // UNITTEST_EXEC_TESTCASE(fp16_check_system_truncation);
+   // UNITTEST_EXEC_TESTCASE(fpxx_arshift_m);
+    //UNITTEST_EXEC_TESTCASE(fp16_arshift);
+    //UNITTEST_EXEC_TESTCASE(fp32_arshift);
 #endif
 
 
