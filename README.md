@@ -120,7 +120,6 @@ The horizontal axis represents the **normalized input angle** in Q15 format, ran
 
 
 ### Two-Argument Arctangent Computation Using CORDIC
- ctangent (`fp16_atan2`)
 
 The function `fp16_atan2` computes the angle of a vector `(x, y)` using the **CORDIC vectoring mode**. It returns the angle in **π-normalized Q15 format**, i.e. the interval `-1.0` to `+1.0 - LSB` corresponds to the real angle range `-π` to `+π - LSB`. The implementation follows the behavior of the standard `atan2(y, x)` function known from floating-point math libraries, but uses fixed-point arithmetic throughout.
 
