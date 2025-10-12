@@ -55,6 +55,13 @@ The figure above shows the sine (blue) and cosine (red) functions computed using
   The smoothness of both curves indicates that the resolution of the Q15 input is sufficient to represent the functions without visible quantization artifacts. Any residual stair-stepping is below visual resolution, meaning that the angular step size is significantly finer than the display grid.
 
 
+#### Interpretation of the Arcus Sine/Arcus Cosine Graph
+<img width="866" height="577" alt="asinacos" src="https://github.com/user-attachments/assets/3e549fcc-b639-43f7-8f57-0e9162f23b8c" />
+
+#### Interpretation of the Tangens Graph
+<img width="866" height="577" alt="tan" src="https://github.com/user-attachments/assets/3bc6d54b-7506-4651-9863-47dc7e1f4653" />
+
+
 ## Implementation Checklist (in comparison to math.h floating point implementation)
 
 ### Trigonometric functions
