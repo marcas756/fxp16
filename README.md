@@ -26,8 +26,31 @@ All functions use **Q15 fixed-point format** for both input and output:
 
 
 
+
+
+
+#### Interpretation of the Sine/Cosine Graph
+
 <img width="866" height="577" alt="sincos" src="https://github.com/user-attachments/assets/ac9306cd-a352-4a4b-95b1-345c925cc03e" />
 
+The figure above shows the sine (blue) and cosine (red) functions computed using the CORDIC implementation. The horizontal axis represents the **normalized input angle** in Q15 format, ranging from `-1.0` (corresponding to `-π`) to `+1.0 - LSB` (corresponding to `+π - LSB`). The vertical axis shows the computed sine and cosine values, also in Q15 format, ranging from `-1.0` to `+1.0 - LSB`.
+
+* **Input normalization:**
+  Angles are normalized to the interval `[-1.0, +1.0)` instead of `[-π, +π]`. The upper bound is deliberately limited to `+1.0 - LSB` (least significant bit), which corresponds to `+π - LSB` in the original angle domain. This avoids the singularity at `+π`, where sine and cosine wrap around. The introduced error is on the order of one LSB and is considered acceptable for the target application.
+
+* **Output range:**
+  The sine and cosine outputs are strictly confined to `[-1.0, +1.0 - LSB]` in Q15 format. This guarantees that the functions never overflow the representable fixed-point range, ensuring well-defined and bounded behavior across the entire input domain.
+
+* **Function behavior:**
+
+  * The **sine curve** crosses zero at the normalized input `0.0`, reaches its maximum of approximately `+1.0` at `+0.5` (corresponding to `+π/2`), and its minimum of approximately `-1.0` at `-0.5` (`-π/2`).
+  * The **cosine curve** reaches its maximum at `0.0` (angle 0), crosses zero at approximately `±0.5` (±π/2), and reaches its minimum at the normalized input `±1.0` (±π). This matches the expected phase shift of 90° between sine and cosine.
+
+* **Symmetry and periodicity:**
+  Both functions show the expected even/odd symmetry: cosine is even (`cos(-x) = cos(x)`), sine is odd (`sin(-x) = -sin(x)`). The plot confirms that the implementation preserves these properties within the Q15 resolution.
+
+* **Sampling granularity:**
+  The smoothness of both curves indicates that the resolution of the Q15 input is sufficient to represent the functions without visible quantization artifacts. Any residual stair-stepping is below visual resolution, meaning that the angular step size is significantly finer than the display grid.
 
 
 ## Implementation Checklist (in comparison to math.h floating point implementation)
