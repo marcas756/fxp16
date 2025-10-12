@@ -1,5 +1,7 @@
 ### CORDIC-Based Sine and Cosine Functions
 
+https://de.wikipedia.org/wiki/CORDIC
+
 The functions `fp16_cos`, `fp16_sin`, and `cordic_sin_cos_q15_pi` compute sine and cosine values using the **CORDIC algorithm** (COordinate Rotation DIgital Computer). CORDIC is an efficient iterative method for evaluating trigonometric functions through successive vector rotations. It eliminates the need for multiplications and relies solely on additions, subtractions, bit shifts, and table lookups, making it particularly suitable for embedded systems without floating-point hardware.
 
 #### Algorithmic Principle
@@ -36,7 +38,7 @@ All functions use **Q15 fixed-point format** for both input and output:
 The figure above shows the sine (blue) and cosine (red) functions computed using the CORDIC implementation. The horizontal axis represents the **normalized input angle** in Q15 format, ranging from `-1.0` (corresponding to `-π`) to `+1.0 - LSB` (corresponding to `+π - LSB`). The vertical axis shows the computed sine and cosine values, also in Q15 format, ranging from `-1.0` to `+1.0 - LSB`.
 
 * **Input normalization:**
-  Angles are normalized to the interval `[-1.0, +1.0)` instead of `[-π, +π]`. The upper bound is deliberately limited to `+1.0 - LSB` (least significant bit), which corresponds to `+π - LSB` in the original angle domain. This avoids the singularity at `+π`, where sine and cosine wrap around. The introduced error is on the order of one LSB and is considered acceptable for the target application.
+  Angles are normalized to the interval `[-1.0, +1.0)` instead of `[-π, +π]`. The upper bound is deliberately limited to `+1.0 - LSB` (least significant bit), which corresponds to `+π - LSB` in the original angle domain. This avoids the singularity at `+π`, where sine and cosine wrap around. 
 
 * **Output range:**
   The sine and cosine outputs are strictly confined to `[-1.0, +1.0 - LSB]` in Q15 format. This guarantees that the functions never overflow the representable fixed-point range, ensuring well-defined and bounded behavior across the entire input domain.
