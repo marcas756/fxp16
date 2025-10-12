@@ -119,36 +119,31 @@ The horizontal axis represents the **normalized input angle** in Q15 format, ran
 * **Practical Implication:** The choice of output format directly impacts both **accuracy** and **dynamic range**. Applications that require fine angular discrimination should prefer Q15, while those prioritizing range or computational simplicity may choose Q8 or Q0 depending on the use case.
 
 
-### atan2 — Angle Computation Using CORDIC
+### Two-Argument Arctangent Computation Using CORDIC
+ ctangent (`fp16_atan2`)
 
-The function `fp16_atan2` computes the angle of a 2D vector `(y, x)` using the **CORDIC vectoring algorithm**. It returns the angle in **π-normalized Q15 fixed-point format**, enabling a compact and efficient fixed-point representation of angles for trigonometric and geometric operations in embedded systems.
+The function `fp16_atan2` computes the angle of a vector `(x, y)` using the **CORDIC vectoring mode**. It returns the angle in **π-normalized Q15 format**, i.e. the interval `-1.0` to `+1.0 - LSB` corresponds to the real angle range `-π` to `+π - LSB`. The implementation follows the behavior of the standard `atan2(y, x)` function known from floating-point math libraries, but uses fixed-point arithmetic throughout.
 
 #### Algorithmic Principle
 
-The CORDIC vectoring algorithm iteratively rotates the input vector `(x, y)` toward the x-axis. At each iteration, the algorithm decides whether to rotate clockwise or counterclockwise based on the current y-component. The accumulated rotation angle converges toward `atan2(y, x)` after a fixed number of iterations. All rotations are performed using precomputed micro-angles `atan(2^-i)` stored in a Q15 table, scaled relative to π.
-
-To ensure stable convergence and correct quadrant assignment, the input vector is first mirrored into the right half-plane if `x < 0`. After the iterative vectoring stage, the final result is corrected according to the original signs of `x` and `y`, guaranteeing correct handling of all quadrants.
+The CORDIC algorithm in vectoring mode rotates the input vector `(x, y)` step by step toward the x-axis. In each iteration, a predefined micro-angle `atan(2^-i)` is either added or subtracted depending on the sign of `y`. After a sufficient number of iterations, `y` converges to zero and the accumulated rotation angle corresponds to the arctangent of the original vector. This method avoids divisions and relies exclusively on additions, subtractions, bit shifts, and table lookups, making it highly efficient for fixed-point embedded implementations.
 
 #### Input and Output Ranges
 
 * **Input:**
 
-  * `x` and `y` can be represented in any fixed-point format from Q0 up to Q15. Internally, they are converted to a suitable intermediate representation for processing.
-  * The magnitude of `x` and `y` is not restricted, but both must fit within the representable fixed-point range of the implementation.
+  * Both `x` and `y` must be given in **Q15 fixed-point format**, representing values in the range `-1.0` to `+1.0 - LSB`.
+  * If other fixed-point formats are used, both `x` and `y` must first be scaled to Q15 using the **same scaling factor**, to preserve the correct ratio `y/x`.
+  * Special cases are handled explicitly: `(0, 0)` returns 0, `(x < 0, y = 0)` returns `+π`, and vertical vectors `(x = 0)` return `±π/2` depending on the sign of `y`.
 
 * **Output:**
 
-  * The returned angle is in **Q15 π-normalized format**, i.e. the range `-1.0` to `+1.0 - LSB`, which corresponds to real angles `-π` to `+π - LSB`.
-  * A value of `0` corresponds to an angle of 0 radians, `+0.5` corresponds to `+π/2`, and `±1.0` corresponds to `±π`. The upper bound is deliberately limited by one least significant bit to avoid wrapping at `+π`.
-
-#### Special Cases
-
-* `atan2(0, 0)` returns 0 by convention.
-* `atan2(0, x)` returns 0 for `x > 0` and `+π` for `x < 0`.
-* `atan2(y, 0)` returns `±π/2` depending on the sign of `y`.
+  * The return value is the angle in **π-normalized Q15 format**, ranging from `-1.0` (−π) to `+1.0 - LSB` (+π − LSB).
+  * The function covers the entire angular range, including all four quadrants, by internally mirroring vectors in the left half-plane and applying a quadrant correction at the end.
 
 
 
+ 
 
 
 #### Interpretation of the Arcus Sine/Arcus Cosine Graph
