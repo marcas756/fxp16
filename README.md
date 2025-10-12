@@ -27,10 +27,6 @@ All functions use **Q15 fixed-point format** for both input and output:
 | `fp16_cos`              | Q15          | Q15           | -π to +π    | Computes cosine using the CORDIC algorithm |
 
 
-
-
-
-
 #### Interpretation of the Sine/Cosine Graph
 
 <img width="866" height="577" alt="sincos" src="https://github.com/user-attachments/assets/ac9306cd-a352-4a4b-95b1-345c925cc03e" />
@@ -121,6 +117,38 @@ The horizontal axis represents the **normalized input angle** in Q15 format, ran
 * **Quantization Effects:** As the resolution decreases (from Q15 to Q0), quantization steps become clearly visible. Q15 appears smooth, Q8 shows minor stepping, and Q0 exhibits strong stair-stepping.
 * **Symmetry:** The curves are antisymmetric with respect to the origin, reflecting the mathematical property tan(-x) = -tan(x), confirming consistent behavior across formats.
 * **Practical Implication:** The choice of output format directly impacts both **accuracy** and **dynamic range**. Applications that require fine angular discrimination should prefer Q15, while those prioritizing range or computational simplicity may choose Q8 or Q0 depending on the use case.
+
+
+### atan2 — Angle Computation Using CORDIC
+
+The function `fp16_atan2` computes the angle of a 2D vector `(y, x)` using the **CORDIC vectoring algorithm**. It returns the angle in **π-normalized Q15 fixed-point format**, enabling a compact and efficient fixed-point representation of angles for trigonometric and geometric operations in embedded systems.
+
+#### Algorithmic Principle
+
+The CORDIC vectoring algorithm iteratively rotates the input vector `(x, y)` toward the x-axis. At each iteration, the algorithm decides whether to rotate clockwise or counterclockwise based on the current y-component. The accumulated rotation angle converges toward `atan2(y, x)` after a fixed number of iterations. All rotations are performed using precomputed micro-angles `atan(2^-i)` stored in a Q15 table, scaled relative to π.
+
+To ensure stable convergence and correct quadrant assignment, the input vector is first mirrored into the right half-plane if `x < 0`. After the iterative vectoring stage, the final result is corrected according to the original signs of `x` and `y`, guaranteeing correct handling of all quadrants.
+
+#### Input and Output Ranges
+
+* **Input:**
+
+  * `x` and `y` can be represented in any fixed-point format from Q0 up to Q15. Internally, they are converted to a suitable intermediate representation for processing.
+  * The magnitude of `x` and `y` is not restricted, but both must fit within the representable fixed-point range of the implementation.
+
+* **Output:**
+
+  * The returned angle is in **Q15 π-normalized format**, i.e. the range `-1.0` to `+1.0 - LSB`, which corresponds to real angles `-π` to `+π - LSB`.
+  * A value of `0` corresponds to an angle of 0 radians, `+0.5` corresponds to `+π/2`, and `±1.0` corresponds to `±π`. The upper bound is deliberately limited by one least significant bit to avoid wrapping at `+π`.
+
+#### Special Cases
+
+* `atan2(0, 0)` returns 0 by convention.
+* `atan2(0, x)` returns 0 for `x > 0` and `+π` for `x < 0`.
+* `atan2(y, 0)` returns `±π/2` depending on the sign of `y`.
+
+
+
 
 
 #### Interpretation of the Arcus Sine/Arcus Cosine Graph
