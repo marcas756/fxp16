@@ -54,12 +54,6 @@ The figure above shows the sine (blue) and cosine (red) functions computed using
 * **Sampling granularity:**
   The smoothness of both curves indicates that the resolution of the Q15 input is sufficient to represent the functions without visible quantization artifacts. Any residual stair-stepping is below visual resolution, meaning that the angular step size is significantly finer than the display grid.
 
-
-
-Hier ist die erweiterte Version des Dokumentationsabsatzes für `fp16_tan` mit einer **klar formulierten Warnung zum Overflow- und Sättigungsverhalten**, wissenschaftlich gehalten und für ein `README.md` geeignet:
-
----
-
 ### Tangent Function Based on CORDIC
 
 The function `fp16_tan` computes the tangent of a normalized angle using sine and cosine values obtained from the CORDIC-based function `cordic_sin_cos_q15_pi`. Instead of using a separate tangent-specific algorithm, the function first evaluates sine and cosine in Q15 fixed-point format and then derives the tangent as the quotient:
