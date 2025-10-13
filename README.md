@@ -142,8 +142,7 @@ The CORDIC algorithm in vectoring mode rotates the input vector `(x, y)` step by
 
 
 #### Interpretation of the Two-Argument Arctangent Graph
- 
-<img width="866" height="577" alt="atan2" src="https://github.com/user-attachments/assets/ebdf8775-54c0-417c-83c2-da65ee0dba45" />
+<img width="866" height="577" alt="atan2" src="https://github.com/user-attachments/assets/cfc11c78-a5c3-45e6-a6e4-15e8ea4eeeb5" />
 
 
 #### Interpretation of the Arcus Sine/Arcus Cosine Graph
