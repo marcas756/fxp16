@@ -81,7 +81,7 @@ This design allows the reuse of the same efficient CORDIC implementation, ensuri
 
 When the cosine value approaches zero, the division may exceed the representable range of the fixed-point output format. In such cases, the result is **saturated** to the maximum or minimum representable value, depending on the sign of the numerator. This behavior is intentional and ensures that the function never wraps around or produces undefined results. Users should take this into account when applying `fp16_tan` in control loops or signal processing algorithms near ±π/2, where the tangent becomes numerically ill-conditioned.
 
-### Interpretation of the Tangent Graph
+#### Interpretation of the Tangent Graph
 <img width="866" height="577" alt="tan" src="https://github.com/user-attachments/assets/3bc6d54b-7506-4651-9863-47dc7e1f4653" />
 
 The figure above shows the behavior of the tangent function implemented via `fp16_tan` for three different output formats: **Q0** (blue dotted), **Q8** (red dashed), and **Q15** (yellow solid).
@@ -141,8 +141,9 @@ The CORDIC algorithm in vectoring mode rotates the input vector `(x, y)` step by
   * The function covers the entire angular range, including all four quadrants, by internally mirroring vectors in the left half-plane and applying a quadrant correction at the end.
 
 
-
+#### Interpretation of the Two-Argument Arctangent Graph
  
+<img width="866" height="577" alt="atan2" src="https://github.com/user-attachments/assets/ebdf8775-54c0-417c-83c2-da65ee0dba45" />
 
 
 #### Interpretation of the Arcus Sine/Arcus Cosine Graph
