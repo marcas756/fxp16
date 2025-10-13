@@ -118,7 +118,6 @@ The horizontal axis represents the **normalized input angle** in Q15 format, ran
 * **Symmetry:** The curves are antisymmetric with respect to the origin, reflecting the mathematical property tan(-x) = -tan(x), confirming consistent behavior across formats.
 * **Practical Implication:** The choice of output format directly impacts both **accuracy** and **dynamic range**. Applications that require fine angular discrimination should prefer Q15, while those prioritizing range or computational simplicity may choose Q8 or Q0 depending on the use case.
 
-
 ### Two-Argument Arctangent Computation Using CORDIC
 
 The function `fp16_atan2` computes the angle of a vector `(x, y)` using the **CORDIC vectoring mode**. It returns the angle in **π-normalized Q15 format**, i.e. the interval `-1.0` to `+1.0 - LSB` corresponds to the real angle range `-π` to `+π - LSB`. The implementation follows the behavior of the standard `atan2(y, x)` function known from floating-point math libraries, but uses fixed-point arithmetic throughout.
@@ -143,6 +142,47 @@ The CORDIC algorithm in vectoring mode rotates the input vector `(x, y)` step by
 
 #### Interpretation of the Two-Argument Arctangent Graph
 <img width="866" height="577" alt="atan2" src="https://github.com/user-attachments/assets/cfc11c78-a5c3-45e6-a6e4-15e8ea4eeeb5" />
+
+The figure above illustrates the output of the `fp16_atan2` function for different quadrants, plotted against the **ratio `y/x`** on the horizontal axis. The vertical axis represents the **output angle in π-normalized Q15 format**, ranging from `-1.0` (−π) to `+1.0 - LSB` (+π − LSB). Each curve corresponds to one of the four quadrants:
+
+* **Quadrant I (x > 0, y > 0)** – blue
+* **Quadrant II (x < 0, y > 0)** – red
+* **Quadrant III (x < 0, y < 0)** – yellow
+* **Quadrant IV (x > 0, y < 0)** – green
+
+#### General Behavior
+
+* For **x > 0**, the function behaves like the standard `atan(y/x)` curve, smoothly mapping ratios from negative to positive into the range `(-0.5, +0.5)` (corresponding to `(-π/2, +π/2)`).
+
+* For **x < 0**, a **quadrant offset** of ±π is added to the basic `atan(y/x)` value:
+
+  * In Quadrant II (x < 0, y > 0), the output equals `atan(y/x) + π`, resulting in a vertical shift upward by +1.0 (π).
+  * In Quadrant III (x < 0, y < 0), the output equals `atan(y/x) − π`, resulting in a vertical shift downward by −1.0 (−π).
+    This matches the standard mathematical definition of `atan2` and ensures a full angular coverage of (−π, +π).
+
+* As `y/x` → ±∞ (corresponding to x → 0), the curves approach ±0.5 (±π/2) or their shifted equivalents, depending on the quadrant. The function transitions smoothly and continuously across all quadrants.
+
+#### Special Cases
+
+The implementation also explicitly handles singular input combinations to match the conventional behavior of `atan2`:
+
+| Condition    | Result (π-normalized Q15) | Angle |
+| ------------ | ------------------------- | ----- |
+| x = 0, y = 0 | 0.0                       | 0     |
+| x = 0, y > 0 | +0.5                      | +π/2  |
+| x = 0, y < 0 | −0.5                      | −π/2  |
+| x > 0, y = 0 | 0.0                       | 0     |
+| x < 0, y = 0 | +1.0                      | +π    |
+
+This ensures well-defined outputs even at the axes and origin.
+
+#### Additional Observations
+
+* **Symmetry:** The output exhibits the expected symmetry: Quadrants II and III are vertical translations of Quadrants I and IV by ±π, as defined by the mathematical `atan2`.
+* **Range Coverage:** The function covers the entire normalized output range from `−1.0` to `+1.0 - LSB`, corresponding to angles from `−π` to `+π - LSB`.
+* **Smooth Transition:** The graph confirms that the implementation provides smooth transitions between quadrants and maintains continuity at quadrant boundaries (excluding the singular points at x = 0).
+* **Numerical Stability:** Since the function internally uses CORDIC vectoring mode, it remains stable for both large and small values of `y/x` without divisions.
+
 
 
 #### Interpretation of the Arcus Sine/Arcus Cosine Graph
