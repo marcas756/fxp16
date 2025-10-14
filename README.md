@@ -274,11 +274,112 @@ The different segments of the graph show how the function handles inputs with va
   * Higher Q formats (e.g., Q15) provide finer angular resolution for moderate input values.
   * Lower Q formats extend the dynamic range, enabling correct handling of larger inputs at the cost of reduced precision.
 
+### Arcus Sine/Cosine Functions
+
+The functions `fp16_asin()` and `fp16_acos()` compute the **arcsine** and **arccosine** of a Q15 fixed-point input, returning the result in **π-normalized Q15 format**. Both functions are implemented using algebraic transformations and the CORDIC-based `fp16_atan2()` function, ensuring high numerical stability and full quadrant coverage without requiring floating-point arithmetic.
+
+#### Algorithmic Principle
+
+For a given input `x` (Q15, range `[-1.0, +1.0]`):
+
+* **Arcsine:**
+  The arcsine is computed using the identity
+
+  ```
+  asin(x) = atan2(x, sqrt(1 - x²))
+  ```
+
+  First, the value `t = 1 - x²` is computed in extended 32-bit precision to avoid overflow. Its square root is then obtained in Q15 using `fp16_sqrt()`. Finally, `fp16_atan2(x, c)` is called with `c = sqrt(1 - x²)` to obtain the result in π-normalized Q15 format.
+  The output range of `fp16_asin()` is `[-0.5, +0.5]`, corresponding to `[-π/2, +π/2]`.
+
+* **Arccosine:**
+  The arccosine is computed using the identity
+
+  ```
+  acos(x) = atan2(sqrt(1 - x²), x)
+  ```
+
+  The same intermediate value `c = sqrt(1 - x²)` is reused, but the arguments are passed in reversed order to `fp16_atan2()`.
+  The output range of `fp16_acos()` is `[0.0, +1.0]`, corresponding to `[0, π]`.
+
+These formulations reduce both functions to a single square root and an `atan2` evaluation, leveraging the existing CORDIC-based arctangent implementation.
+
+#### Input and Output Ranges
+
+| Function    | Input Format | Input Range      | Output Format | Output Range (π-normalized Q15) |
+| ----------- | ------------ | ---------------- | ------------- | ------------------------------- |
+| `fp16_asin` | Q15          | `-1.0` to `+1.0` | Q15           | `-0.5` to `+0.5`  (−π/2 … +π/2) |
+| `fp16_acos` | Q15          | `-1.0` to `+1.0` | Q15           | `0.0` to `+1.0`   (0 … π)       |
+
+#### Numerical Characteristics
+
+* **Precision:**
+  Both functions use 32-bit intermediate computations for `1 - x²` to avoid rounding errors and negative intermediate values at the domain boundaries.
+
+* **Domain Handling:**
+  Input values outside the interval `[-1.0, +1.0]` are not expected. For `|x| = 1.0`, the square root term becomes exactly zero, yielding well-defined outputs at the domain boundaries (±π/2 for asin, 0 and π for acos).
+
+* **CORDIC Consistency:**
+  Since both functions rely on `fp16_atan2`, they inherit its quadrant correctness, stability, and π-normalized output range.
+
 
 
 
 #### Interpretation of the Arcus Sine/Arcus Cosine Graph
 <img width="866" height="577" alt="asinacos" src="https://github.com/user-attachments/assets/3e549fcc-b639-43f7-8f57-0e9162f23b8c" />
+
+The figure above shows the output of the `fp16_asin` (blue) and `fp16_acos` (red) functions for inputs `x` in the range `[-1.0, +1.0]` (Q15). The vertical axis represents the **π-normalized Q15 output**, with `-0.5` corresponding to `−π/2`, `0.0` to `0`, `0.5` to `+π/2`, and `1.0` to `+π`.
+
+#### General Behavior
+
+* **Arcsine (blue):**
+
+  * The curve starts at `−0.5` for `x = −1`, passes through `0.0` at `x = 0`, and reaches `+0.5` at `x = +1`.
+  * This matches the mathematical definition of asin(x), which maps the interval `[-1, +1]` onto `[-π/2, +π/2]`.
+  * The curve is **monotonically increasing**, symmetric about the origin, and reflects the odd function property `asin(−x) = −asin(x)`.
+
+* **Arccosine (red):**
+
+  * The curve starts at `+1.0` for `x = −1`, decreases to `0.5` at `x = 0`, and reaches `0.0` at `x = +1`.
+  * This corresponds to the mathematical acos(x), mapping `[-1, +1]` to `[π, 0]` (π-normalized `[1.0, 0.0]`).
+  * The function is **monotonically decreasing** over the entire input range.
+
+#### Relationship Between `asin` and `acos`
+
+The graph clearly shows the fundamental identity:
+
+```
+asin(x) + acos(x) = π/2
+```
+
+In π-normalized Q15, this corresponds to:
+
+```
+asin(x) + acos(x) = 0.5
+```
+
+At every point along the x-axis, the sum of the two curves equals `0.5`. This confirms that both implementations are numerically consistent and adhere to the standard trigonometric relationship.
+
+#### Additional Observations
+
+* **Domain Handling:**
+  Both functions operate only within the mathematically valid domain `x ∈ [−1.0, +1.0]`. Outside this range, the square root in `sqrt(1 − x²)` would be undefined. The implementation clamps intermediate values to ensure stable behavior at the domain boundaries.
+
+* **Boundary Values:**
+
+  * For x = +1:
+    `asin(+1)` = +0.5 (π/2), `acos(+1)` = 0.0 (0).
+  * For x = −1:
+    `asin(−1)` = −0.5 (−π/2), `acos(−1)` = 1.0 (π).
+  * For x = 0:
+    `asin(0)` = 0.0, `acos(0)` = 0.5 (π/2).
+
+* **Numerical Smoothness:**
+  The curves are smooth and continuous over the entire domain, demonstrating that the combination of the square root and CORDIC-based `atan2` yields numerically stable results even near the boundaries x = ±1, where rounding errors are most critical.
+
+* **Monotonicity and Symmetry:**
+  `asin(x)` is strictly increasing and odd-symmetric, whereas `acos(x)` is strictly decreasing and symmetric about x = 0. These properties match their analytical definitions exactly.
+
 
 
 
