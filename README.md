@@ -183,6 +183,98 @@ This ensures well-defined outputs even at the axes and origin.
 * **Smooth Transition:** The graph confirms that the implementation provides smooth transitions between quadrants and maintains continuity at quadrant boundaries (excluding the singular points at x = 0).
 * **Numerical Stability:** Since the function internally uses CORDIC vectoring mode, it remains stable for both large and small values of `y/x` without divisions.
 
+### CORDIC-Based Arcus Tangent Function
+
+The function `fp16_atan()` computes the arctangent of a fixed-point input using the **CORDIC vectoring algorithm** via the helper function `fp16_atan2()`. This implementation operates entirely in fixed-point arithmetic and is suitable for embedded systems without floating-point hardware.
+
+#### Algorithmic Principle
+
+1. The input value `y` is given in an arbitrary fixed-point format with `frac` fractional bits.
+2. It is converted to Q15 format by shifting to match the internal CORDIC representation.
+3. A reference value `x = 1.0` (in Q15) is paired with the scaled `y` to form the vector `(x, y)`.
+4. If either `x` or `y` lies outside the representable Q15 range `[-1.0, +1.0]`, both are **iteratively scaled down** until they fit within bounds.
+5. The angle is then computed using `fp16_atan2(y, x)`, returning the arctangent in **π-normalized Q15**.
+
+Because `x` is always positive in this construction, the output range is limited to `[-0.5, +0.5]`, corresponding to `[-π/2, +π/2]`, matching the mathematical definition of `atan`.
+
+#### Input and Output Ranges
+
+* **Input:**
+
+  * `y`: fixed-point number in Q`frac` format
+  * `frac`: number of fractional bits of `y`
+
+* **Output:**
+
+  * π-normalized Q15, representing an angle in the range `[-0.5, +0.5]` (equivalent to `[-π/2, +π/2]`)
+
+---
+
+#### Iterative Scaling Loop
+
+Before the CORDIC calculation, the implementation ensures that both `x` and `y` remain within the valid Q15 domain:
+
+```c
+while (Y > FP32_Q15_ONE || Y < FP16_Q15_MINUS_ONE) {
+    Y = fp32_arshift(Y, 1);
+    x = fp32_arshift(x, 1);
+}
+```
+
+This **iterative scaling loop** halves both `x` and `y` repeatedly until their magnitudes are ≤ 1.0 in Q15. This step is crucial because:
+
+* The CORDIC vectoring algorithm assumes inputs are within the unit circle in Q15 format.
+* Scaling both values by the same factor preserves the **y/x ratio**, ensuring that the computed angle remains mathematically correct.
+* It prevents numerical overflow and ensures convergence of the iterative vectoring process.
+
+This mechanism allows the function to handle a wide dynamic range of input values, independent of their original fixed-point format, while maintaining deterministic and numerically stable behavior.
+
+#### Interpretation of the Arcus Tangent Graph
+<img width="866" height="577" alt="atan" src="https://github.com/user-attachments/assets/f8e9cefa-d63c-43a4-9c28-a2b4a4ff033d" />
+
+The figure above shows the output of the `fp16_atan` function for input values `x` in different **fixed-point formats (Q11–Q15)**. The horizontal axis represents the real input value, while the vertical axis shows the π-normalized Q15 output of the arctangent function in the range `[-0.5, +0.5]` (equivalent to `[-π/2, +π/2]`).
+
+Each colored curve corresponds to a different input format:
+
+* **Q15** – green
+* **Q14** – yellow
+* **Q13** – red
+* **Q12** – blue
+* **Q11** – purple
+
+#### General Behavior
+
+* All curves follow the characteristic shape of the arctangent function:
+
+  * For **small input magnitudes**, the function is nearly linear, reflecting `atan(x) ≈ x` for `|x| ≪ 1`.
+  * For **large positive inputs**, the function approaches `+0.5` (i.e., `+π/2`) asymptotically.
+  * For **large negative inputs**, the function approaches `−0.5` (i.e., `−π/2`) asymptotically.
+
+* Regardless of the input Q format, the **output range** is always confined to the π-normalized interval `[-0.5, +0.5]`, because `fp16_atan` internally uses a fixed `x = 1` reference and applies `atan2(y, 1)`.
+
+#### Effect of Input Fixed-Point Formats
+
+The different segments of the graph show how the function handles inputs with varying fixed-point resolution:
+
+* **Q15 (green)** covers the region around `[-1, +1]` with high resolution. Within this domain, no iterative scaling is needed, and the output corresponds directly to the Q15 input precision.
+
+* For **Q14, Q13, Q12, and Q11** (yellow, red, blue, purple), the curves extend over increasingly larger input magnitudes. This behavior is a result of the **iterative scaling loop** in the implementation:
+
+  * Inputs larger than ±1.0 (in Q15 terms) are repeatedly shifted right (divided by 2), together with the reference value, until they fit within the Q15 domain.
+  * This preserves the ratio `y/x` and allows the algorithm to handle very large inputs without overflow.
+
+* As a consequence, inputs in lower Q formats can represent **larger real values**, but the resolution decreases correspondingly. The arctangent function remains correct, as it depends only on the ratio, not on the absolute magnitude.
+
+#### Additional Observations
+
+* **Saturation Behavior:** For very large positive or negative inputs, all curves flatten out at ±0.5, demonstrating the correct asymptotic behavior of `atan(x) → ±π/2`.
+* **Smooth Transition Across Scales:** The transitions between different Q formats are smooth and continuous. This shows that the scaling mechanism preserves functional shape without introducing discontinuities.
+* **Dynamic Range vs. Precision Trade-off:**
+
+  * Higher Q formats (e.g., Q15) provide finer angular resolution for moderate input values.
+  * Lower Q formats extend the dynamic range, enabling correct handling of larger inputs at the cost of reduced precision.
+
+
 
 
 #### Interpretation of the Arcus Sine/Arcus Cosine Graph
