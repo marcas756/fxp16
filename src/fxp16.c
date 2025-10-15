@@ -34,7 +34,7 @@
     \details
 */
 
-#include "fp16.h"
+#include "fxp16.h"
 #include <math.h>
 #include <stdbool.h>
 #include <errno.h>
@@ -52,7 +52,7 @@
 
     \returns    Fixed point interpretation of provided floating point number
 */
-fp16_t fp16_flt2fp(float var, uint8_t frac)
+fxp16_t fxp16_flt2fp(float var, uint8_t frac)
 {
    /*
 
@@ -65,8 +65,8 @@ fp16_t fp16_flt2fp(float var, uint8_t frac)
    */
 
     var = round(var * (1 << frac));
-    fp16_sat_m(var);
-    return (fp16_t)var;
+    fxp16_sat_m(var);
+    return (fxp16_t)var;
 }
 
 /*!
@@ -77,7 +77,7 @@ fp16_t fp16_flt2fp(float var, uint8_t frac)
 
     \returns Floating point interpretation of provided fixed point number
 */
-float fp16_fp2flt(fp16_t var, uint8_t frac)
+float fxp16_fp2flt(fxp16_t var, uint8_t frac)
 {
     return ((float)(var)) / (1 << frac);
 
@@ -93,25 +93,25 @@ float fp16_fp2flt(fp16_t var, uint8_t frac)
 
     \returns Fixed point interpretation of provided integer number
 */
-fp16_t fp16_int2fp(int16_t intpart, uint8_t frac)
+fxp16_t fxp16_int2fp(int16_t intpart, uint8_t frac)
 {
 
     int32_t result = intpart;
     result <<= frac;
-    fp16_sat_m(result);
-    return(fp16_t)result;
+    fxp16_sat_m(result);
+    return(fxp16_t)result;
 }
 
 
-#if FP16CONF_ARSHIFT_W_ROUNDING
+#if FXP16CONF_ARSHIFT_W_ROUNDING
 
-fp16_t fp16_arshift(fp16_t fp, uint8_t shift)
+fxp16_t fxp16_arshift(fxp16_t fp, uint8_t shift)
 {
    fpxx_arshift_m(fp,shift);
    return fp;
 }
 
-fp32_t fp32_arshift(fp32_t var,uint8_t rshift)
+fxp32_t fxp32_arshift(fxp32_t var,uint8_t rshift)
 {
     fpxx_arshift_m(var,rshift);
     return var;
@@ -132,12 +132,12 @@ fp32_t fp32_arshift(fp32_t var,uint8_t rshift)
 
     \returns Left shifted fixed point number
 */
-fp16_t fp16_alshift(fp16_t fp, uint8_t shift)
+fxp16_t fxp16_alshift(fxp16_t fp, uint8_t shift)
 {
-   fp32_t result = fp;
+   fxp32_t result = fp;
    result<<=shift;
-   fp16_sat_m(result);
-   return(fp16_t)result;
+   fxp16_sat_m(result);
+   return(fxp16_t)result;
 }
 
 
@@ -151,19 +151,19 @@ fp16_t fp16_alshift(fp16_t fp, uint8_t shift)
     \returns    Fixed point number in new fixed point format
 */
 
-fp16_t fp16_fp2fp(fp16_t fp, uint8_t fracold, uint8_t fracnew)
+fxp16_t fxp16_fp2fp(fxp16_t fp, uint8_t fracold, uint8_t fracnew)
 {
-    fp32_t result = fp;
+    fxp32_t result = fp;
     fpxx_ashift_m(result, fracold - fracnew);
-    fp16_sat_m(result);
-    return (fp16_t) result;
+    fxp16_sat_m(result);
+    return (fxp16_t) result;
 }
 
 
-fp16_t fp16_sat(fp32_t fp32)
+fxp16_t fxp16_sat(fxp32_t fxp32)
 {
-    fp16_sat_m(fp32);
-    return (fp16_t) fp32;
+    fxp16_sat_m(fxp32);
+    return (fxp16_t) fxp32;
 }
 
 
@@ -183,12 +183,12 @@ fp16_t fp16_sat(fp32_t fp32)
 
     \returns Sum of first summand and second summand in fixed point format
 */
-fp16_t fp16_add(fp16_t summand1, fp16_t summand2)
+fxp16_t fxp16_add(fxp16_t summand1, fxp16_t summand2)
 {
     int32_t result;
     result = summand1+summand2;
-    fp16_sat_m(result);
-    return(fp16_t)result;
+    fxp16_sat_m(result);
+    return(fxp16_t)result;
 }
 
 /*!
@@ -207,12 +207,12 @@ fp16_t fp16_add(fp16_t summand1, fp16_t summand2)
     \returns Difference of minuend and subtrahend in fixed point format
 */
 
-fp16_t fp16_sub(fp16_t minuend, fp16_t subtrahend)
+fxp16_t fxp16_sub(fxp16_t minuend, fxp16_t subtrahend)
 {
    int32_t result;
    result = minuend-subtrahend;
-   fp16_sat_m(result);
-   return(fp16_t)result;
+   fxp16_sat_m(result);
+   return(fxp16_t)result;
 }
 
 
@@ -239,11 +239,11 @@ fp16_t fp16_sub(fp16_t minuend, fp16_t subtrahend)
 
     \returns Product of multiplicator and multiplicant in fixed point format of multiplicator
 */
-fp16_t fp16_mult(fp16_t mult1, uint8_t frac1, fp16_t mult2, uint8_t frac2)
+fxp16_t fxp16_mult(fxp16_t mult1, uint8_t frac1, fxp16_t mult2, uint8_t frac2)
 {
-    fp32_t result = fp32_arshift((fp32_t)mult1*(fp32_t)mult2,frac2);
-    fp16_sat_m(result);
-    return (fp16_t)result;
+    fxp32_t result = fxp32_arshift((fxp32_t)mult1*(fxp32_t)mult2,frac2);
+    fxp16_sat_m(result);
+    return (fxp16_t)result;
 }
 
 
@@ -260,34 +260,34 @@ fp16_t fp16_mult(fp16_t mult1, uint8_t frac1, fp16_t mult2, uint8_t frac2)
 
     \returns divident/divisor with fractional bits of divident
 */
-fp16_t fp16_div(fp16_t divident, uint8_t frac1, fp16_t divisor, uint8_t frac2)
+fxp16_t fxp16_div(fxp16_t divident, uint8_t frac1, fxp16_t divisor, uint8_t frac2)
 {
-  fp32_t result = (divident<<frac2)/divisor;
-  fp16_sat_m(result);
-  return (fp16_t)result;
+  fxp32_t result = (divident<<frac2)/divisor;
+  fxp16_sat_m(result);
+  return (fxp16_t)result;
 }
 
 
 
-fp16_t fp16_ceil(fp16_t x, uint8_t xfrac)
+fxp16_t fxp16_ceil(fxp16_t x, uint8_t xfrac)
 {
 
-   fp32_t result = (fp32_t)x&~((1<<xfrac)-1);
+   fxp32_t result = (fxp32_t)x&~((1<<xfrac)-1);
 
    if(result == x)
    {
-      return (fp16_t)result;
+      return (fxp16_t)result;
    }
 
    result+=(1<<(xfrac));
-   fp16_sat_m(result);
+   fxp16_sat_m(result);
 
-   return (fp16_t)result;
+   return (fxp16_t)result;
 
 }
 
 
-fp16_t fp16_round(fp16_t x, uint8_t xfrac)
+fxp16_t fxp16_round(fxp16_t x, uint8_t xfrac)
 {
    int32_t result = x;
 
@@ -310,12 +310,12 @@ fp16_t fp16_round(fp16_t x, uint8_t xfrac)
    }
 
 
-   fp16_sat_m(result);
-   return (fp16_t)result;
+   fxp16_sat_m(result);
+   return (fxp16_t)result;
 }
 
 
-fp16_t fp16_fmod(fp16_t x, uint8_t xfrac, fp16_t y, uint8_t yfrac)
+fxp16_t fxp16_fmod(fxp16_t x, uint8_t xfrac, fxp16_t y, uint8_t yfrac)
 {
    if ( y == 0 )
    {
@@ -323,19 +323,19 @@ fp16_t fp16_fmod(fp16_t x, uint8_t xfrac, fp16_t y, uint8_t yfrac)
    }
 
    int32_t result = (x<<yfrac)/y;
-   fp16_intcast_m(result,xfrac);
+   fxp16_intcast_m(result,xfrac);
 
    result*=y;
    fpxx_arshift_m(result,yfrac);
 
    result = x - result;
-   fp16_sat_m(result);
-   return (fp16_t)result;
+   fxp16_sat_m(result);
+   return (fxp16_t)result;
 }
 
 
 
-int fp16_lround(fp16_t x, uint8_t xfrac)
+int fxp16_lround(fxp16_t x, uint8_t xfrac)
 {
    int32_t result = x;
 
@@ -358,8 +358,8 @@ int fp16_lround(fp16_t x, uint8_t xfrac)
    }
 
 
-   fp16_sat_m(result);
-   return (fp16_t)result;
+   fxp16_sat_m(result);
+   return (fxp16_t)result;
 
 }
 
@@ -375,7 +375,7 @@ int fp16_lround(fp16_t x, uint8_t xfrac)
  * Implementiert die ganzzahlige "restoring" Wurzel direkt (ohne Helper).
  * Nutzt 32-Bit-Zwischenwerte und ist deterministisch (~16 Iterationen).
  */
-fp16_t fp16_sqrt(fp16_t  x, uint8_t frac_bits)
+fxp16_t fxp16_sqrt(fxp16_t  x, uint8_t frac_bits)
 {
     if (frac_bits > 15) frac_bits = 15;     // Safety für 32-Bit-Zwischenwerte
 
@@ -406,7 +406,7 @@ fp16_t fp16_sqrt(fp16_t  x, uint8_t frac_bits)
 
 
 
-fp16_t fp16_cbrt(fp16_t a, uint8_t afrac)
+fxp16_t fxp16_cbrt(fxp16_t a, uint8_t afrac)
 {
 
     /*
@@ -423,7 +423,7 @@ fp16_t fp16_cbrt(fp16_t a, uint8_t afrac)
         return 0;
     }
 
-    for(int tmp = 0; tmp < FP16_CBRT_ITERATIONS; tmp++)
+    for(int tmp = 0; tmp < FXP16_CBRT_ITERATIONS; tmp++)
     {
         int32_t xx = x*x;
         fpxx_arshift_m(xx,afrac);
@@ -431,18 +431,18 @@ fp16_t fp16_cbrt(fp16_t a, uint8_t afrac)
         x = x/3;
     }
 
-    fp16_sat_m(x);
-    return (fp16_t)x;
+    fxp16_sat_m(x);
+    return (fxp16_t)x;
 }
 
 // CORDIC-Skalierungsfaktor K ≈ 0.607252935 in Q1.15 (unverändert)
 #define CORDIC_K_Q15   ((int16_t)0x4DBA)  // round(0.607252935 * 2^15) = 19898
 
 // Nützliche Konstanten im "π-normalisierten" Q1.15
-#define FP16_Q15_NORM_ONE_PI            FP16_Q15_ALMOST_ONE      // +π  (≈ +1.0)
-#define FP16_Q15_NORM_MINUS_PI          FP16_Q15_MINUS_ONE       // -π  (exakt -1.0)
-#define FP16_Q15_NORM_HALF_PI           FP16_Q15_ONE_HALF        // +π/2 (= +0.5)
-#define FP16_Q15_NORM_MINUS_HALF_PI     (-FP16_Q15_ONE_HALF)     // -π/2 (= -0.5)
+#define FXP16_Q15_NORM_ONE_PI            FXP16_Q15_ALMOST_ONE      // +π  (≈ +1.0)
+#define FXP16_Q15_NORM_MINUS_PI          FXP16_Q15_MINUS_ONE       // -π  (exakt -1.0)
+#define FXP16_Q15_NORM_HALF_PI           FXP16_Q15_ONE_HALF        // +π/2 (= +0.5)
+#define FXP16_Q15_NORM_MINUS_HALF_PI     (-FXP16_Q15_ONE_HALF)     // -π/2 (= -0.5)
 
 // atan(2^-i) Tabelle in Q1.15 *relativ zu π*, also: round(atan(2^-i)/π * 2^15)
 // (i = 0..13); danach wird's 0 in dieser Q-Skalierung.
@@ -470,7 +470,7 @@ static const int16_t atan_table_q15_pi[14] = {
 
 // Eingabe:  angle_q15 in Q1.15, normiert auf π: [-1.000*π, +(1.000-LSB)*π]  -> z ∈ [-1.0, +0.999969...]
 // Ausgabe: *sin_q15, *cos_q15 in Q1.15.
-void cordic_sin_cos_q15_pi(fp16_t angle_q15, fp16_t* sin_q15, fp16_t* cos_q15)
+void cordic_sin_cos_q15_pi(fxp16_t angle_q15, fxp16_t* sin_q15, fxp16_t* cos_q15)
 {
     // Hinweis: Die Eingabe ist bereits auf [-π, π) begrenzt (π-normalisierte Q1.15).
     // Optionales "Sicherheits-Clamping" könnte man hinzufügen, ist hier nicht nötig.
@@ -478,20 +478,20 @@ void cordic_sin_cos_q15_pi(fp16_t angle_q15, fp16_t* sin_q15, fp16_t* cos_q15)
 
 
      // 1) In den Bereich [-π/2, π/2] spiegeln + Vorzeichen für Quadranten merken
-    fp32_t z = angle_q15;   // z ist jetzt "π-normalisierter" Winkel in Q1.15
+    fxp32_t z = angle_q15;   // z ist jetzt "π-normalisierter" Winkel in Q1.15
     int16_t sign_s = 1, sign_c = 1;
 
-    if (z > FP16_Q15_NORM_HALF_PI)
+    if (z > FXP16_Q15_NORM_HALF_PI)
     {
         // θ in (π/2, π): z' = π - θ  -> sin positiv, cos negativ
         // In normierter Darstellung: z' = 1.0 - z  (mit 1.0 ≈ 0x7FFF)
-        z = FP16_Q15_NORM_ONE_PI - z;
+        z = FXP16_Q15_NORM_ONE_PI - z;
         sign_c = -1;
     }
-    else if (z < FP16_Q15_NORM_MINUS_HALF_PI)
+    else if (z < FXP16_Q15_NORM_MINUS_HALF_PI)
     {
         // z' = -π - z  (in π-normalisiertem Q1.15: -1.0 - z)
-        z = FP16_Q15_NORM_MINUS_PI - z;
+        z = FXP16_Q15_NORM_MINUS_PI - z;
         sign_c = -1;   // bleibt -1
     }
     else
@@ -512,20 +512,20 @@ void cordic_sin_cos_q15_pi(fp16_t angle_q15, fp16_t* sin_q15, fp16_t* cos_q15)
 
         if (z >= 0)
         {
-            fp32_t xn = (int32_t)x - y_shift;
-            fp32_t yn = (int32_t)y + x_shift;
-            fp16_sat_m(xn);
-            fp16_sat_m(yn);
+            fxp32_t xn = (int32_t)x - y_shift;
+            fxp32_t yn = (int32_t)y + x_shift;
+            fxp16_sat_m(xn);
+            fxp16_sat_m(yn);
             x = (int16_t)xn;
             y = (int16_t)yn;
             z = (z - a);
         }
         else
         {
-            fp32_t xn = (int32_t)x + y_shift;
-            fp32_t yn = (int32_t)y - x_shift;
-            fp16_sat_m(xn);
-            fp16_sat_m(yn);
+            fxp32_t xn = (int32_t)x + y_shift;
+            fxp32_t yn = (int32_t)y - x_shift;
+            fxp16_sat_m(xn);
+            fxp16_sat_m(yn);
             x = (int16_t)xn;
             y = (int16_t)yn;
             z = (z + a);
@@ -537,62 +537,62 @@ void cordic_sin_cos_q15_pi(fp16_t angle_q15, fp16_t* sin_q15, fp16_t* cos_q15)
     *sin_q15 = (sign_s > 0) ? y : (int16_t)(-y);
 }
 
-fp16_t fp16_sin(fp16_t rad)
+fxp16_t fxp16_sin(fxp16_t rad)
 {
-    fp16_t sin_q15, cos_q15;
+    fxp16_t sin_q15, cos_q15;
     cordic_sin_cos_q15_pi(rad, &sin_q15, &cos_q15);
     return sin_q15;
 }
 
-fp16_t fp16_cos(fp16_t rad)
+fxp16_t fxp16_cos(fxp16_t rad)
 {
-    fp16_t sin_q15,cos_q15;
+    fxp16_t sin_q15,cos_q15;
     cordic_sin_cos_q15_pi(rad , &sin_q15, &cos_q15);
     return cos_q15;
 }
 
 
-fp16_t fp16_tan(fp16_t fp, uint8_t frac)
+fxp16_t fxp16_tan(fxp16_t fp, uint8_t frac)
 {
-    fp32_t x;
-    fp16_t sin_q15, cos_q15;
+    fxp32_t x;
+    fxp16_t sin_q15, cos_q15;
 
     switch(fp)
     {
-        case FP16_Q15_NORM_MINUS_HALF_PI:
+        case FXP16_Q15_NORM_MINUS_HALF_PI:
             errno = EDOM;
             return INT16_MAX;
-        case FP16_Q15_NORM_HALF_PI:
+        case FXP16_Q15_NORM_HALF_PI:
             errno = EDOM;
             return INT16_MIN;
     }
 
     cordic_sin_cos_q15_pi(fp, &sin_q15, &cos_q15);
 
-    x = (sin_q15<<FP16_Q15)/cos_q15;
+    x = (sin_q15<<FXP16_Q15)/cos_q15;
 
-    x = fp32_arshift(x,FP16_Q15-frac);
-    fp16_sat_m(x);
-    return (fp16_t)x;
+    x = fxp32_arshift(x,FXP16_Q15-frac);
+    fxp16_sat_m(x);
+    return (fxp16_t)x;
 }
 
 
 
 
-fp16_t fp16_atan2(fp16_t y_in, fp16_t x_in)
+fxp16_t fxp16_atan2(fxp16_t y_in, fxp16_t x_in)
 {
     // Sonderfälle wie bei double atan2
     if (y_in == 0)
     {
-        if (x_in > 0) return (fp16_t)0;
-        if (x_in < 0) return (fp16_t)FP16_Q15_NORM_ONE_PI;      // +π
-        return (fp16_t)0;                             // atan2(0,0) -> 0 (Konvention)
+        if (x_in > 0) return (fxp16_t)0;
+        if (x_in < 0) return (fxp16_t)FXP16_Q15_NORM_ONE_PI;      // +π
+        return (fxp16_t)0;                             // atan2(0,0) -> 0 (Konvention)
     }
 
     if (x_in == 0)
     {
-        fp16_t half_pi = (fp16_t)(FP16_Q15_NORM_ONE_PI >> 1);   // ±π/2
-        return (y_in > 0) ? half_pi : (fp16_t)(-half_pi);
+        fxp16_t half_pi = (fxp16_t)(FXP16_Q15_NORM_ONE_PI >> 1);   // ±π/2
+        return (y_in > 0) ? half_pi : (fxp16_t)(-half_pi);
     }
 
     // Merke Original-Vorzeichen für Quadrantenkorrektur
@@ -634,38 +634,38 @@ fp16_t fp16_atan2(fp16_t y_in, fp16_t x_in)
     // Quadrantenkorrektur anhand der ORIGINALEN Vorzeichen
     if (x_orig_neg)
     {
-        Z += y_orig_nonneg ? (int32_t)FP16_Q15_NORM_ONE_PI      // +π
-                           : (int32_t)(-FP16_Q15_NORM_ONE_PI);  // −π
+        Z += y_orig_nonneg ? (int32_t)FXP16_Q15_NORM_ONE_PI      // +π
+                           : (int32_t)(-FXP16_Q15_NORM_ONE_PI);  // −π
     }
 
     // End-Sättigung und Rückgabe
-    fp16_sat_m(Z);
-    return (fp16_t)(int16_t)Z;
+    fxp16_sat_m(Z);
+    return (fxp16_t)(int16_t)Z;
 }
 
 
-fp16_t fp16_atan(fp16_t y, uint8_t frac)
+fxp16_t fxp16_atan(fxp16_t y, uint8_t frac)
 {
-    fp32_t x = FP32_Q15_ONE;
-    fp32_t Y = y;
+    fxp32_t x = FXP32_Q15_ONE;
+    fxp32_t Y = y;
 
-    fpxx_ashift_m(Y, frac-FP16_Q15);
+    fpxx_ashift_m(Y, frac-FXP16_Q15);
 
-    while(Y > FP32_Q15_ONE || Y < FP16_Q15_MINUS_ONE)
+    while(Y > FXP32_Q15_ONE || Y < FXP16_Q15_MINUS_ONE)
     {
-       Y = fp32_arshift(Y,1);
-       x = fp32_arshift(x,1);
+       Y = fxp32_arshift(Y,1);
+       x = fxp32_arshift(x,1);
     }
 
-    fp16_sat_m(Y);
-    fp16_sat_m(x);
+    fxp16_sat_m(Y);
+    fxp16_sat_m(x);
 
-    return fp16_atan2((fp16_t)Y, (fp16_t)x);
+    return fxp16_atan2((fxp16_t)Y, (fxp16_t)x);
 }
 
 
 
-fp16_t fp16_asin(fp16_t x)
+fxp16_t fxp16_asin(fxp16_t x)
 {
 
     int32_t xi = x;
@@ -677,16 +677,16 @@ fp16_t fp16_asin(fp16_t x)
     int32_t  t_ext     = (int32_t)(1u << 15) - (int32_t)prod_q15; // kann negativ werden
     if (t_ext < 0)      t_ext = 0;
     if (t_ext > 0x7FFF) t_ext = 0x7FFF;         // in darstellbaren Q1.15-Bereich klemmen
-    fp16_t   t_q15      = (fp16_t)t_ext;
+    fxp16_t   t_q15      = (fxp16_t)t_ext;
 
     // c = sqrt(1 - x^2) in Q1.15
-    fp16_t c = fp16_sqrt(t_q15, 15);
+    fxp16_t c = fxp16_sqrt(t_q15, 15);
 
     // asin(x) = atan2(x, c);  Ergebnis bereits π-normalisiert in Q1.15
-    return fp16_atan2((fp16_t)xi, c);
+    return fxp16_atan2((fxp16_t)xi, c);
 }
 
-fp16_t fp16_acos(fp16_t x)
+fxp16_t fxp16_acos(fxp16_t x)
 {
 
     int32_t xi = (int32_t)x;
@@ -696,26 +696,25 @@ fp16_t fp16_acos(fp16_t x)
     int32_t  t_ext     = (int32_t)(1u << 15) - (int32_t)prod_q15; // kann negativ werden
     if (t_ext < 0)      t_ext = 0;
     if (t_ext > 0x7FFF) t_ext = 0x7FFF;
-    fp16_t   t_q15      = (fp16_t)t_ext;
+    fxp16_t   t_q15      = (fxp16_t)t_ext;
 
     // c = sqrt(1 - x^2) in Q1.15
-    fp16_t c = fp16_sqrt(t_q15, 15);
+    fxp16_t c = fxp16_sqrt(t_q15, 15);
 
     // acos(x) = atan2(c, x);  Ergebnis bereits π-normalisiert in Q1.15
     // Wertebereich: [0 .. 1) (entspricht [0 .. π))
-    return fp16_atan2(c, (fp16_t)xi);
+    return fxp16_atan2(c, (fxp16_t)xi);
 }
 
 
-#define FP32_Q15         (15)
-#define FP32_Q15_ONE     ((fp32_t)1 << FP32_Q15)
-#define FP32_SAT_MAX     (INT32_MAX)
-#define FP32_SAT_MIN     (INT32_MIN)
+#define FXP32_Q15         (15)
+#define FXP32_SAT_MAX     (INT32_MAX)
+#define FXP32_SAT_MIN     (INT32_MIN)
 
 /*!
     \brief      Saturating arithmetic left shift
     \details    Shifts the 32-bit value \p v left by \p n bits and saturates the result
-                to the range [FP32_SAT_MIN, FP32_SAT_MAX].
+                to the range [FXP32_SAT_MIN, FXP32_SAT_MAX].
                 If \p n <= 0, \p v is returned unchanged.
                 If \p n >= 31, the result is immediately saturated depending on the sign of \p v.
 
@@ -724,13 +723,13 @@ fp16_t fp16_acos(fp16_t x)
 
     \returns    v << n with saturation, equivalent to saturating v · 2ⁿ.
 */
-static inline fp32_t fp32_sat_shl(fp32_t v, int n) {
+static inline fxp32_t fxp32_sat_shl(fxp32_t v, int n) {
     if (n <= 0) return v;
-    if (n >= 31) return (v >= 0) ? FP32_SAT_MAX : FP32_SAT_MIN;
+    if (n >= 31) return (v >= 0) ? FXP32_SAT_MAX : FXP32_SAT_MIN;
     int64_t w = (int64_t)v << n;
-    if (w > FP32_SAT_MAX) return FP32_SAT_MAX;
-    if (w < FP32_SAT_MIN) return FP32_SAT_MIN;
-    return (fp32_t)w;
+    if (w > FXP32_SAT_MAX) return FXP32_SAT_MAX;
+    if (w < FXP32_SAT_MIN) return FXP32_SAT_MIN;
+    return (fxp32_t)w;
 }
 
 /*!
@@ -748,7 +747,7 @@ static inline fp32_t fp32_sat_shl(fp32_t v, int n) {
     \returns    \p v >> n with arithmetic semantics; for \p v >= 0 the result is
                 rounded toward +∞, otherwise no rounding is applied.
 */
-static inline fp32_t fp32_shr_r(fp32_t v, int n) {
+static inline fxp32_t fxp32_shr_r(fxp32_t v, int n) {
     if (n <= 0) return v;
     if (n >= 31) return (v >= 0) ? 0 : -1; /* alles weg */
     if (v >= 0) return (v + (1 << (n - 1))) >> n;
@@ -759,60 +758,60 @@ static inline fp32_t fp32_shr_r(fp32_t v, int n) {
     \brief      Q15 multiply with 64-bit intermediate and rounding
     \details    Multiplies two signed Q15 fixed-point values \p a and \p b using a 64-bit
                 intermediate (Q30), adds 2^(Q15-1) for rounding, then shifts right by Q15.
-                The final result is saturated to [FP32_SAT_MIN, FP32_SAT_MAX].
+                The final result is saturated to [FXP32_SAT_MIN, FXP32_SAT_MAX].
 
     \param[in]  a    32-bit signed Q15 operand.
     \param[in]  b    32-bit signed Q15 operand.
 
     \returns    Q15 product of \p a and \p b, rounded (via bias + shift) and saturated.
 */
-static inline fp32_t fp32_mul_q15(fp32_t a, fp32_t b) {
+static inline fxp32_t fxp32_mul_q15(fxp32_t a, fxp32_t b) {
     int64_t t = (int64_t)a * (int64_t)b;          // Q30
-    t += (int64_t)1 << (FP32_Q15 - 1);                 // rundung
-    t >>= FP32_Q15;
-    if (t > FP32_SAT_MAX) return FP32_SAT_MAX;
-    if (t < FP32_SAT_MIN) return FP32_SAT_MIN;
-    return (fp32_t)t;
+    t += (int64_t)1 << (FXP32_Q15 - 1);                 // rundung
+    t >>= FXP32_Q15;
+    if (t > FXP32_SAT_MAX) return FXP32_SAT_MAX;
+    if (t < FXP32_SAT_MIN) return FXP32_SAT_MIN;
+    return (fxp32_t)t;
 }
 
 /*!
     \brief      Q15 scaling by power of two
     \details    Scales \p v by 2^n in Q15 format:
-                for \p n >= 0 uses saturating left shift (fp32_sat_shl),
-                for \p n < 0 uses arithmetic right shift with rounding (fp32_shr_r).
+                for \p n >= 0 uses saturating left shift (fxp32_sat_shl),
+                for \p n < 0 uses arithmetic right shift with rounding (fxp32_shr_r).
 
     \param[in]  v    32-bit signed Q15 value to scale.
     \param[in]  n    Power-of-two exponent; n >= 0 ⇒ left shift, n < 0 ⇒ right shift.
 
     \returns    \p v · 2^n in Q15, with saturation for left shifts and rounding on right shifts.
 */
-static inline fp32_t fp32_scale_pow2_q15(fp32_t v, int n) {
-    if (n >= 0) return fp32_sat_shl(v, n);
-    else        return fp32_shr_r(v, -n);
+static inline fxp32_t fxp32_scale_pow2_q15(fxp32_t v, int n) {
+    if (n >= 0) return fxp32_sat_shl(v, n);
+    else        return fxp32_shr_r(v, -n);
 }
 
 
 /*!
     \brief      Saturating 32-bit addition without 64-bit intermediate
     \details    Adds \p a and \p b using 32-bit arithmetic and clamps the result to
-                [FP32_SAT_MIN, FP32_SAT_MAX] on overflow or underflow. No int64 is used.
+                [FXP32_SAT_MIN, FXP32_SAT_MAX] on overflow or underflow. No int64 is used.
 
     \param[in]  a    32-bit signed addend.
     \param[in]  b    32-bit signed addend.
 
-    \returns    a + b if representable; otherwise FP32_SAT_MAX or FP32_SAT_MIN.
+    \returns    a + b if representable; otherwise FXP32_SAT_MAX or FXP32_SAT_MIN.
 */
-static inline fp32_t fp32_add_sat32(fp32_t a, fp32_t b) {
-    if (b > 0 && a > FP32_SAT_MAX - b) return FP32_SAT_MAX;
-    if (b < 0 && a < FP32_SAT_MIN - b) return FP32_SAT_MIN;
+static inline fxp32_t fxp32_add_sat32(fxp32_t a, fxp32_t b) {
+    if (b > 0 && a > FXP32_SAT_MAX - b) return FXP32_SAT_MAX;
+    if (b < 0 && a < FXP32_SAT_MIN - b) return FXP32_SAT_MIN;
     return a + b;
 }
 
 /*!
     \brief      Sign-aware saturation to Q15 limits for sinh/cosh
     \details    Writes saturated approximations for hyperbolic functions:
-                sets \p *out_cosh to FP32_SAT_MAX (since cosh(x) ≥ 1 and grows unbounded),
-                and sets \p *out_sinh to FP32_SAT_MAX if \p x ≥ 0, else FP32_SAT_MIN.
+                sets \p *out_cosh to FXP32_SAT_MAX (since cosh(x) ≥ 1 and grows unbounded),
+                and sets \p *out_sinh to FXP32_SAT_MAX if \p x ≥ 0, else FXP32_SAT_MIN.
                 Intended for overflow handling in Q15 fixed-point paths.
 
     \param[in]  x          32-bit fixed-point input (e.g., Q15) determining sinh sign.
@@ -821,19 +820,19 @@ static inline fp32_t fp32_add_sat32(fp32_t a, fp32_t b) {
 
     \returns    Nothing. Outputs are assigned unconditionally to the Q15 saturation bounds.
 */
-static inline void fp32_saturate_sinh_cosh_by_sign(fp32_t x, fp32_t *out_cosh, fp32_t *out_sinh) {
-    *out_cosh = FP32_SAT_MAX;                         /* cosh(x) >= 1, wächst -> +MAX */
-    *out_sinh = (x >= 0) ? FP32_SAT_MAX : FP32_SAT_MIN;    /* Vorzeichen von sinh(x) */
+static inline void fxp32_saturate_sinh_cosh_by_sign(fxp32_t x, fxp32_t *out_cosh, fxp32_t *out_sinh) {
+    *out_cosh = FXP32_SAT_MAX;                         /* cosh(x) >= 1, wächst -> +MAX */
+    *out_sinh = (x >= 0) ? FXP32_SAT_MAX : FXP32_SAT_MIN;    /* Vorzeichen von sinh(x) */
 }
 
 
-#define FP32_Q15_M_LN2_Q15  FP16_Q15_M_LN2  /* round(ln(2)*2^15)  ≈ 0.69314718 * 32768 */
-#define FP32_Q15_M_INV_LN2  47274;          /* round(1/ln(2)*2^15) ≈ 1.44269504 * 32768 */
+#define FXP32_Q15_M_LN2_Q15  FXP16_Q15_M_LN2  /* round(ln(2)*2^15)  ≈ 0.69314718 * 32768 */
+#define FXP32_Q15_M_INV_LN2  47274;          /* round(1/ln(2)*2^15) ≈ 1.44269504 * 32768 */
 
 /* Hyperbolic CORDIC: elementare Winkel artanh(2^-i), i=1..16, Q15.
    (Bei i >= 17 wäre die Q15-Darstellung 0.)
 */
-static const fp32_t fp32_q15_atanh_tab[17] = {
+static const fxp32_t fxp32_q15_atanh_tab[17] = {
 /* i:  0      1      2      3      4      5      6      7      8 */
     0,  18000,  8369,  4118,  2051,  1024,   512,   256,   128,
 /* i:  9     10     11     12     13     14     15     16 */
@@ -858,7 +857,7 @@ static inline int is_repeat_i(int i)
 
 
 /* NEU: K  (für i=1..16 mit Repeats bei i=4 und i=13) */
-#define  FP32_Q15_K_HYP 39567 // ~ 1.207497 * 2^15
+#define  FXP32_Q15_K_HYP 39567 // ~ 1.207497 * 2^15
 
 /*!
     \brief      Range reduction by ln(2): x ≈ n·ln(2) + r
@@ -872,13 +871,13 @@ static inline int is_repeat_i(int i)
 
     \returns    Nothing. Writes \p *n_out and \p *r_out.
 */
-static inline void fp32_range_reduce_ln2(fp32_t x, int *n_out, fp32_t *r_out) {
+static inline void fxp32_range_reduce_ln2(fxp32_t x, int *n_out, fxp32_t *r_out) {
     /* x * (1/ln2) liegt in Q30 */
-    int64_t t = (int64_t)x * (int64_t)FP32_Q15_M_INV_LN2; /* Q15*Q15 -> Q30 */
+    int64_t t = (int64_t)x * (int64_t)FXP32_Q15_M_INV_LN2; /* Q15*Q15 -> Q30 */
     int n;
-    if (t >= 0) n = (int)((t + ((int64_t)1 << (2*FP32_Q15 - 1))) >> (2*FP32_Q15));
-    else        n = -(int)(((-t) + ((int64_t)1 << (2*FP32_Q15 - 1))) >> (2*FP32_Q15));
-    fp32_t r = x - (fp32_t)((int64_t)n * (int64_t)FP32_Q15_M_LN2_Q15);
+    if (t >= 0) n = (int)((t + ((int64_t)1 << (2*FXP32_Q15 - 1))) >> (2*FXP32_Q15));
+    else        n = -(int)(((-t) + ((int64_t)1 << (2*FXP32_Q15 - 1))) >> (2*FXP32_Q15));
+    fxp32_t r = x - (fxp32_t)((int64_t)n * (int64_t)FXP32_Q15_M_LN2_Q15);
     *n_out = n;
     *r_out = r;
 }
@@ -898,21 +897,21 @@ static inline void fp32_range_reduce_ln2(fp32_t x, int *n_out, fp32_t *r_out) {
 
     \returns    Nothing. Writes \p *c_out = cosh(r) and \p *s_out = sinh(r).
 */
-static inline void fp32_cordic_cosh_sinh_small_q15(fp32_t r, fp32_t *c_out, fp32_t *s_out) {
-    fp32_t x = FP32_Q15_K_HYP;
-    fp32_t y = 0;
-    fp32_t z = r;
+static inline void fxp32_cordic_cosh_sinh_small_q15(fxp32_t r, fxp32_t *c_out, fxp32_t *s_out) {
+    fxp32_t x = FXP32_Q15_K_HYP;
+    fxp32_t y = 0;
+    fxp32_t z = r;
 
     for (int i = 1; i <= 16; ++i) {
         int reps = is_repeat_i(i) ? 2 : 1;
         for (int k = 0; k < reps; ++k) {
             int d = (z >= 0) ? +1 : -1;
             /* x' = x + d * (y >> i), y' = y + d * (x >> i), z' = z - d * atanh(2^-i) */
-            fp32_t x_shift = (x >> i);
-            fp32_t y_shift = (y >> i);
-            fp32_t x_new   = x + (d > 0 ? y_shift : -y_shift);
-            fp32_t y_new   = y + (d > 0 ? x_shift : -x_shift);
-            fp32_t z_new   = z - (d > 0 ? fp32_q15_atanh_tab[i] : -fp32_q15_atanh_tab[i]);
+            fxp32_t x_shift = (x >> i);
+            fxp32_t y_shift = (y >> i);
+            fxp32_t x_new   = x + (d > 0 ? y_shift : -y_shift);
+            fxp32_t y_new   = y + (d > 0 ? x_shift : -x_shift);
+            fxp32_t z_new   = z - (d > 0 ? fxp32_q15_atanh_tab[i] : -fxp32_q15_atanh_tab[i]);
             x = x_new; y = y_new; z = z_new;
         }
     }
@@ -940,36 +939,36 @@ static inline void fp32_cordic_cosh_sinh_small_q15(fp32_t r, fp32_t *c_out, fp32
 
     \returns    Nothing. Writes \p *out_cosh and \p *out_sinh (Q15, saturated).
 */
-static void fp32_cordic_cosh_sinh_q15(fp32_t x, fp32_t *out_cosh, fp32_t *out_sinh) {
+static void fxp32_cordic_cosh_sinh_q15(fxp32_t x, fxp32_t *out_cosh, fxp32_t *out_sinh) {
     int n = 0;
-    fp32_t r = 0;
-    fp32_range_reduce_ln2(x, &n, &r);
+    fxp32_t r = 0;
+    fxp32_range_reduce_ln2(x, &n, &r);
 
     /* --- NEU: Frühe Sättigung, bevor 2^±n berechnet wird --- */
     if (n >= 16 || n <= -16) {
-        fp32_saturate_sinh_cosh_by_sign(x, out_cosh, out_sinh);
+        fxp32_saturate_sinh_cosh_by_sign(x, out_cosh, out_sinh);
         return;
     }
 
-    fp32_t cr, sr;                    /* Q15 */
-    fp32_cordic_cosh_sinh_small_q15(r, &cr, &sr);
+    fxp32_t cr, sr;                    /* Q15 */
+    fxp32_cordic_cosh_sinh_small_q15(r, &cr, &sr);
 
     /* A = 2^n, B = 2^-n (ohne Overflow dank |n| <= 15) */
-    fp32_t A = fp32_scale_pow2_q15(FP32_Q15_ONE, n);     /* <= 1 << 30 */
-    fp32_t B = fp32_scale_pow2_q15(FP32_Q15_ONE, -n);
+    fxp32_t A = fxp32_scale_pow2_q15(FXP32_Q15_ONE, n);     /* <= 1 << 30 */
+    fxp32_t B = fxp32_scale_pow2_q15(FXP32_Q15_ONE, -n);
 
-    fp32_t ApB_2 = fp32_shr_r(fp32_add_sat32(A, B), 1);
-    fp32_t AmB_2 = fp32_shr_r(fp32_add_sat32(A, -B), 1);
+    fxp32_t ApB_2 = fxp32_shr_r(fxp32_add_sat32(A, B), 1);
+    fxp32_t AmB_2 = fxp32_shr_r(fxp32_add_sat32(A, -B), 1);
 
     /* Produkte weiterhin mit deiner vorhandenen mul_q15() (nutzt intern 64-bit) */
-    fp32_t t1 = fp32_mul_q15(cr, ApB_2);
-    fp32_t t2 = fp32_mul_q15(sr, AmB_2);
-    fp32_t t3 = fp32_mul_q15(sr, ApB_2);
-    fp32_t t4 = fp32_mul_q15(cr, AmB_2);
+    fxp32_t t1 = fxp32_mul_q15(cr, ApB_2);
+    fxp32_t t2 = fxp32_mul_q15(sr, AmB_2);
+    fxp32_t t3 = fxp32_mul_q15(sr, ApB_2);
+    fxp32_t t4 = fxp32_mul_q15(cr, AmB_2);
 
     /* Summen nur noch saturierend addieren (kein Wraparound) */
-    fp32_t cosh_x = fp32_add_sat32(t1, t2);
-    fp32_t sinh_x = fp32_add_sat32(t3, t4);
+    fxp32_t cosh_x = fxp32_add_sat32(t1, t2);
+    fxp32_t sinh_x = fxp32_add_sat32(t3, t4);
 
     *out_cosh = cosh_x;
     *out_sinh = sinh_x;
@@ -987,11 +986,11 @@ static void fp32_cordic_cosh_sinh_q15(fp32_t x, fp32_t *out_cosh, fp32_t *out_si
 
     \returns    Rounded Q15 quotient in (-1, 1), saturated on overflow or den == 0.
 */
-static  inline fp32_t fp32_div_q15(fp32_t num, fp32_t den) {
-    if (den == 0) return (num >= 0) ? (FP32_Q15_ONE - 1) : -(FP32_Q15_ONE - 1);
+static  inline fxp32_t fxp32_div_q15(fxp32_t num, fxp32_t den) {
+    if (den == 0) return (num >= 0) ? (FXP32_Q15_ONE - 1) : -(FXP32_Q15_ONE - 1);
 
     /* Runden zum nächsten: Vorzeichen von Zähler/Nenner beachten */
-    int64_t n = (int64_t)num << FP32_Q15;      // Q15-Nenner-Ziel
+    int64_t n = (int64_t)num << FXP32_Q15;      // Q15-Nenner-Ziel
     if (( (num ^ den) & 0x80000000 ) == 0) {
         // gleiches Vorzeichen -> +0.5 zum Runden
         n += (den >= 0 ? (den >> 1) : -((-(int64_t)den) >> 1));
@@ -1003,124 +1002,98 @@ static  inline fp32_t fp32_div_q15(fp32_t num, fp32_t den) {
     int64_t q = n / den;
 
     /* Begrenzen in (-1,1) auf Q15: tanh erreicht nie exakt ±1 */
-    if (q >= (int64_t)FP32_Q15_ONE)     q = FP32_Q15_ONE - 1;
-    if (q <= -(int64_t)FP32_Q15_ONE)    q = -(FP32_Q15_ONE - 1);
-    return (fp32_t)q;
+    if (q >= (int64_t)FXP32_Q15_ONE)     q = FXP32_Q15_ONE - 1;
+    if (q <= -(int64_t)FXP32_Q15_ONE)    q = -(FXP32_Q15_ONE - 1);
+    return (fxp32_t)q;
 }
 
-#define TANH_EARLY_SAT_Q15  ( (fp32_t)(12 * FP32_Q15_ONE) )  /* ~|x|>=12 -> ±1 */
+#define TANH_EARLY_SAT_Q15  ( (fxp32_t)(12 * FXP32_Q15_ONE) )  /* ~|x|>=12 -> ±1 */
 
 /*!
     \brief      Q15 tanh via hyperbolic CORDIC with early saturation
     \details    Computes \p tanh(x) in Q15. For |x| ≥ TANH_EARLY_SAT_Q15, returns
                 ±(1 − 2^-15). Otherwise computes (\p cosh(x), \p sinh(x)) using
-                fp32_cordic_cosh_sinh_q15, then returns \p sinh(x)/\p cosh(x) via
-                fp32_div_q15. If \p sinh(x) == 0, returns 0.
+                fxp32_cordic_cosh_sinh_q15, then returns \p sinh(x)/\p cosh(x) via
+                fxp32_div_q15. If \p sinh(x) == 0, returns 0.
 
     \param[in]  x    Input in Q15.
 
     \returns    \p tanh(x) in Q15, saturated to (-1, 1).
 */
-static fp32_t fp32_cordic_tanh_q15(fp32_t x) {
-    if (x >= TANH_EARLY_SAT_Q15)  return  FP32_Q15_ONE - 1;
-    if (x <= -TANH_EARLY_SAT_Q15) return -(FP32_Q15_ONE - 1);
+static fxp32_t fxp32_cordic_tanh_q15(fxp32_t x) {
+    if (x >= TANH_EARLY_SAT_Q15)  return  FXP32_Q15_ONE - 1;
+    if (x <= -TANH_EARLY_SAT_Q15) return -(FXP32_Q15_ONE - 1);
 
-    fp32_t s, c;
-    fp32_cordic_cosh_sinh_q15(x, &c, &s);
+    fxp32_t s, c;
+    fxp32_cordic_cosh_sinh_q15(x, &c, &s);
     if (s == 0) return 0;
-    return fp32_div_q15(s, c);
+    return fxp32_div_q15(s, c);
 }
 
 
 /*!
-    \brief      fp16 sinh with format conversion, CORDIC core, and saturation
-    \details    Computes \p sinh(x) where \p x is an fp16 fixed-point value with
+    \brief      fxp16 sinh with format conversion, CORDIC core, and saturation
+    \details    Computes \p sinh(x) where \p x is an fxp16 fixed-point value with
                 \p x_frac fractional bits. Internally, \p x is promoted to 32-bit,
-                rescaled to Q15, evaluated by fp32_cordic_cosh_sinh_q15, and the
+                rescaled to Q15, evaluated by fxp32_cordic_cosh_sinh_q15, and the
                 sinh component is then rescaled to the target format with \p y_frac
-                fractional bits and saturated to the fp16 range.
+                fractional bits and saturated to the fxp16 range.
 
-    \param[in]  y_frac   Fractional-bit count of the result format (fp16 Qy_frac).
-    \param[in]  x        fp16 input value.
-    \param[in]  x_frac   Fractional-bit count of the input format (fp16 Qx_frac).
+    \param[in]  y_frac   Fractional-bit count of the result format (fxp16 Qy_frac).
+    \param[in]  x        fxp16 input value.
+    \param[in]  x_frac   Fractional-bit count of the input format (fxp16 Qx_frac).
 
-    \returns    \p sinh(x) as fp16 in Qy_frac, saturated to the fp16 limits.
+    \returns    \p sinh(x) as fxp16 in Qy_frac, saturated to the fxp16 limits.
 */
-fp16_t fp16_sinh(uint8_t y_frac, fp16_t x, uint8_t x_frac)
+fxp16_t fxp16_sinh(uint8_t y_frac, fxp16_t x, uint8_t x_frac)
 {
-    fp32_t fp32_x = x;
-    fp32_t cosh, sinh;
-    fpxx_ashift_m(fp32_x, x_frac  - FP16_Q15);
-    fp32_cordic_cosh_sinh_q15(fp32_x, &cosh, &sinh);
-    fpxx_ashift_m(sinh, FP16_Q15 - y_frac);
-    fp16_sat_m(sinh);
-    return (fp16_t)sinh;
+    fxp32_t fxp32_x = x;
+    fxp32_t cosh, sinh;
+    fpxx_ashift_m(fxp32_x, x_frac  - FXP16_Q15);
+    fxp32_cordic_cosh_sinh_q15(fxp32_x, &cosh, &sinh);
+    fpxx_ashift_m(sinh, FXP16_Q15 - y_frac);
+    fxp16_sat_m(sinh);
+    return (fxp16_t)sinh;
 }
 
-/*!
-    \brief      fp16 cosh with format conversion, CORDIC core, and saturation
-    \details    Computes \p cosh(x) where \p x is an fp16 fixed-point value with
-                \p x_frac fractional bits. The value is promoted to 32-bit, rescaled
-                to Q15, evaluated by fp32_cordic_cosh_sinh_q15, then the cosh component
-                is rescaled to the target fp16 format with \p y_frac fractional bits
-                and saturated to the fp16 range.
 
-    \param[in]  y_frac   Fractional-bit count of the result format (fp16 Qy_frac).
-    \param[in]  x        fp16 input value.
-    \param[in]  x_frac   Fractional-bit count of the input format (fp16 Qx_frac).
-
-    \returns    \p cosh(x) as fp16 in Qy_frac, saturated to fp16 limits.
-*/
-fp16_t fp16_cosh(uint8_t y_frac, fp16_t x, uint8_t x_frac)
+fxp16_t fxp16_cosh(uint8_t y_frac, fxp16_t x, uint8_t x_frac)
 {
-    fp32_t fp32_x = x;
-    fp32_t cosh, sinh;
-    fpxx_ashift_m(fp32_x, x_frac  - FP16_Q15);
-    fp32_cordic_cosh_sinh_q15(fp32_x, &cosh, &sinh);
-    fpxx_ashift_m(cosh, FP16_Q15 - y_frac);
-    fp16_sat_m(cosh);
-    return (fp16_t)cosh;
+    fxp32_t fxp32_x = x;
+    fxp32_t cosh, sinh;
+    fpxx_ashift_m(fxp32_x, x_frac  - FXP16_Q15);
+    fxp32_cordic_cosh_sinh_q15(fxp32_x, &cosh, &sinh);
+    fpxx_ashift_m(cosh, FXP16_Q15 - y_frac);
+    fxp16_sat_m(cosh);
+    return (fxp16_t)cosh;
 }
 
-/*!
-    \brief      fp16 tanh with format conversion and saturation
-    \details    Computes \p tanh(x) where \p x is an fp16 fixed-point value with
-                \p x_frac fractional bits. The value is promoted to 32-bit, rescaled
-                to Q15, evaluated via fp32_cordic_tanh_q15 (with early saturation),
-                then rescaled to the fp16 target with \p y_frac fractional bits and
-                saturated to the fp16 range.
 
-    \param[in]  y_frac   Fractional-bit count of the result format (fp16 Qy_frac).
-    \param[in]  x        fp16 input value.
-    \param[in]  x_frac   Fractional-bit count of the input format (fp16 Qx_frac).
-
-    \returns    \p tanh(x) as fp16 in Qy_frac, saturated to fp16 limits.
-*/
-fp16_t fp16_tanh(uint8_t y_frac, fp16_t x, uint8_t x_frac)
+fxp16_t fxp16_tanh(uint8_t y_frac, fxp16_t x, uint8_t x_frac)
 {
-    fp32_t fp32_x = x;
-    fp32_t tanh;
-    fpxx_ashift_m(fp32_x, x_frac  - FP16_Q15);
-    tanh = fp32_cordic_tanh_q15(fp32_x);
-    fpxx_ashift_m(tanh, FP16_Q15 - y_frac);
-    fp16_sat_m(tanh);
-    return (fp16_t)tanh;
+    fxp32_t fxp32_x = x;
+    fxp32_t tanh;
+    fpxx_ashift_m(fxp32_x, x_frac  - FXP16_Q15);
+    tanh = fxp32_cordic_tanh_q15(fxp32_x);
+    fpxx_ashift_m(tanh, FXP16_Q15 - y_frac);
+    fxp16_sat_m(tanh);
+    return (fxp16_t)tanh;
 }
 
 
 
-fp16_t fp16_copysign(fp16_t x, fp16_t y)
+fxp16_t fxp16_copysign(fxp16_t x, fxp16_t y)
 {
    int32_t result = abs((int32_t)x);
 
-   if(fp16_signbit(y))
+   if(fxp16_signbit(y))
    {
       result = -result;
    }
 
-   fp16_sat_m(result);
+   fxp16_sat_m(result);
 
-   return (fp16_t)result;
+   return (fxp16_t)result;
 }
 
 
@@ -1135,10 +1108,10 @@ fp16_t fp16_copysign(fp16_t x, fp16_t y)
     \returns     absolute value of x
 
 */
-fp16_t fp16_fabs (fp16_t x)
+fxp16_t fxp16_fabs (fxp16_t x)
 {
    int32_t result = (x < 0) ? (-(int32_t)x) : ((int32_t)x);
-   fp16_sat_m(result);
+   fxp16_sat_m(result);
    return result;
 }
 
@@ -1152,17 +1125,17 @@ fp16_t fp16_fabs (fp16_t x)
     \returns   absolute value of int(x)
 
 */
-fp16_t fp16_abs (fp16_t x, uint8_t frac)
+fxp16_t fxp16_abs (fxp16_t x, uint8_t frac)
 {
    int32_t result = (x < 0) ? (-(int32_t)x) : ((int32_t)x);
    result&=~((1<<frac)-1);
-   fp16_sat_m(result);
+   fxp16_sat_m(result);
    return result;
 }
 
 
 
-fp16_t fp16_fma (fp16_t x, uint8_t xfrac, fp16_t y, uint8_t yfrac, fp16_t z, uint8_t zfrac)
+fxp16_t fxp16_fma (fxp16_t x, uint8_t xfrac, fxp16_t y, uint8_t yfrac, fxp16_t z, uint8_t zfrac)
 {
    int32_t result;
    int8_t relshift = xfrac+yfrac-zfrac;
@@ -1170,7 +1143,7 @@ fp16_t fp16_fma (fp16_t x, uint8_t xfrac, fp16_t y, uint8_t yfrac, fp16_t z, uin
    result = (int32_t)x*(int32_t)y;
    fpxx_ashift_m(result,relshift);
    result += z;
-   fp16_sat_m(result);
-   return (fp16_t)result;
+   fxp16_sat_m(result);
+   return (fxp16_t)result;
 }
 
