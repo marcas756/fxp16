@@ -1001,6 +1001,15 @@ fp16_t fp16_acos(fp16_t x);
 
 /*! @} */
 
+
+
+
+
+
+fp16_t fp16_sinh(uint8_t y_frac, fp16_t x, uint8_t  x_frac);
+fp16_t fp16_cosh(uint8_t y_frac, fp16_t x, uint8_t  x_frac);
+
+
 /*!
     \defgroup   fp16_rounding Rounding and remainder functions
     \brief      Fixed-point rounding utilities and remainder computation.

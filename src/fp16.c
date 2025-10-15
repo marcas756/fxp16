@@ -582,12 +582,15 @@ fp16_t fp16_tan(fp16_t fp, uint8_t frac)
 fp16_t fp16_atan2(fp16_t y_in, fp16_t x_in)
 {
     // Sonderfälle wie bei double atan2
-    if (y_in == 0) {
+    if (y_in == 0)
+    {
         if (x_in > 0) return (fp16_t)0;
         if (x_in < 0) return (fp16_t)FP16_Q15_NORM_ONE_PI;      // +π
         return (fp16_t)0;                             // atan2(0,0) -> 0 (Konvention)
     }
-    if (x_in == 0) {
+
+    if (x_in == 0)
+    {
         fp16_t half_pi = (fp16_t)(FP16_Q15_NORM_ONE_PI >> 1);   // ±π/2
         return (y_in > 0) ? half_pi : (fp16_t)(-half_pi);
     }
@@ -600,7 +603,11 @@ fp16_t fp16_atan2(fp16_t y_in, fp16_t x_in)
     // (atan(y/x) wird dadurch nicht geändert; nur Quadranten-Offset verschiebt sich)
     int32_t Xi = x_in;
     int32_t Yi = y_in;
-    if (x_orig_neg) { Xi = -Xi; Yi = -Yi; }  // jetzt Xi >= 0
+
+    if (x_orig_neg)
+    {
+        Xi = -Xi; Yi = -Yi;
+    }  // jetzt Xi >= 0
 
     int32_t Z = 0;
 
@@ -625,7 +632,8 @@ fp16_t fp16_atan2(fp16_t y_in, fp16_t x_in)
     }
 
     // Quadrantenkorrektur anhand der ORIGINALEN Vorzeichen
-    if (x_orig_neg) {
+    if (x_orig_neg)
+    {
         Z += y_orig_nonneg ? (int32_t)FP16_Q15_NORM_ONE_PI      // +π
                            : (int32_t)(-FP16_Q15_NORM_ONE_PI);  // −π
     }
@@ -636,26 +644,23 @@ fp16_t fp16_atan2(fp16_t y_in, fp16_t x_in)
 }
 
 
-fp16_t fp16_atan(fp16_t x, uint8_t frac)
+fp16_t fp16_atan(fp16_t y, uint8_t frac)
 {
-    fp16_t y = INT16_MAX;
-    fp32_t X = x;
+    fp32_t x = FP32_Q15_ONE;
+    fp32_t Y = y;
 
+    fpxx_ashift_m(Y, frac-FP16_Q15);
 
-
-    fpxx_ashift_m(X, frac-FP16_Q15);
-
-
-    while(X > INT16_MAX || X < INT16_MIN)
+    while(Y > FP32_Q15_ONE || Y < FP16_Q15_MINUS_ONE)
     {
-       X = fp32_arshift(X,1);
-       y = fp32_arshift(y,1);
-
+       Y = fp32_arshift(Y,1);
+       x = fp32_arshift(x,1);
     }
 
-    fp16_sat_m(X);
+    fp16_sat_m(Y);
+    fp16_sat_m(x);
 
-    return fp16_atan2((fp16_t)X, y);
+    return fp16_atan2((fp16_t)Y, (fp16_t)x);
 }
 
 
@@ -700,6 +705,408 @@ fp16_t fp16_acos(fp16_t x)
     // Wertebereich: [0 .. 1) (entspricht [0 .. π))
     return fp16_atan2(c, (fp16_t)xi);
 }
+
+
+#define FP32_Q15         (15)
+#define FP32_Q15_ONE     ((fp32_t)1 << FP32_Q15)
+#define FP32_SAT_MAX     (INT32_MAX)
+#define FP32_SAT_MIN     (INT32_MIN)
+
+/*!
+    \brief      Saturating arithmetic left shift
+    \details    Shifts the 32-bit value \p v left by \p n bits and saturates the result
+                to the range [FP32_SAT_MIN, FP32_SAT_MAX].
+                If \p n <= 0, \p v is returned unchanged.
+                If \p n >= 31, the result is immediately saturated depending on the sign of \p v.
+
+    \param[in]  v    32-bit input value (e.g. fixed-point number).
+    \param[in]  n    Number of bits to shift (n ≥ 0).
+
+    \returns    v << n with saturation, equivalent to saturating v · 2ⁿ.
+*/
+static inline fp32_t fp32_sat_shl(fp32_t v, int n) {
+    if (n <= 0) return v;
+    if (n >= 31) return (v >= 0) ? FP32_SAT_MAX : FP32_SAT_MIN;
+    int64_t w = (int64_t)v << n;
+    if (w > FP32_SAT_MAX) return FP32_SAT_MAX;
+    if (w < FP32_SAT_MIN) return FP32_SAT_MIN;
+    return (fp32_t)w;
+}
+
+/*!
+    \brief      Arithmetic right shift with rounding toward +∞ for non-negative values
+    \details    Shifts the 32-bit integer \p v right by \p n bits arithmetically.
+                For \p v >= 0, adds 2^(n-1) before shifting to round toward +∞.
+                For \p v < 0, performs a plain arithmetic shift (no +0.5 rounding).
+                If \p n <= 0, returns \p v unchanged. If \p n >= 31, the result is
+                0 for non-negative \p v, or -1 for negative \p v (all bits shifted out).
+                Useful for fixed-point scaling equivalent to division by 2^n.
+
+    \param[in]  v    32-bit signed input value (e.g., fixed-point).
+    \param[in]  n    Number of bits to shift right (n ≥ 0).
+
+    \returns    \p v >> n with arithmetic semantics; for \p v >= 0 the result is
+                rounded toward +∞, otherwise no rounding is applied.
+*/
+static inline fp32_t fp32_shr_r(fp32_t v, int n) {
+    if (n <= 0) return v;
+    if (n >= 31) return (v >= 0) ? 0 : -1; /* alles weg */
+    if (v >= 0) return (v + (1 << (n - 1))) >> n;
+    else        return (v >> n); /* negatives: arithmetisch, kein +0.5 Rundung */
+}
+
+/*!
+    \brief      Q15 multiply with 64-bit intermediate and rounding
+    \details    Multiplies two signed Q15 fixed-point values \p a and \p b using a 64-bit
+                intermediate (Q30), adds 2^(Q15-1) for rounding, then shifts right by Q15.
+                The final result is saturated to [FP32_SAT_MIN, FP32_SAT_MAX].
+
+    \param[in]  a    32-bit signed Q15 operand.
+    \param[in]  b    32-bit signed Q15 operand.
+
+    \returns    Q15 product of \p a and \p b, rounded (via bias + shift) and saturated.
+*/
+static inline fp32_t fp32_mul_q15(fp32_t a, fp32_t b) {
+    int64_t t = (int64_t)a * (int64_t)b;          // Q30
+    t += (int64_t)1 << (FP32_Q15 - 1);                 // rundung
+    t >>= FP32_Q15;
+    if (t > FP32_SAT_MAX) return FP32_SAT_MAX;
+    if (t < FP32_SAT_MIN) return FP32_SAT_MIN;
+    return (fp32_t)t;
+}
+
+/*!
+    \brief      Q15 scaling by power of two
+    \details    Scales \p v by 2^n in Q15 format:
+                for \p n >= 0 uses saturating left shift (fp32_sat_shl),
+                for \p n < 0 uses arithmetic right shift with rounding (fp32_shr_r).
+
+    \param[in]  v    32-bit signed Q15 value to scale.
+    \param[in]  n    Power-of-two exponent; n >= 0 ⇒ left shift, n < 0 ⇒ right shift.
+
+    \returns    \p v · 2^n in Q15, with saturation for left shifts and rounding on right shifts.
+*/
+static inline fp32_t fp32_scale_pow2_q15(fp32_t v, int n) {
+    if (n >= 0) return fp32_sat_shl(v, n);
+    else        return fp32_shr_r(v, -n);
+}
+
+
+/*!
+    \brief      Saturating 32-bit addition without 64-bit intermediate
+    \details    Adds \p a and \p b using 32-bit arithmetic and clamps the result to
+                [FP32_SAT_MIN, FP32_SAT_MAX] on overflow or underflow. No int64 is used.
+
+    \param[in]  a    32-bit signed addend.
+    \param[in]  b    32-bit signed addend.
+
+    \returns    a + b if representable; otherwise FP32_SAT_MAX or FP32_SAT_MIN.
+*/
+static inline fp32_t fp32_add_sat32(fp32_t a, fp32_t b) {
+    if (b > 0 && a > FP32_SAT_MAX - b) return FP32_SAT_MAX;
+    if (b < 0 && a < FP32_SAT_MIN - b) return FP32_SAT_MIN;
+    return a + b;
+}
+
+/*!
+    \brief      Sign-aware saturation to Q15 limits for sinh/cosh
+    \details    Writes saturated approximations for hyperbolic functions:
+                sets \p *out_cosh to FP32_SAT_MAX (since cosh(x) ≥ 1 and grows unbounded),
+                and sets \p *out_sinh to FP32_SAT_MAX if \p x ≥ 0, else FP32_SAT_MIN.
+                Intended for overflow handling in Q15 fixed-point paths.
+
+    \param[in]  x          32-bit fixed-point input (e.g., Q15) determining sinh sign.
+    \param[out] out_cosh   Destination for saturated cosh(x); must be non-null.
+    \param[out] out_sinh   Destination for saturated sinh(x); must be non-null.
+
+    \returns    Nothing. Outputs are assigned unconditionally to the Q15 saturation bounds.
+*/
+static inline void fp32_saturate_sinh_cosh_by_sign(fp32_t x, fp32_t *out_cosh, fp32_t *out_sinh) {
+    *out_cosh = FP32_SAT_MAX;                         /* cosh(x) >= 1, wächst -> +MAX */
+    *out_sinh = (x >= 0) ? FP32_SAT_MAX : FP32_SAT_MIN;    /* Vorzeichen von sinh(x) */
+}
+
+
+#define FP32_Q15_M_LN2_Q15  FP16_Q15_M_LN2  /* round(ln(2)*2^15)  ≈ 0.69314718 * 32768 */
+#define FP32_Q15_M_INV_LN2  47274;          /* round(1/ln(2)*2^15) ≈ 1.44269504 * 32768 */
+
+/* Hyperbolic CORDIC: elementare Winkel artanh(2^-i), i=1..16, Q15.
+   (Bei i >= 17 wäre die Q15-Darstellung 0.)
+*/
+static const fp32_t fp32_q15_atanh_tab[17] = {
+/* i:  0      1      2      3      4      5      6      7      8 */
+    0,  18000,  8369,  4118,  2051,  1024,   512,   256,   128,
+/* i:  9     10     11     12     13     14     15     16 */
+     64,    32,    16,     8,     4,     2,     1,     1
+};
+
+
+/*!
+    \brief      Repeat-iteration selector for hyperbolic CORDIC (radix-2)
+    \details    Returns non-zero if iteration \p i is a required repeat step in
+                hyperbolic CORDIC to ensure convergence. For radix-2, repeats occur
+                at i = 4 and i = 13.
+
+    \param[in]  i    Iteration index (0-based).
+
+    \returns    Non-zero if \p i ∈ {4, 13}; otherwise 0.
+*/
+static inline int is_repeat_i(int i)
+{
+    return (i == 4) || (i == 13);
+}
+
+
+/* NEU: K  (für i=1..16 mit Repeats bei i=4 und i=13) */
+#define  FP32_Q15_K_HYP 39567 // ~ 1.207497 * 2^15
+
+/*!
+    \brief      Range reduction by ln(2): x ≈ n·ln(2) + r
+    \details    Computes \p n = round(x / ln(2)) and the residual \p r = x − n·ln(2),
+                so that |r| ≤ ln(2)/2. Uses Q15 fixed-point constants:
+                1/ln(2) (Q15) for forming a Q30 intermediate and ln(2) (Q15) for reconstruction.
+
+    \param[in]  x       Input value (e.g., Q15 fixed-point).
+    \param[out] n_out   Pointer to receive n = round(x/ln(2)); must be non-null.
+    \param[out] r_out   Pointer to receive r = x − n·ln(2) (same format as x); non-null.
+
+    \returns    Nothing. Writes \p *n_out and \p *r_out.
+*/
+static inline void fp32_range_reduce_ln2(fp32_t x, int *n_out, fp32_t *r_out) {
+    /* x * (1/ln2) liegt in Q30 */
+    int64_t t = (int64_t)x * (int64_t)FP32_Q15_M_INV_LN2; /* Q15*Q15 -> Q30 */
+    int n;
+    if (t >= 0) n = (int)((t + ((int64_t)1 << (2*FP32_Q15 - 1))) >> (2*FP32_Q15));
+    else        n = -(int)(((-t) + ((int64_t)1 << (2*FP32_Q15 - 1))) >> (2*FP32_Q15));
+    fp32_t r = x - (fp32_t)((int64_t)n * (int64_t)FP32_Q15_M_LN2_Q15);
+    *n_out = n;
+    *r_out = r;
+}
+
+/*!
+    \brief      Hyperbolic CORDIC (rotation) for small r in Q15
+    \details    Computes (\p cosh(r), \p sinh(r)) using radix-2 hyperbolic CORDIC in rotation mode.
+                Starts at x = K_HYP (gain already applied), y = 0, z = r and iterates i = 1..16.
+                Repeat steps are performed where required by hyperbolic CORDIC (see is_repeat_i).
+                Updates use arithmetic shifts and a Q15 atanh look-up table:
+                x' = x ± (y >> i), y' = y ± (x >> i), z' = z ∓ atanh(2^-i).
+                The outputs are Q15 fixed-point values.
+
+    \param[in]  r       Angle in Q15 (assumed small; range-reduced elsewhere).
+    \param[out] c_out   Destination for cosh(r) in Q15; must be non-null.
+    \param[out] s_out   Destination for sinh(r) in Q15; must be non-null.
+
+    \returns    Nothing. Writes \p *c_out = cosh(r) and \p *s_out = sinh(r).
+*/
+static inline void fp32_cordic_cosh_sinh_small_q15(fp32_t r, fp32_t *c_out, fp32_t *s_out) {
+    fp32_t x = FP32_Q15_K_HYP;
+    fp32_t y = 0;
+    fp32_t z = r;
+
+    for (int i = 1; i <= 16; ++i) {
+        int reps = is_repeat_i(i) ? 2 : 1;
+        for (int k = 0; k < reps; ++k) {
+            int d = (z >= 0) ? +1 : -1;
+            /* x' = x + d * (y >> i), y' = y + d * (x >> i), z' = z - d * atanh(2^-i) */
+            fp32_t x_shift = (x >> i);
+            fp32_t y_shift = (y >> i);
+            fp32_t x_new   = x + (d > 0 ? y_shift : -y_shift);
+            fp32_t y_new   = y + (d > 0 ? x_shift : -x_shift);
+            fp32_t z_new   = z - (d > 0 ? fp32_q15_atanh_tab[i] : -fp32_q15_atanh_tab[i]);
+            x = x_new; y = y_new; z = z_new;
+        }
+    }
+    /* Gain-Korrektur bereits ganz oben!*/
+    //x = mul_q15(x, K_INV_Q15);
+    //y = mul_q15(y, K_INV_Q15);
+    *c_out = x; /* cosh(r) */
+    *s_out = y; /* sinh(r) */
+}
+
+/*!
+    \brief      cosh/sinh via hyperbolic CORDIC with ln(2) range reduction (Q15)
+    \details    Computes (\p cosh(x), \p sinh(x)) in Q15 using:
+                1) Range reduction x ≈ n·ln(2) + r with n = round(x/ln(2)), |r| ≤ ln(2)/2.
+                2) Small-angle hyperbolic CORDIC to get (cosh(r), sinh(r)) = (cr, sr).
+                3) Exact recomposition using A = 2^n and B = 2^{-n}:
+                   cosh(x) = cr·(A+B)/2 + sr·(A−B)/2,
+                   sinh(x) = sr·(A+B)/2 + cr·(A−B)/2.
+                Early saturation is applied if |n| ≥ 16. All shifts/mults use Q15 helpers
+                with rounding and saturating adds to prevent wraparound.
+
+    \param[in]  x          Input in Q15.
+    \param[out] out_cosh   Destination for cosh(x) in Q15; must be non-null.
+    \param[out] out_sinh   Destination for sinh(x) in Q15; must be non-null.
+
+    \returns    Nothing. Writes \p *out_cosh and \p *out_sinh (Q15, saturated).
+*/
+static void fp32_cordic_cosh_sinh_q15(fp32_t x, fp32_t *out_cosh, fp32_t *out_sinh) {
+    int n = 0;
+    fp32_t r = 0;
+    fp32_range_reduce_ln2(x, &n, &r);
+
+    /* --- NEU: Frühe Sättigung, bevor 2^±n berechnet wird --- */
+    if (n >= 16 || n <= -16) {
+        fp32_saturate_sinh_cosh_by_sign(x, out_cosh, out_sinh);
+        return;
+    }
+
+    fp32_t cr, sr;                    /* Q15 */
+    fp32_cordic_cosh_sinh_small_q15(r, &cr, &sr);
+
+    /* A = 2^n, B = 2^-n (ohne Overflow dank |n| <= 15) */
+    fp32_t A = fp32_scale_pow2_q15(FP32_Q15_ONE, n);     /* <= 1 << 30 */
+    fp32_t B = fp32_scale_pow2_q15(FP32_Q15_ONE, -n);
+
+    fp32_t ApB_2 = fp32_shr_r(fp32_add_sat32(A, B), 1);
+    fp32_t AmB_2 = fp32_shr_r(fp32_add_sat32(A, -B), 1);
+
+    /* Produkte weiterhin mit deiner vorhandenen mul_q15() (nutzt intern 64-bit) */
+    fp32_t t1 = fp32_mul_q15(cr, ApB_2);
+    fp32_t t2 = fp32_mul_q15(sr, AmB_2);
+    fp32_t t3 = fp32_mul_q15(sr, ApB_2);
+    fp32_t t4 = fp32_mul_q15(cr, AmB_2);
+
+    /* Summen nur noch saturierend addieren (kein Wraparound) */
+    fp32_t cosh_x = fp32_add_sat32(t1, t2);
+    fp32_t sinh_x = fp32_add_sat32(t3, t4);
+
+    *out_cosh = cosh_x;
+    *out_sinh = sinh_x;
+}
+
+/*!
+    \brief      Q15 division with rounding and saturation to (-1, 1)
+    \details    Computes (num / den) in Q15. Uses a 64-bit intermediate:
+                (num << Q15) / den, with sign-aware ±0.5 bias for rounding to nearest.
+                den == 0 returns the maximum magnitude less than 1 with the sign of num.
+                Result is saturated to (-1, 1) in Q15 (i.e., ±(1 − 1/2^15)).
+
+    \param[in]  num   Q15 numerator (signed 32-bit).
+    \param[in]  den   Q15 denominator (signed 32-bit).
+
+    \returns    Rounded Q15 quotient in (-1, 1), saturated on overflow or den == 0.
+*/
+static  inline fp32_t fp32_div_q15(fp32_t num, fp32_t den) {
+    if (den == 0) return (num >= 0) ? (FP32_Q15_ONE - 1) : -(FP32_Q15_ONE - 1);
+
+    /* Runden zum nächsten: Vorzeichen von Zähler/Nenner beachten */
+    int64_t n = (int64_t)num << FP32_Q15;      // Q15-Nenner-Ziel
+    if (( (num ^ den) & 0x80000000 ) == 0) {
+        // gleiches Vorzeichen -> +0.5 zum Runden
+        n += (den >= 0 ? (den >> 1) : -((-(int64_t)den) >> 1));
+    } else {
+        // unterschiedliches Vorzeichen -> -0.5 zum Runden
+        n -= (den >= 0 ? (den >> 1) : -((-(int64_t)den) >> 1));
+    }
+
+    int64_t q = n / den;
+
+    /* Begrenzen in (-1,1) auf Q15: tanh erreicht nie exakt ±1 */
+    if (q >= (int64_t)FP32_Q15_ONE)     q = FP32_Q15_ONE - 1;
+    if (q <= -(int64_t)FP32_Q15_ONE)    q = -(FP32_Q15_ONE - 1);
+    return (fp32_t)q;
+}
+
+#define TANH_EARLY_SAT_Q15  ( (fp32_t)(12 * FP32_Q15_ONE) )  /* ~|x|>=12 -> ±1 */
+
+/*!
+    \brief      Q15 tanh via hyperbolic CORDIC with early saturation
+    \details    Computes \p tanh(x) in Q15. For |x| ≥ TANH_EARLY_SAT_Q15, returns
+                ±(1 − 2^-15). Otherwise computes (\p cosh(x), \p sinh(x)) using
+                fp32_cordic_cosh_sinh_q15, then returns \p sinh(x)/\p cosh(x) via
+                fp32_div_q15. If \p sinh(x) == 0, returns 0.
+
+    \param[in]  x    Input in Q15.
+
+    \returns    \p tanh(x) in Q15, saturated to (-1, 1).
+*/
+static fp32_t fp32_cordic_tanh_q15(fp32_t x) {
+    if (x >= TANH_EARLY_SAT_Q15)  return  FP32_Q15_ONE - 1;
+    if (x <= -TANH_EARLY_SAT_Q15) return -(FP32_Q15_ONE - 1);
+
+    fp32_t s, c;
+    fp32_cordic_cosh_sinh_q15(x, &c, &s);
+    if (s == 0) return 0;
+    return fp32_div_q15(s, c);
+}
+
+
+/*!
+    \brief      fp16 sinh with format conversion, CORDIC core, and saturation
+    \details    Computes \p sinh(x) where \p x is an fp16 fixed-point value with
+                \p x_frac fractional bits. Internally, \p x is promoted to 32-bit,
+                rescaled to Q15, evaluated by fp32_cordic_cosh_sinh_q15, and the
+                sinh component is then rescaled to the target format with \p y_frac
+                fractional bits and saturated to the fp16 range.
+
+    \param[in]  y_frac   Fractional-bit count of the result format (fp16 Qy_frac).
+    \param[in]  x        fp16 input value.
+    \param[in]  x_frac   Fractional-bit count of the input format (fp16 Qx_frac).
+
+    \returns    \p sinh(x) as fp16 in Qy_frac, saturated to the fp16 limits.
+*/
+fp16_t fp16_sinh(uint8_t y_frac, fp16_t x, uint8_t x_frac)
+{
+    fp32_t fp32_x = x;
+    fp32_t cosh, sinh;
+    fpxx_ashift_m(fp32_x, x_frac  - FP16_Q15);
+    fp32_cordic_cosh_sinh_q15(fp32_x, &cosh, &sinh);
+    fpxx_ashift_m(sinh, FP16_Q15 - y_frac);
+    fp16_sat_m(sinh);
+    return (fp16_t)sinh;
+}
+
+/*!
+    \brief      fp16 cosh with format conversion, CORDIC core, and saturation
+    \details    Computes \p cosh(x) where \p x is an fp16 fixed-point value with
+                \p x_frac fractional bits. The value is promoted to 32-bit, rescaled
+                to Q15, evaluated by fp32_cordic_cosh_sinh_q15, then the cosh component
+                is rescaled to the target fp16 format with \p y_frac fractional bits
+                and saturated to the fp16 range.
+
+    \param[in]  y_frac   Fractional-bit count of the result format (fp16 Qy_frac).
+    \param[in]  x        fp16 input value.
+    \param[in]  x_frac   Fractional-bit count of the input format (fp16 Qx_frac).
+
+    \returns    \p cosh(x) as fp16 in Qy_frac, saturated to fp16 limits.
+*/
+fp16_t fp16_cosh(uint8_t y_frac, fp16_t x, uint8_t x_frac)
+{
+    fp32_t fp32_x = x;
+    fp32_t cosh, sinh;
+    fpxx_ashift_m(fp32_x, x_frac  - FP16_Q15);
+    fp32_cordic_cosh_sinh_q15(fp32_x, &cosh, &sinh);
+    fpxx_ashift_m(cosh, FP16_Q15 - y_frac);
+    fp16_sat_m(cosh);
+    return (fp16_t)cosh;
+}
+
+/*!
+    \brief      fp16 tanh with format conversion and saturation
+    \details    Computes \p tanh(x) where \p x is an fp16 fixed-point value with
+                \p x_frac fractional bits. The value is promoted to 32-bit, rescaled
+                to Q15, evaluated via fp32_cordic_tanh_q15 (with early saturation),
+                then rescaled to the fp16 target with \p y_frac fractional bits and
+                saturated to the fp16 range.
+
+    \param[in]  y_frac   Fractional-bit count of the result format (fp16 Qy_frac).
+    \param[in]  x        fp16 input value.
+    \param[in]  x_frac   Fractional-bit count of the input format (fp16 Qx_frac).
+
+    \returns    \p tanh(x) as fp16 in Qy_frac, saturated to fp16 limits.
+*/
+fp16_t fp16_tanh(uint8_t y_frac, fp16_t x, uint8_t x_frac)
+{
+    fp32_t fp32_x = x;
+    fp32_t tanh;
+    fpxx_ashift_m(fp32_x, x_frac  - FP16_Q15);
+    tanh = fp32_cordic_tanh_q15(fp32_x);
+    fpxx_ashift_m(tanh, FP16_Q15 - y_frac);
+    fp16_sat_m(tanh);
+    return (fp16_t)tanh;
+}
+
 
 
 fp16_t fp16_copysign(fp16_t x, fp16_t y)

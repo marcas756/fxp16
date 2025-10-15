@@ -399,7 +399,22 @@ void fp16_atan2_stats_snapshot(void)
     printf("#define FP16_ATAN2_ERR_STDDEV %.15f \n", stat.stddev);
 }
 
+void fp16_print_atan2_csv(void)
+{
+    printf("\"x\";\"y\";\"atan2(x)\"\n");
 
+    for (int32_t fp_y = INT16_MIN; fp_y < INT16_MAX; fp_y+=512)
+    {
+        for (int32_t fp_x = INT16_MIN; fp_x < INT16_MAX; fp_x+=512)
+        {
+            float flt_x= fp16_fp2flt(fp_x,FP16_Q15);
+            float flt_y= fp16_fp2flt(fp_y,FP16_Q15);
+            float fp_result = fp16_fp2flt(fp16_atan2((fp16_t)fp_y, (fp16_t)fp_x),FP16_Q15);
+
+            printf("%f;%f;%f\n",flt_x,flt_y,fp_result);
+        }
+    }
+}
 
 #define FP16_ATAN2_ERR_MAX 0.107259750366211
 #define FP16_ATAN2_ERR_MIN 0.000000000000000
@@ -445,7 +460,37 @@ MYUNIT_TESTCASE(fp16_atan2)
 
 
 
+void fp16_print_atan_csv(void)
+{
 
+    for(uint8_t Q = FP16_Q0; Q <= FP16_Q15; Q++)
+    {
+        printf("\"x_q%d\";\"atan(x_q%d)\";",Q,Q);
+    }
+
+    printf("\n");
+
+
+    for (int32_t fp_x = INT16_MIN; fp_x < INT16_MAX; fp_x+=512)
+    {
+        for(uint8_t Q = FP16_Q0; Q <= FP16_Q15; Q++)
+        {
+            float flt_x= fp16_fp2flt(fp_x,Q);
+            float fp_result = fp16_fp2flt(fp16_atan((fp16_t)fp_x,Q),FP16_Q15);
+            printf("%f;%f;",flt_x,fp_result);
+        }
+
+
+
+
+
+        printf("\n");
+
+
+
+    }
+
+}
 
 void myunit_atan_compute_stats(uint8_t Q, stat_t *stat)
 {
@@ -690,6 +735,70 @@ MYUNIT_TESTCASE(fp16_acos)
     MYUNIT_ASSERT_INRANGE(stat.mean,MYUNIT_GUARDED_LOWER(FP16_COS_ERR_AVG),MYUNIT_GUARDED_UPPER(FP16_ACOS_ERR_AVG));
 }
 
+/*
+void fp16_print_sinhcosh_table_csv(void)
+{
+    printf("\"x\";\"sinh(x)\";\"cosh(x)\"\n");
+
+    for (int32_t fp_x = INT16_MIN; fp_x <= INT16_MAX; fp_x+=128)
+    {
+       float fp_result = fp16_fp2flt(fp16_sinh((fp16_t)fp_x,FP16_Q8),FP16_Q8);
+       float flt_x = fp16_fp2flt(fp_x,FP16_Q8);
+
+
+       printf("%f;%f;",flt_x,fp_result);
+
+       fp_result = fp16_fp2flt(fp16_cosh((fp16_t)fp_x,FP16_Q8),FP16_Q8);
+       flt_x = fp16_fp2flt(fp_x,FP16_Q8);
+
+       printf("%f\n",fp_result);
+    }
+}
+*/
+
+
+//fp16_t fp16_fp2fp(fp16_t fp, uint8_t fracold, uint8_t fracnew)
+//{
+//    fp32_t result = fp;
+//    fpxx_ashift_m(result, fracold - fracnew);
+//    fp16_sat_m(result);
+//    return (fp16_t) result;
+//}
+
+void fp16_print_sinhcosh_table_csv(void)
+{
+
+
+    printf("\"x\";\"sinh(x)\";\"cosh(x)\";\"tanh(x)\"\n");
+
+    for (int32_t fp_x = INT16_MIN; fp_x <= INT16_MAX; fp_x+=16)
+    {
+
+        float fp_result = fp16_fp2flt(fp16_sinh(FP16_Q4, fp_x,FP16_Q8),FP16_Q4);
+        float flt_x = fp16_fp2flt(fp_x,FP16_Q8);
+
+        printf("%f;%f;",flt_x,fp_result);
+
+        fp_result = fp16_fp2flt(fp16_cosh(FP16_Q4, fp_x,FP16_Q8),FP16_Q4);
+
+        printf("%f;",fp_result);
+
+        fp_result = fp16_fp2flt(fp16_tanh(FP16_Q4, fp_x,FP16_Q8),FP16_Q4);
+
+        printf("%f\n",fp_result);
+
+    }
+}
+
+
+
+
+MYUNIT_TESTCASE(fp16_sinh)
+{
+
+
+}
+
 
 
 void myunit_testsuite_setup()
@@ -713,15 +822,16 @@ MYUNIT_TESTSUITE(selftest)
 
     //fp16_tan_stats_snapshot();
     MYUNIT_EXEC_TESTCASE(fp16_tan);
-    fp16_print_tan_table_csv();
+    //fp16_print_tan_table_csv();
 
 
     //fp16_atan2_stats_snapshot();
-   //MYUNIT_EXEC_TESTCASE(fp16_atan2);
+    //fp16_print_atan2_csv();
+    //MYUNIT_EXEC_TESTCASE(fp16_atan2);
 
    // fp16_atan_stats_snapshot();
    //MYUNIT_EXEC_TESTCASE(fp16_atan);
-
+    //fp16_print_atan_csv();
 
 
    MYUNIT_EXEC_TESTCASE(fp16_asin);
@@ -733,6 +843,13 @@ MYUNIT_TESTSUITE(selftest)
 
    //fp16_print_sincos_table_csv();
    //fp16_print_asinacos_table_csv();
+
+
+   MYUNIT_EXEC_TESTCASE(fp16_sinh);
+   fp16_print_sinhcosh_table_csv();
+
+
+
 
    MYUNIT_TESTSUITE_END();
 }
