@@ -422,7 +422,7 @@ Micro-angles are stored in `fxp32_q15_atanh_tab[]`. The gain constant `FXP32_Q15
 
 The figure above shows the output of the hyperbolic functions `fxp16_sinh` (blue, dashed), `fxp16_cosh` (red), and `fxp16_tanh` (yellow) for inputs `x` in Q8 format. The horizontal axis represents the input `x / Q8`, while the vertical axis shows the evaluated hyperbolic functions in the same scaling.
 
-#### General Behavior
+##### General Behavior
 
 **Hyperbolic Sine (blue, dashed):**
 The `sinh(x)` curve is odd-symmetric. It passes through the origin and grows exponentially for large |x|, becoming negative for negative inputs and positive for positive inputs. Its slope at the origin equals 1, matching the mathematical derivative `d/dx sinh(0) = 1`.
@@ -433,7 +433,7 @@ The `cosh(x)` curve is even-symmetric, with a minimum value of 1 at `x = 0`. It 
 **Hyperbolic Tangent (yellow):**
 The `tanh(x)` curve starts at 0 and smoothly approaches ±1 as `x` increases or decreases. It has a steep slope around the origin and quickly saturates, illustrating the characteristic sigmoidal shape. This behavior mirrors the analytic `tanh(x) = sinh(x)/cosh(x)`, where the ratio tends to ±1 as |x| becomes large.
 
-#### Functional Relationships
+##### Functional Relationships
 
 The plotted curves show the expected identity:
 
@@ -443,11 +443,11 @@ tanh(x) = sinh(x) / cosh(x)
 
 This is especially visible near large |x|, where `sinh(x)` and `cosh(x)` both grow exponentially and their ratio tends to ±1, resulting in the horizontal asymptotes of `tanh(x)`.
 
-#### Symmetry and Growth
+##### Symmetry and Growth
 
 `sinh(x)` is strictly increasing and odd, `cosh(x)` is strictly increasing for x > 0 and even, and `tanh(x)` is strictly increasing and odd with horizontal asymptotes at ±1. The exponential growth of `cosh` and `sinh` is evident from the curvature of their plots. In contrast, `tanh` remains bounded, which makes it particularly useful for applications such as numerical normalization or activation functions in neural computations.
 
-#### Numerical Behavior
+##### Numerical Behavior
 
 The plotted curves are smooth, continuous, and free of visible discontinuities or oscillations. This confirms that the fixed-point hyperbolic CORDIC implementation handles scaling, range reduction, and saturation correctly across both small and large input ranges. Around the origin, all functions behave linearly or quadratically as expected, and for larger arguments, `cosh` and `sinh` grow exponentially while `tanh` stabilizes toward its asymptotes.
 
