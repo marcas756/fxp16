@@ -125,15 +125,15 @@ The horizontal axis represents the **normalized input angle** in Q15 format, ran
 * **Symmetry:** The curves are antisymmetric with respect to the origin, reflecting the mathematical property tan(-x) = -tan(x), confirming consistent behavior across formats.
 * **Practical Implication:** The choice of output format directly impacts both **accuracy** and **dynamic range**. Applications that require fine angular discrimination should prefer Q15, while those prioritizing range or computational simplicity may choose Q8 or Q0 depending on the use case.
 
-#### Two-Argument Arctangent Computation Using CORDIC
+### Two-Argument Arctangent Computation Using CORDIC
 
 The function `fxp16_atan2` computes the angle of a vector `(x, y)` using the **CORDIC vectoring mode**. It returns the angle in **π-normalized Q15 format**, i.e. the interval `-1.0` to `+1.0 - LSB` corresponds to the real angle range `-π` to `+π - LSB`. The implementation follows the behavior of the standard `atan2(y, x)` function known from floating-point math libraries, but uses fixed-point arithmetic throughout.
 
-##### Algorithmic Principle
+#### Algorithmic Principle
 
 The CORDIC algorithm in vectoring mode rotates the input vector `(x, y)` step by step toward the x-axis. In each iteration, a predefined micro-angle `atan(2^-i)` is either added or subtracted depending on the sign of `y`. After a sufficient number of iterations, `y` converges to zero and the accumulated rotation angle corresponds to the arctangent of the original vector. This method avoids divisions and relies exclusively on additions, subtractions, bit shifts, and table lookups, making it highly efficient for fixed-point embedded implementations.
 
-##### Input and Output Ranges
+#### Input and Output Ranges
 
 * **Input:**
 
