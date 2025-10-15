@@ -1,5 +1,5 @@
 # FXP16 - 16 Bit Fixed Point Math Library
-FXP16 is a lightweight and flexible fixed-point math library designed for 16-bit fixed-point arithmetic with support for different fractional/integral bit splits (Q0 … Q15). Its goal is to provide a robust set of mathematical functions comparable to those defined in the C standard library’s math.h, but optimized for environments where floating-point support is limited or undesirable — such as embedded systems.
+FXP16 is a lightweight and flexible fixed-point math library designed for 16-bit fixed-point arithmetic with support for different fractional/integral bit splits (Q0 … Q15). Its goal is to provide a robust set of mathematical functions comparable to those defined in the C standard library’s math.h, but optimized for environments where floating-point support is limited or undesirable - such as embedded systems.
 
 The library is currently a work in progress. Many core trigonometric and rounding functions are already implemented, while others are under active development.
 ### CORDIC-Based Sine and Cosine Functions
