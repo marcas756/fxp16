@@ -381,6 +381,8 @@ At every point along the x-axis, the sum of the two curves equals `0.5`. This co
   `asin(x)` is strictly increasing and odd-symmetric, whereas `acos(x)` is strictly decreasing and symmetric about x = 0. These properties match their analytical definitions exactly.
 
 
+#### Interpretation of the Hyperbolic Sine / Hyperbolic Cosine / Hyperbolic Tangent Graph
+<img width="866" height="577" alt="sinhcoshtanh" src="https://github.com/user-attachments/assets/5b12825c-bf2c-48f4-80f3-b97892caf97b" />
 
 
 
