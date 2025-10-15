@@ -467,9 +467,9 @@ The plotted curves are smooth, continuous, and free of visible discontinuities o
 
 | Name       | Description                                | Implemented?   |
 | ---------- | ------------------------------------------ | -------------- |
-| fxp16_cosh  | Compute hyperbolic cosine                  | [ ]            |
-| fxp16_sinh  | Compute hyperbolic sine                    | [ ]            |
-| fxp16_tanh  | Compute hyperbolic tangent                 | [ ]            |
+| fxp16_cosh  | Compute hyperbolic cosine                  | [X]            |
+| fxp16_sinh  | Compute hyperbolic sine                    | [X]            |
+| fxp16_tanh  | Compute hyperbolic tangent                 | [X]            |
 | fxp16_acosh | Compute area hyperbolic cosine             | [ ]            |
 | fxp16_asinh | Compute area hyperbolic sine               | [ ]            |
 | fxp16_atanh | Compute area hyperbolic tangent            | [ ]            |
