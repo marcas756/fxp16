@@ -2,7 +2,7 @@
 
 https://de.wikipedia.org/wiki/CORDIC
 
-The functions `fp16_cos`, `fp16_sin`, and `cordic_sin_cos_q15_pi` compute sine and cosine values using the **CORDIC algorithm** (COordinate Rotation DIgital Computer). CORDIC is an efficient iterative method for evaluating trigonometric functions through successive vector rotations. It eliminates the need for multiplications and relies solely on additions, subtractions, bit shifts, and table lookups, making it particularly suitable for embedded systems without floating-point hardware.
+The functions `FXP16_cos`, `FXP16_sin`, and `cordic_sin_cos_q15_pi` compute sine and cosine values using the **CORDIC algorithm** (COordinate Rotation DIgital Computer). CORDIC is an efficient iterative method for evaluating trigonometric functions through successive vector rotations. It eliminates the need for multiplications and relies solely on additions, subtractions, bit shifts, and table lookups, making it particularly suitable for embedded systems without floating-point hardware.
 
 #### Algorithmic Principle
 
@@ -23,8 +23,8 @@ All functions use **Q15 fixed-point format** for both input and output:
 | Function                | Input Format | Output Format | Angle Range | Description                                |
 | ----------------------- | ------------ | ------------- | ----------- | ------------------------------------------ |
 | `cordic_sin_cos_q15_pi` | Q15          | Q15           | -π to +π    | Computes sine and cosine simultaneously    |
-| `fp16_sin`              | Q15          | Q15           | -π to +π    | Computes sine using the CORDIC algorithm   |
-| `fp16_cos`              | Q15          | Q15           | -π to +π    | Computes cosine using the CORDIC algorithm |
+| `FXP16_sin`              | Q15          | Q15           | -π to +π    | Computes sine using the CORDIC algorithm   |
+| `FXP16_cos`              | Q15          | Q15           | -π to +π    | Computes cosine using the CORDIC algorithm |
 
 
 #### Interpretation of the Sine/Cosine Graph
@@ -52,7 +52,7 @@ The figure above shows the sine (blue) and cosine (red) functions computed using
 
 ### Tangent Function Based on CORDIC
 
-The function `fp16_tan` computes the tangent of a normalized angle using sine and cosine values obtained from the CORDIC-based function `cordic_sin_cos_q15_pi`. Instead of using a separate tangent-specific algorithm, the function first evaluates sine and cosine in Q15 fixed-point format and then derives the tangent as the quotient:
+The function `FXP16_tan` computes the tangent of a normalized angle using sine and cosine values obtained from the CORDIC-based function `cordic_sin_cos_q15_pi`. Instead of using a separate tangent-specific algorithm, the function first evaluates sine and cosine in Q15 fixed-point format and then derives the tangent as the quotient:
 
 ```
 tan(x) = sin(x) / cos(x)
@@ -79,12 +79,12 @@ This design allows the reuse of the same efficient CORDIC implementation, ensuri
 
 #### Warning on Overflow and Saturation
 
-When the cosine value approaches zero, the division may exceed the representable range of the fixed-point output format. In such cases, the result is **saturated** to the maximum or minimum representable value, depending on the sign of the numerator. This behavior is intentional and ensures that the function never wraps around or produces undefined results. Users should take this into account when applying `fp16_tan` in control loops or signal processing algorithms near ±π/2, where the tangent becomes numerically ill-conditioned.
+When the cosine value approaches zero, the division may exceed the representable range of the fixed-point output format. In such cases, the result is **saturated** to the maximum or minimum representable value, depending on the sign of the numerator. This behavior is intentional and ensures that the function never wraps around or produces undefined results. Users should take this into account when applying `FXP16_tan` in control loops or signal processing algorithms near ±π/2, where the tangent becomes numerically ill-conditioned.
 
 #### Interpretation of the Tangent Graph
 <img width="866" height="577" alt="tan" src="https://github.com/user-attachments/assets/3bc6d54b-7506-4651-9863-47dc7e1f4653" />
 
-The figure above shows the behavior of the tangent function implemented via `fp16_tan` for three different output formats: **Q0** (blue dotted), **Q8** (red dashed), and **Q15** (yellow solid).
+The figure above shows the behavior of the tangent function implemented via `FXP16_tan` for three different output formats: **Q0** (blue dotted), **Q8** (red dashed), and **Q15** (yellow solid).
 
 The horizontal axis represents the **normalized input angle** in Q15 format, ranging from `-1.0` (equivalent to `-π`) to `+1.0 - LSB` (equivalent to `+π - LSB`). The vertical axis shows the computed tangent values in the respective fixed-point output formats.
 
@@ -120,7 +120,7 @@ The horizontal axis represents the **normalized input angle** in Q15 format, ran
 
 ### Two-Argument Arctangent Computation Using CORDIC
 
-The function `fp16_atan2` computes the angle of a vector `(x, y)` using the **CORDIC vectoring mode**. It returns the angle in **π-normalized Q15 format**, i.e. the interval `-1.0` to `+1.0 - LSB` corresponds to the real angle range `-π` to `+π - LSB`. The implementation follows the behavior of the standard `atan2(y, x)` function known from floating-point math libraries, but uses fixed-point arithmetic throughout.
+The function `FXP16_atan2` computes the angle of a vector `(x, y)` using the **CORDIC vectoring mode**. It returns the angle in **π-normalized Q15 format**, i.e. the interval `-1.0` to `+1.0 - LSB` corresponds to the real angle range `-π` to `+π - LSB`. The implementation follows the behavior of the standard `atan2(y, x)` function known from floating-point math libraries, but uses fixed-point arithmetic throughout.
 
 #### Algorithmic Principle
 
@@ -143,7 +143,7 @@ The CORDIC algorithm in vectoring mode rotates the input vector `(x, y)` step by
 #### Interpretation of the Two-Argument Arctangent Graph
 <img width="866" height="577" alt="atan2" src="https://github.com/user-attachments/assets/cfc11c78-a5c3-45e6-a6e4-15e8ea4eeeb5" />
 
-The figure above illustrates the output of the `fp16_atan2` function for different quadrants, plotted against the **ratio `y/x`** on the horizontal axis. The vertical axis represents the **output angle in π-normalized Q15 format**, ranging from `-1.0` (−π) to `+1.0 - LSB` (+π − LSB). Each curve corresponds to one of the four quadrants:
+The figure above illustrates the output of the `FXP16_atan2` function for different quadrants, plotted against the **ratio `y/x`** on the horizontal axis. The vertical axis represents the **output angle in π-normalized Q15 format**, ranging from `-1.0` (−π) to `+1.0 - LSB` (+π − LSB). Each curve corresponds to one of the four quadrants:
 
 * **Quadrant I (x > 0, y > 0)** – blue
 * **Quadrant II (x < 0, y > 0)** – red
@@ -185,7 +185,7 @@ This ensures well-defined outputs even at the axes and origin.
 
 ### CORDIC-Based Arcus Tangent Function
 
-The function `fp16_atan()` computes the arctangent of a fixed-point input using the **CORDIC vectoring algorithm** via the helper function `fp16_atan2()`. This implementation operates entirely in fixed-point arithmetic and is suitable for embedded systems without floating-point hardware.
+The function `FXP16_atan()` computes the arctangent of a fixed-point input using the **CORDIC vectoring algorithm** via the helper function `FXP16_atan2()`. This implementation operates entirely in fixed-point arithmetic and is suitable for embedded systems without floating-point hardware.
 
 #### Algorithmic Principle
 
@@ -193,7 +193,7 @@ The function `fp16_atan()` computes the arctangent of a fixed-point input using 
 2. It is converted to Q15 format by shifting to match the internal CORDIC representation.
 3. A reference value `x = 1.0` (in Q15) is paired with the scaled `y` to form the vector `(x, y)`.
 4. If either `x` or `y` lies outside the representable Q15 range `[-1.0, +1.0]`, both are **iteratively scaled down** until they fit within bounds.
-5. The angle is then computed using `fp16_atan2(y, x)`, returning the arctangent in **π-normalized Q15**.
+5. The angle is then computed using `FXP16_atan2(y, x)`, returning the arctangent in **π-normalized Q15**.
 
 Because `x` is always positive in this construction, the output range is limited to `[-0.5, +0.5]`, corresponding to `[-π/2, +π/2]`, matching the mathematical definition of `atan`.
 
@@ -215,9 +215,9 @@ Because `x` is always positive in this construction, the output range is limited
 Before the CORDIC calculation, the implementation ensures that both `x` and `y` remain within the valid Q15 domain:
 
 ```c
-while (Y > FP32_Q15_ONE || Y < FP16_Q15_MINUS_ONE) {
-    Y = fp32_arshift(Y, 1);
-    x = fp32_arshift(x, 1);
+while (Y > FXP32_Q15_ONE || Y < FXP16_Q15_MINUS_ONE) {
+    Y = FXP32_arshift(Y, 1);
+    x = FXP32_arshift(x, 1);
 }
 ```
 
@@ -232,7 +232,7 @@ This mechanism allows the function to handle a wide dynamic range of input value
 #### Interpretation of the Arcus Tangent Graph
 <img width="866" height="577" alt="atan" src="https://github.com/user-attachments/assets/f8e9cefa-d63c-43a4-9c28-a2b4a4ff033d" />
 
-The figure above shows the output of the `fp16_atan` function for input values `x` in different **fixed-point formats (Q11–Q15)**. The horizontal axis represents the real input value, while the vertical axis shows the π-normalized Q15 output of the arctangent function in the range `[-0.5, +0.5]` (equivalent to `[-π/2, +π/2]`).
+The figure above shows the output of the `FXP16_atan` function for input values `x` in different **fixed-point formats (Q11–Q15)**. The horizontal axis represents the real input value, while the vertical axis shows the π-normalized Q15 output of the arctangent function in the range `[-0.5, +0.5]` (equivalent to `[-π/2, +π/2]`).
 
 Each colored curve corresponds to a different input format:
 
@@ -250,7 +250,7 @@ Each colored curve corresponds to a different input format:
   * For **large positive inputs**, the function approaches `+0.5` (i.e., `+π/2`) asymptotically.
   * For **large negative inputs**, the function approaches `−0.5` (i.e., `−π/2`) asymptotically.
 
-* Regardless of the input Q format, the **output range** is always confined to the π-normalized interval `[-0.5, +0.5]`, because `fp16_atan` internally uses a fixed `x = 1` reference and applies `atan2(y, 1)`.
+* Regardless of the input Q format, the **output range** is always confined to the π-normalized interval `[-0.5, +0.5]`, because `FXP16_atan` internally uses a fixed `x = 1` reference and applies `atan2(y, 1)`.
 
 #### Effect of Input Fixed-Point Formats
 
@@ -276,7 +276,7 @@ The different segments of the graph show how the function handles inputs with va
 
 ### Arcus Sine/Cosine Functions
 
-The functions `fp16_asin()` and `fp16_acos()` compute the **arcsine** and **arccosine** of a Q15 fixed-point input, returning the result in **π-normalized Q15 format**. Both functions are implemented using algebraic transformations and the CORDIC-based `fp16_atan2()` function, ensuring high numerical stability and full quadrant coverage without requiring floating-point arithmetic.
+The functions `FXP16_asin()` and `FXP16_acos()` compute the **arcsine** and **arccosine** of a Q15 fixed-point input, returning the result in **π-normalized Q15 format**. Both functions are implemented using algebraic transformations and the CORDIC-based `FXP16_atan2()` function, ensuring high numerical stability and full quadrant coverage without requiring floating-point arithmetic.
 
 #### Algorithmic Principle
 
@@ -289,8 +289,8 @@ For a given input `x` (Q15, range `[-1.0, +1.0]`):
   asin(x) = atan2(x, sqrt(1 - x²))
   ```
 
-  First, the value `t = 1 - x²` is computed in extended 32-bit precision to avoid overflow. Its square root is then obtained in Q15 using `fp16_sqrt()`. Finally, `fp16_atan2(x, c)` is called with `c = sqrt(1 - x²)` to obtain the result in π-normalized Q15 format.
-  The output range of `fp16_asin()` is `[-0.5, +0.5]`, corresponding to `[-π/2, +π/2]`.
+  First, the value `t = 1 - x²` is computed in extended 32-bit precision to avoid overflow. Its square root is then obtained in Q15 using `FXP16_sqrt()`. Finally, `FXP16_atan2(x, c)` is called with `c = sqrt(1 - x²)` to obtain the result in π-normalized Q15 format.
+  The output range of `FXP16_asin()` is `[-0.5, +0.5]`, corresponding to `[-π/2, +π/2]`.
 
 * **Arccosine:**
   The arccosine is computed using the identity
@@ -299,8 +299,8 @@ For a given input `x` (Q15, range `[-1.0, +1.0]`):
   acos(x) = atan2(sqrt(1 - x²), x)
   ```
 
-  The same intermediate value `c = sqrt(1 - x²)` is reused, but the arguments are passed in reversed order to `fp16_atan2()`.
-  The output range of `fp16_acos()` is `[0.0, +1.0]`, corresponding to `[0, π]`.
+  The same intermediate value `c = sqrt(1 - x²)` is reused, but the arguments are passed in reversed order to `FXP16_atan2()`.
+  The output range of `FXP16_acos()` is `[0.0, +1.0]`, corresponding to `[0, π]`.
 
 These formulations reduce both functions to a single square root and an `atan2` evaluation, leveraging the existing CORDIC-based arctangent implementation.
 
@@ -308,8 +308,8 @@ These formulations reduce both functions to a single square root and an `atan2` 
 
 | Function    | Input Format | Input Range      | Output Format | Output Range (π-normalized Q15) |
 | ----------- | ------------ | ---------------- | ------------- | ------------------------------- |
-| `fp16_asin` | Q15          | `-1.0` to `+1.0` | Q15           | `-0.5` to `+0.5`  (−π/2 … +π/2) |
-| `fp16_acos` | Q15          | `-1.0` to `+1.0` | Q15           | `0.0` to `+1.0`   (0 … π)       |
+| `FXP16_asin` | Q15          | `-1.0` to `+1.0` | Q15           | `-0.5` to `+0.5`  (−π/2 … +π/2) |
+| `FXP16_acos` | Q15          | `-1.0` to `+1.0` | Q15           | `0.0` to `+1.0`   (0 … π)       |
 
 #### Numerical Characteristics
 
@@ -320,7 +320,7 @@ These formulations reduce both functions to a single square root and an `atan2` 
   Input values outside the interval `[-1.0, +1.0]` are not expected. For `|x| = 1.0`, the square root term becomes exactly zero, yielding well-defined outputs at the domain boundaries (±π/2 for asin, 0 and π for acos).
 
 * **CORDIC Consistency:**
-  Since both functions rely on `fp16_atan2`, they inherit its quadrant correctness, stability, and π-normalized output range.
+  Since both functions rely on `FXP16_atan2`, they inherit its quadrant correctness, stability, and π-normalized output range.
 
 
 
@@ -328,7 +328,7 @@ These formulations reduce both functions to a single square root and an `atan2` 
 #### Interpretation of the Arcus Sine/Arcus Cosine Graph
 <img width="866" height="577" alt="asinacos" src="https://github.com/user-attachments/assets/3e549fcc-b639-43f7-8f57-0e9162f23b8c" />
 
-The figure above shows the output of the `fp16_asin` (blue) and `fp16_acos` (red) functions for inputs `x` in the range `[-1.0, +1.0]` (Q15). The vertical axis represents the **π-normalized Q15 output**, with `-0.5` corresponding to `−π/2`, `0.0` to `0`, `0.5` to `+π/2`, and `1.0` to `+π`.
+The figure above shows the output of the `FXP16_asin` (blue) and `FXP16_acos` (red) functions for inputs `x` in the range `[-1.0, +1.0]` (Q15). The vertical axis represents the **π-normalized Q15 output**, with `-0.5` corresponding to `−π/2`, `0.0` to `0`, `0.5` to `+π/2`, and `1.0` to `+π`.
 
 #### General Behavior
 
@@ -382,11 +382,11 @@ At every point along the x-axis, the sum of the two curves equals `0.5`. This co
 
 ### CORDIC-Based Hyperbolic Sine, Cosine, and Tangent
 
-`fp16_sinh`, `fp16_cosh`, and `fp16_tanh` use a hyperbolic CORDIC core that replaces multiplications with additions, subtractions, shifts, and lookups—ideal for MCUs without FPUs. The kernel runs in Q15 and is wrapped by fp16 helpers that convert to and from arbitrary Q-formats.
+`FXP16_sinh`, `FXP16_cosh`, and `FXP16_tanh` use a hyperbolic CORDIC core that replaces multiplications with additions, subtractions, shifts, and lookups—ideal for MCUs without FPUs. The kernel runs in Q15 and is wrapped by FXP16 helpers that convert to and from arbitrary Q-formats.
 
 #### How it works
 
-The algorithm operates in rotation mode on a vector that already includes the hyperbolic CORDIC gain (`FP32_Q15_K_HYP`). It iteratively adjusts the vector using `atanh(2^-i)` micro-angles (Q15 table entries for `i = 1..16`). For radix-2 hyperbolic CORDIC, iterations `i = 4` and `i = 13` are repeated to ensure convergence; this is handled internally.
+The algorithm operates in rotation mode on a vector that already includes the hyperbolic CORDIC gain (`FXP32_Q15_K_HYP`). It iteratively adjusts the vector using `atanh(2^-i)` micro-angles (Q15 table entries for `i = 1..16`). For radix-2 hyperbolic CORDIC, iterations `i = 4` and `i = 13` are repeated to ensure convergence; this is handled internally.
 
 To cover the full range reliably, inputs are reduced with respect to `ln(2)`. The value `x` is written as `x ≈ n·ln(2) + r` with small residual `r`. The kernel computes `(cosh(r), sinh(r))`, and the final result is recomposed exactly using powers of two (`2^n` and `2^-n`) formed by shifts. Rounding is applied where right shifts model scaling; left shifts saturate. Multiplies use a 64-bit intermediate and saturate on overflow; adds are saturating as well.
 
@@ -394,26 +394,26 @@ For very large magnitudes detected during range reduction (|n| ≥ 16), `cosh` s
 
 #### Formats
 
-Internally everything runs in Q15. The fp16 wrappers accept any fp16 Q-format via `x_frac`, convert to Q15, run the core, then convert the result to the requested `y_frac` with fp16-range saturation.
+Internally everything runs in Q15. The FXP16 wrappers accept any FXP16 Q-format via `x_frac`, convert to Q15, run the core, then convert the result to the requested `y_frac` with FXP16-range saturation.
 
 ## Functions
 
 | Function                       | Input          | Output         | Range   | Summary                                                                                            |   |                                                                       |
 | ------------------------------ | -------------- | -------------- | ------- | -------------------------------------------------------------------------------------------------- | - | --------------------------------------------------------------------- |
-| `fp32_cordic_cosh_sinh_q15`    | Q15            | Q15            | any `x` | ln(2) reduction → CORDIC kernel → exact recomposition with `2^±n`; early saturation for very large | n | .                                                                     |
-| `fp32_cordic_tanh_q15`         | Q15            | Q15            | any `x` | Early ±1 saturation for large                                                                      | x | ; otherwise `sinh/ cosh` with rounded Q15 divide, clamped to (−1, 1). |
-| `fp16_sinh(y_frac, x, x_frac)` | fp16 Q`x_frac` | fp16 Q`y_frac` | any `x` | Format convert → Q15 core → convert back with fp16 saturation.                                     |   |                                                                       |
-| `fp16_cosh(y_frac, x, x_frac)` | fp16 Q`x_frac` | fp16 Q`y_frac` | any `x` | As above, returning `cosh`.                                                                        |   |                                                                       |
-| `fp16_tanh(y_frac, x, x_frac)` | fp16 Q`x_frac` | fp16 Q`y_frac` | any `x` | Early saturation or Q15 `tanh` path → convert back with fp16 saturation.                           |   |                                                                       |
+| `FXP32_cordic_cosh_sinh_q15`    | Q15            | Q15            | any `x` | ln(2) reduction → CORDIC kernel → exact recomposition with `2^±n`; early saturation for very large | n | .                                                                     |
+| `FXP32_cordic_tanh_q15`         | Q15            | Q15            | any `x` | Early ±1 saturation for large                                                                      | x | ; otherwise `sinh/ cosh` with rounded Q15 divide, clamped to (−1, 1). |
+| `FXP16_sinh(y_frac, x, x_frac)` | FXP16 Q`x_frac` | FXP16 Q`y_frac` | any `x` | Format convert → Q15 core → convert back with FXP16 saturation.                                     |   |                                                                       |
+| `FXP16_cosh(y_frac, x, x_frac)` | FXP16 Q`x_frac` | FXP16 Q`y_frac` | any `x` | As above, returning `cosh`.                                                                        |   |                                                                       |
+| `FXP16_tanh(y_frac, x, x_frac)` | FXP16 Q`x_frac` | FXP16 Q`y_frac` | any `x` | Early saturation or Q15 `tanh` path → convert back with FXP16 saturation.                           |   |                                                                       |
 
 #### Notes
 
-Micro-angles are stored in `fp32_q15_atanh_tab[]`. The gain constant `FP32_Q15_K_HYP` pre-compensates the kernel so no post-scaling is needed. The only division appears in `tanh` and is rounded with bounds that enforce the open interval (−1, 1). Range reduction keeps intermediates safe and improves numerical behavior without resorting to floating point.
+Micro-angles are stored in `FXP32_q15_atanh_tab[]`. The gain constant `FXP32_Q15_K_HYP` pre-compensates the kernel so no post-scaling is needed. The only division appears in `tanh` and is rounded with bounds that enforce the open interval (−1, 1). Range reduction keeps intermediates safe and improves numerical behavior without resorting to floating point.
 
 #### Interpretation of the Hyperbolic Sine / Hyperbolic Cosine / Hyperbolic Tangent Graph
 <img width="866" height="577" alt="sinhcoshtanh" src="https://github.com/user-attachments/assets/5b12825c-bf2c-48f4-80f3-b97892caf97b" />
 
-The figure above shows the output of the hyperbolic functions `fp16_sinh` (blue, dashed), `fp16_cosh` (red), and `fp16_tanh` (yellow) for inputs `x` in Q8 format. The horizontal axis represents the input `x / Q8`, while the vertical axis shows the evaluated hyperbolic functions in the same scaling.
+The figure above shows the output of the hyperbolic functions `FXP16_sinh` (blue, dashed), `FXP16_cosh` (red), and `FXP16_tanh` (yellow) for inputs `x` in Q8 format. The horizontal axis represents the input `x / Q8`, while the vertical axis shows the evaluated hyperbolic functions in the same scaling.
 
 #### General Behavior
 
@@ -455,134 +455,134 @@ The plotted curves are smooth, continuous, and free of visible discontinuities o
 
 | Name       | Description                                        | Implemented?   |
 | ---------- | -------------------------------------------------- | -------------- |
-| fp16_cos   | Compute cosine                                     | [X]            |
-| fp16_sin   | Compute sine                                       | [X]            |
-| fp16_tan   | Compute tangent                                    | [X]            |
-| fp16_acos  | Compute arc cosine                                 | [X]            |
-| fp16_asin  | Compute arc sine                                   | [X]            |
-| fp16_atan  | Compute arc tangent                                | [X]            |
-| fp16_atan2 | Compute arc tangent with two parameters            | [X]            |
+| FXP16_cos   | Compute cosine                                     | [X]            |
+| FXP16_sin   | Compute sine                                       | [X]            |
+| FXP16_tan   | Compute tangent                                    | [X]            |
+| FXP16_acos  | Compute arc cosine                                 | [X]            |
+| FXP16_asin  | Compute arc sine                                   | [X]            |
+| FXP16_atan  | Compute arc tangent                                | [X]            |
+| FXP16_atan2 | Compute arc tangent with two parameters            | [X]            |
 
 ### Hyperbolic functions
 
 | Name       | Description                                | Implemented?   |
 | ---------- | ------------------------------------------ | -------------- |
-| fp16_cosh  | Compute hyperbolic cosine                  | [ ]            |
-| fp16_sinh  | Compute hyperbolic sine                    | [ ]            |
-| fp16_tanh  | Compute hyperbolic tangent                 | [ ]            |
-| fp16_acosh | Compute area hyperbolic cosine             | [ ]            |
-| fp16_asinh | Compute area hyperbolic sine               | [ ]            |
-| fp16_atanh | Compute area hyperbolic tangent            | [ ]            |
+| FXP16_cosh  | Compute hyperbolic cosine                  | [ ]            |
+| FXP16_sinh  | Compute hyperbolic sine                    | [ ]            |
+| FXP16_tanh  | Compute hyperbolic tangent                 | [ ]            |
+| FXP16_acosh | Compute area hyperbolic cosine             | [ ]            |
+| FXP16_asinh | Compute area hyperbolic sine               | [ ]            |
+| FXP16_atanh | Compute area hyperbolic tangent            | [ ]            |
 
 ### Exponential and logarithmic functions
 
 | Name         | Description                                                            | Implemented?   |
 | ------------ | ---------------------------------------------------------------------- | -------------- |
-| fp16_exp     | Compute exponential function                                           | [ ]            |
-| fp16_frexp   | Get significand and exponent                                           | [ ]            |
-| fp16_ldexp   | Generate value from significand and exponent                           | [ ]            |
-| fp16_log     | Compute natural logarithm                                              | [ ]            |
-| fp16_log10   | Compute common logarithm                                               | [ ]            |
-| fp16_modf    | Break into fractional and integral parts                               | [ ]            |
-| fp16_exp2    | Compute binary exponential function                                    | [ ]            |
-| fp16_expm1   | Compute exponential minus one                                          | [ ]            |
-| fp16_ilogb   | Integer binary logarithm                                               | [ ]            |
-| fp16_log1p   | Compute logarithm plus one                                             | [ ]            |
-| fp16_log2    | Compute binary logarithm                                               | [ ]            |
-| fp16_logb    | Compute floating-point base logarithm                                  | [ ]            |
-| fp16_scalbn  | Scale significand using floating-point base exponent                   | [ ]            |
-| fp16_scalbln | Scale significand using floating-point base exponent (long)            | [ ]            |
+| FXP16_exp     | Compute exponential function                                           | [ ]            |
+| FXP16_frexp   | Get significand and exponent                                           | [ ]            |
+| FXP16_ldexp   | Generate value from significand and exponent                           | [ ]            |
+| FXP16_log     | Compute natural logarithm                                              | [ ]            |
+| FXP16_log10   | Compute common logarithm                                               | [ ]            |
+| FXP16_modf    | Break into fractional and integral parts                               | [ ]            |
+| FXP16_exp2    | Compute binary exponential function                                    | [ ]            |
+| FXP16_expm1   | Compute exponential minus one                                          | [ ]            |
+| FXP16_ilogb   | Integer binary logarithm                                               | [ ]            |
+| FXP16_log1p   | Compute logarithm plus one                                             | [ ]            |
+| FXP16_log2    | Compute binary logarithm                                               | [ ]            |
+| FXP16_logb    | Compute floating-point base logarithm                                  | [ ]            |
+| FXP16_scalbn  | Scale significand using floating-point base exponent                   | [ ]            |
+| FXP16_scalbln | Scale significand using floating-point base exponent (long)            | [ ]            |
 
 ### Power functions
 
 | Name       | Description                    | Implemented?   |
 | ---------- | ------------------------------ | -------------- |
-| fp16_pow   | Raise to power                 | [ ]            |
-| fp16_sqrt  | Compute square root            | [X]            |
-| fp16_cbrt  | Compute cubic root             | [ ]            |
-| fp16_hypot | Compute hypotenuse             | [ ]            |
+| FXP16_pow   | Raise to power                 | [ ]            |
+| FXP16_sqrt  | Compute square root            | [X]            |
+| FXP16_cbrt  | Compute cubic root             | [ ]            |
+| FXP16_hypot | Compute hypotenuse             | [ ]            |
 
 ### Error and gamma functions
 
 | Name        | Description                                     | Implemented?   |
 | ----------- | ----------------------------------------------- | -------------- |
-| fp16_erf    | Compute error function                          | [ ]            |
-| fp16_erfc   | Compute complementary error function            | [ ]            |
-| fp16_tgamma | Compute gamma function                          | [ ]            |
-| fp16_lgamma | Compute log-gamma function                      | [ ]            |
+| FXP16_erf    | Compute error function                          | [ ]            |
+| FXP16_erfc   | Compute complementary error function            | [ ]            |
+| FXP16_tgamma | Compute gamma function                          | [ ]            |
+| FXP16_lgamma | Compute log-gamma function                      | [ ]            |
 
 ### Rounding and remainder functions
 
 | Name           | Description                                               | Implemented?   |
 | -------------- | --------------------------------------------------------- | -------------- |
-| fp16_ceil      | Round up value                                            | [X]            |
-| fp16_floor     | Round down value                                          | [X]            |
-| fp16_fmod      | Compute remainder of division                             | [X]            |
-| fp16_trunc     | Truncate value                                            | [X]            |
-| fp16_round     | Round to nearest                                          | [X]            |
-| fp16_lround    | Round to nearest and cast to long integer                 | [X]            |
-| fp16_llround   | Round to nearest and cast to long long integer            | [ ]            |
-| fp16_rint      | Round to integral value                                   | [ ]            |
-| fp16_lrint     | Round and cast to long integer                            | [ ]            |
-| fp16_llrint    | Round and cast to long long integer                       | [ ]            |
-| fp16_nearbyint | Round to nearby integral value                            | [ ]            |
-| fp16_remainder | Compute remainder (IEC 60559)                             | [ ]            |
-| fp16_remquo    | Compute remainder and quotient                            | [ ]            |
+| FXP16_ceil      | Round up value                                            | [X]            |
+| FXP16_floor     | Round down value                                          | [X]            |
+| FXP16_fmod      | Compute remainder of division                             | [X]            |
+| FXP16_trunc     | Truncate value                                            | [X]            |
+| FXP16_round     | Round to nearest                                          | [X]            |
+| FXP16_lround    | Round to nearest and cast to long integer                 | [X]            |
+| FXP16_llround   | Round to nearest and cast to long long integer            | [ ]            |
+| FXP16_rint      | Round to integral value                                   | [ ]            |
+| FXP16_lrint     | Round and cast to long integer                            | [ ]            |
+| FXP16_llrint    | Round and cast to long long integer                       | [ ]            |
+| FXP16_nearbyint | Round to nearby integral value                            | [ ]            |
+| FXP16_remainder | Compute remainder (IEC 60559)                             | [ ]            |
+| FXP16_remquo    | Compute remainder and quotient                            | [ ]            |
 
 ### Floating-point manipulation functions
 
 | Name            | Description                                              | Implemented?   |
 | --------------- | -------------------------------------------------------- | -------------- |
-| fp16_copysign   | Copy sign                                                | [ ]            |
-| fp16_nan        | Generate quiet NaN                                       | [ ]            |
-| fp16_nextafter  | Next representable value                                 | [ ]            |
-| fp16_nexttoward | Next representable value toward precise value            | [ ]            |
+| FXP16_copysign   | Copy sign                                                | [ ]            |
+| FXP16_nan        | Generate quiet NaN                                       | [ ]            |
+| FXP16_nextafter  | Next representable value                                 | [ ]            |
+| FXP16_nexttoward | Next representable value toward precise value            | [ ]            |
 
 ### Minimum, maximum, difference functions
 
 | Name      | Description                    | Implemented? |
 | ---- | ------------------------------ | -------------- |
-| fp16_fdim | Positive difference            | [ ]            |
-| fp16_fmax | Maximum value                  | [ ]            |
-| fp16_fmin | Minimum value                  | [ ]            |
+| FXP16_fdim | Positive difference            | [ ]            |
+| FXP16_fmax | Maximum value                  | [ ]            |
+| FXP16_fmin | Minimum value                  | [ ]            |
 
 ### Other functions
 
 | Name      | Description                       | Implemented?   |
 | --------- | --------------------------------- | -------------- |
-| fp16_fabs | Compute absolute value            | [ ]            |
-| fp16_abs  | Compute absolute value            | [ ]            |
-| fp16_fma  | Multiply-add                      | [ ]            |
+| FXP16_fabs | Compute absolute value            | [ ]            |
+| FXP16_abs  | Compute absolute value            | [ ]            |
+| FXP16_fma  | Multiply-add                      | [ ]            |
 
 ### Classification macro / functions (C: Macros, C++: Functions)
 
 | Name            | Description                                    | Implemented?   |
 | --------------- | ---------------------------------------------- | -------------- |
-| fp16_fpclassify | Classify floating-point value                  | [ ]            |
-| fp16_isfinite   | Is finite value                                | [ ]            |
-| fp16_isinf      | Is infinity                                    | [ ]            |
-| fp16_isnan      | Is Not-A-Number                                | [ ]            |
-| fp16_isnormal   | Is normal                                      | [ ]            |
-| fp16_signbit    | Sign bit                                       | [ ]            |
+| FXP16_fpclassify | Classify floating-point value                  | [ ]            |
+| FXP16_isfinite   | Is finite value                                | [ ]            |
+| FXP16_isinf      | Is infinity                                    | [ ]            |
+| FXP16_isnan      | Is Not-A-Number                                | [ ]            |
+| FXP16_isnormal   | Is normal                                      | [ ]            |
+| FXP16_signbit    | Sign bit                                       | [ ]            |
 
 ### Comparison macro / functions
 
 | Name                | Description                 | Implemented?   |
 | ------------------- | --------------------------- | -------------- |
-| fp16_isgreater      | Is greater                  | [ ]            |
-| fp16_isgreaterequal | Is greater or equal         | [ ]            |
-| fp16_isless         | Is less                     | [ ]            |
-| fp16_islessequal    | Is less or equal            | [ ]            |
-| fp16_islessgreater  | Is less or greater          | [ ]            |
-| fp16_isunordered    | Is unordered                | [ ]            |
+| FXP16_isgreater      | Is greater                  | [ ]            |
+| FXP16_isgreaterequal | Is greater or equal         | [ ]            |
+| FXP16_isless         | Is less                     | [ ]            |
+| FXP16_islessequal    | Is less or equal            | [ ]            |
+| FXP16_islessgreater  | Is less or greater          | [ ]            |
+| FXP16_isunordered    | Is unordered                | [ ]            |
 
 ### Macro constants
 
 | Name                  | Description                       | Implemented? |
 | --------------------- | --------------------------------- | -------------- |
-| fp16_math_errhandling | Error handling                    | [ ]            |
-| FP16_INFINITY         | Infinity                          | [ ]            |
-| FP16_NAN              | Not-A-Number                      | [ ]            |
-| FP16_HUGE_VAL         | Huge value                        | [ ]            |
-| FP16_HUGE_VALF        | Huge float value                  | [ ]            |
-| FP16_HUGE_VALL        | Huge long double value            | [ ]            |
+| FXP16_math_errhandling | Error handling                    | [ ]            |
+| FXP16_INFINITY         | Infinity                          | [ ]            |
+| FXP16_NAN              | Not-A-Number                      | [ ]            |
+| FXP16_HUGE_VAL         | Huge value                        | [ ]            |
+| FXP16_HUGE_VALF        | Huge float value                  | [ ]            |
+| FXP16_HUGE_VALL        | Huge long double value            | [ ]            |
