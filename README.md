@@ -380,9 +380,72 @@ At every point along the x-axis, the sum of the two curves equals `0.5`. This co
 * **Monotonicity and Symmetry:**
   `asin(x)` is strictly increasing and odd-symmetric, whereas `acos(x)` is strictly decreasing and symmetric about x = 0. These properties match their analytical definitions exactly.
 
+### CORDIC-Based Hyperbolic Sine, Cosine, and Tangent
+
+`fp16_sinh`, `fp16_cosh`, and `fp16_tanh` use a hyperbolic CORDIC core that replaces multiplications with additions, subtractions, shifts, and lookups—ideal for MCUs without FPUs. The kernel runs in Q15 and is wrapped by fp16 helpers that convert to and from arbitrary Q-formats.
+
+#### How it works
+
+The algorithm operates in rotation mode on a vector that already includes the hyperbolic CORDIC gain (`FP32_Q15_K_HYP`). It iteratively adjusts the vector using `atanh(2^-i)` micro-angles (Q15 table entries for `i = 1..16`). For radix-2 hyperbolic CORDIC, iterations `i = 4` and `i = 13` are repeated to ensure convergence; this is handled internally.
+
+To cover the full range reliably, inputs are reduced with respect to `ln(2)`. The value `x` is written as `x ≈ n·ln(2) + r` with small residual `r`. The kernel computes `(cosh(r), sinh(r))`, and the final result is recomposed exactly using powers of two (`2^n` and `2^-n`) formed by shifts. Rounding is applied where right shifts model scaling; left shifts saturate. Multiplies use a 64-bit intermediate and saturate on overflow; adds are saturating as well.
+
+For very large magnitudes detected during range reduction (|n| ≥ 16), `cosh` saturates to positive max and `sinh` saturates by the sign of `x`. For `tanh`, extreme inputs short-circuit to the largest magnitude below 1 with the correct sign; otherwise `tanh(x)` is computed as `sinh(x)/cosh(x)` via a rounded Q15 division bounded to (−1, 1).
+
+#### Formats
+
+Internally everything runs in Q15. The fp16 wrappers accept any fp16 Q-format via `x_frac`, convert to Q15, run the core, then convert the result to the requested `y_frac` with fp16-range saturation.
+
+## Functions
+
+| Function                       | Input          | Output         | Range   | Summary                                                                                            |   |                                                                       |
+| ------------------------------ | -------------- | -------------- | ------- | -------------------------------------------------------------------------------------------------- | - | --------------------------------------------------------------------- |
+| `fp32_cordic_cosh_sinh_q15`    | Q15            | Q15            | any `x` | ln(2) reduction → CORDIC kernel → exact recomposition with `2^±n`; early saturation for very large | n | .                                                                     |
+| `fp32_cordic_tanh_q15`         | Q15            | Q15            | any `x` | Early ±1 saturation for large                                                                      | x | ; otherwise `sinh/ cosh` with rounded Q15 divide, clamped to (−1, 1). |
+| `fp16_sinh(y_frac, x, x_frac)` | fp16 Q`x_frac` | fp16 Q`y_frac` | any `x` | Format convert → Q15 core → convert back with fp16 saturation.                                     |   |                                                                       |
+| `fp16_cosh(y_frac, x, x_frac)` | fp16 Q`x_frac` | fp16 Q`y_frac` | any `x` | As above, returning `cosh`.                                                                        |   |                                                                       |
+| `fp16_tanh(y_frac, x, x_frac)` | fp16 Q`x_frac` | fp16 Q`y_frac` | any `x` | Early saturation or Q15 `tanh` path → convert back with fp16 saturation.                           |   |                                                                       |
+
+#### Notes
+
+Micro-angles are stored in `fp32_q15_atanh_tab[]`. The gain constant `FP32_Q15_K_HYP` pre-compensates the kernel so no post-scaling is needed. The only division appears in `tanh` and is rounded with bounds that enforce the open interval (−1, 1). Range reduction keeps intermediates safe and improves numerical behavior without resorting to floating point.
 
 #### Interpretation of the Hyperbolic Sine / Hyperbolic Cosine / Hyperbolic Tangent Graph
 <img width="866" height="577" alt="sinhcoshtanh" src="https://github.com/user-attachments/assets/5b12825c-bf2c-48f4-80f3-b97892caf97b" />
+
+The figure above shows the output of the hyperbolic functions `fp16_sinh` (blue, dashed), `fp16_cosh` (red), and `fp16_tanh` (yellow) for inputs `x` in Q8 format. The horizontal axis represents the input `x / Q8`, while the vertical axis shows the evaluated hyperbolic functions in the same scaling.
+
+#### General Behavior
+
+**Hyperbolic Sine (blue, dashed):**
+The `sinh(x)` curve is odd-symmetric. It passes through the origin and grows exponentially for large |x|, becoming negative for negative inputs and positive for positive inputs. Its slope at the origin equals 1, matching the mathematical derivative `d/dx sinh(0) = 1`.
+
+**Hyperbolic Cosine (red):**
+The `cosh(x)` curve is even-symmetric, with a minimum value of 1 at `x = 0`. It rises rapidly and dominates for large |x|, reflecting the exponential definition `cosh(x) = (e^x + e^−x)/2`. Unlike sine, it never falls below 1 and grows without bound in both directions.
+
+**Hyperbolic Tangent (yellow):**
+The `tanh(x)` curve starts at 0 and smoothly approaches ±1 as `x` increases or decreases. It has a steep slope around the origin and quickly saturates, illustrating the characteristic sigmoidal shape. This behavior mirrors the analytic `tanh(x) = sinh(x)/cosh(x)`, where the ratio tends to ±1 as |x| becomes large.
+
+#### Functional Relationships
+
+The plotted curves show the expected identity:
+
+```
+tanh(x) = sinh(x) / cosh(x)
+```
+
+This is especially visible near large |x|, where `sinh(x)` and `cosh(x)` both grow exponentially and their ratio tends to ±1, resulting in the horizontal asymptotes of `tanh(x)`.
+
+#### Symmetry and Growth
+
+`sinh(x)` is strictly increasing and odd, `cosh(x)` is strictly increasing for x > 0 and even, and `tanh(x)` is strictly increasing and odd with horizontal asymptotes at ±1. The exponential growth of `cosh` and `sinh` is evident from the curvature of their plots. In contrast, `tanh` remains bounded, which makes it particularly useful for applications such as numerical normalization or activation functions in neural computations.
+
+#### Numerical Behavior
+
+The plotted curves are smooth, continuous, and free of visible discontinuities or oscillations. This confirms that the fixed-point hyperbolic CORDIC implementation handles scaling, range reduction, and saturation correctly across both small and large input ranges. Around the origin, all functions behave linearly or quadratically as expected, and for larger arguments, `cosh` and `sinh` grow exponentially while `tanh` stabilizes toward its asymptotes.
+
+
+
 
 
 
