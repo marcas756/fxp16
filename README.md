@@ -95,45 +95,45 @@ The figure above shows the behavior of the tangent function implemented via `fxp
 
 The horizontal axis represents the **normalized input angle** in Q15 format, ranging from `-1.0` (equivalent to `-π`) to `+1.0 - LSB` (equivalent to `+π - LSB`). The vertical axis shows the computed tangent values in the respective fixed-point output formats.
 
-#### General Behavior
+##### General Behavior
 
 * For all three formats, the function follows the characteristic tangent curve, with singularities near normalized inputs of approximately `±0.5` (corresponding to `±π/2`).
 * Around these points, the cosine denominator approaches zero, causing the tangent to grow rapidly in magnitude. This results in vertical asymptotes in the mathematical function and saturation in the fixed-point implementation.
 
-#### Q15 Output (Yellow Solid Line)
+##### Q15 Output (Yellow Solid Line)
 
 * The Q15 format provides the highest resolution but is **explicitly limited to the range `-1.0` to `+1.0 - LSB`**.
 * As the input approaches `±π/2`, the output saturates at these fixed limits, as clearly visible near the vertical asymptotes at ±0.5.
 * This design choice prevents overflows and ensures stable behavior even in ill-conditioned regions, but it also means that very large tangent values cannot be represented in Q15.
 
-#### Q8 Output (Red Dashed Line)
+##### Q8 Output (Red Dashed Line)
 
 * Q8 provides a coarser resolution but a **larger dynamic range** than Q15, allowing tangent values to grow significantly before saturation.
 * The graph shows that Q8 tracks the analytical tangent function well up to a point, after which the output rapidly saturates near the format’s maximum representable value.
 * The curve near ±0.5 shows a steep, continuous transition, reflecting the trade-off between resolution and range typical of mid-range fixed-point formats.
 
-#### Q0 Output (Blue Dotted Line)
+##### Q0 Output (Blue Dotted Line)
 
 * Q0 represents the extreme case of minimal resolution and **integer-only output**.
 * The graph shows clear step-wise behavior, with tangent values quantized to integer levels.
 * This coarse representation is useful in applications where only rough directional information is needed or where numerical resources are limited, but it cannot capture smooth function transitions.
 
-#### Additional Observations
+##### Additional Observations
 
 * **Saturation Behavior:** All three formats exhibit predictable saturation as the cosine approaches zero. Q15 saturates earliest due to its strict ±1.0 limit, whereas Q8 and Q0 continue to grow until reaching their respective fixed-point limits.
 * **Quantization Effects:** As the resolution decreases (from Q15 to Q0), quantization steps become clearly visible. Q15 appears smooth, Q8 shows minor stepping, and Q0 exhibits strong stair-stepping.
 * **Symmetry:** The curves are antisymmetric with respect to the origin, reflecting the mathematical property tan(-x) = -tan(x), confirming consistent behavior across formats.
 * **Practical Implication:** The choice of output format directly impacts both **accuracy** and **dynamic range**. Applications that require fine angular discrimination should prefer Q15, while those prioritizing range or computational simplicity may choose Q8 or Q0 depending on the use case.
 
-### Two-Argument Arctangent Computation Using CORDIC
+#### Two-Argument Arctangent Computation Using CORDIC
 
 The function `fxp16_atan2` computes the angle of a vector `(x, y)` using the **CORDIC vectoring mode**. It returns the angle in **π-normalized Q15 format**, i.e. the interval `-1.0` to `+1.0 - LSB` corresponds to the real angle range `-π` to `+π - LSB`. The implementation follows the behavior of the standard `atan2(y, x)` function known from floating-point math libraries, but uses fixed-point arithmetic throughout.
 
-#### Algorithmic Principle
+##### Algorithmic Principle
 
 The CORDIC algorithm in vectoring mode rotates the input vector `(x, y)` step by step toward the x-axis. In each iteration, a predefined micro-angle `atan(2^-i)` is either added or subtracted depending on the sign of `y`. After a sufficient number of iterations, `y` converges to zero and the accumulated rotation angle corresponds to the arctangent of the original vector. This method avoids divisions and relies exclusively on additions, subtractions, bit shifts, and table lookups, making it highly efficient for fixed-point embedded implementations.
 
-#### Input and Output Ranges
+##### Input and Output Ranges
 
 * **Input:**
 
@@ -249,7 +249,7 @@ Each colored curve corresponds to a different input format:
 * **Q12** – blue
 * **Q11** – purple
 
-#### General Behavior
+##### General Behavior
 
 * All curves follow the characteristic shape of the arctangent function:
 
@@ -259,7 +259,7 @@ Each colored curve corresponds to a different input format:
 
 * Regardless of the input Q format, the **output range** is always confined to the π-normalized interval `[-0.5, +0.5]`, because `fxp16_atan` internally uses a fixed `x = 1` reference and applies `atan2(y, 1)`.
 
-#### Effect of Input Fixed-Point Formats
+##### Effect of Input Fixed-Point Formats
 
 The different segments of the graph show how the function handles inputs with varying fixed-point resolution:
 
@@ -272,7 +272,7 @@ The different segments of the graph show how the function handles inputs with va
 
 * As a consequence, inputs in lower Q formats can represent **larger real values**, but the resolution decreases correspondingly. The arctangent function remains correct, as it depends only on the ratio, not on the absolute magnitude.
 
-#### Additional Observations
+##### Additional Observations
 
 * **Saturation Behavior:** For very large positive or negative inputs, all curves flatten out at ±0.5, demonstrating the correct asymptotic behavior of `atan(x) → ±π/2`.
 * **Smooth Transition Across Scales:** The transitions between different Q formats are smooth and continuous. This shows that the scaling mechanism preserves functional shape without introducing discontinuities.
@@ -337,7 +337,7 @@ These formulations reduce both functions to a single square root and an `atan2` 
 
 The figure above shows the output of the `fxp16_asin` (blue) and `fxp16_acos` (red) functions for inputs `x` in the range `[-1.0, +1.0]` (Q15). The vertical axis represents the **π-normalized Q15 output**, with `-0.5` corresponding to `−π/2`, `0.0` to `0`, `0.5` to `+π/2`, and `1.0` to `+π`.
 
-#### General Behavior
+##### General Behavior
 
 * **Arcsine (blue):**
 
@@ -351,7 +351,7 @@ The figure above shows the output of the `fxp16_asin` (blue) and `fxp16_acos` (r
   * This corresponds to the mathematical acos(x), mapping `[-1, +1]` to `[π, 0]` (π-normalized `[1.0, 0.0]`).
   * The function is **monotonically decreasing** over the entire input range.
 
-#### Relationship Between `asin` and `acos`
+##### Relationship Between `asin` and `acos`
 
 The graph clearly shows the fundamental identity:
 
@@ -367,7 +367,7 @@ asin(x) + acos(x) = 0.5
 
 At every point along the x-axis, the sum of the two curves equals `0.5`. This confirms that both implementations are numerically consistent and adhere to the standard trigonometric relationship.
 
-#### Additional Observations
+##### Additional Observations
 
 * **Domain Handling:**
   Both functions operate only within the mathematically valid domain `x ∈ [−1.0, +1.0]`. Outside this range, the square root in `sqrt(1 − x²)` would be undefined. The implementation clamps intermediate values to ensure stable behavior at the domain boundaries.
