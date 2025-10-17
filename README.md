@@ -452,6 +452,9 @@ This is especially visible near large |x|, where `sinh(x)` and `cosh(x)` both gr
 The plotted curves are smooth, continuous, and free of visible discontinuities or oscillations. This confirms that the fixed-point hyperbolic CORDIC implementation handles scaling, range reduction, and saturation correctly across both small and large input ranges. Around the origin, all functions behave linearly or quadratically as expected, and for larger arguments, `cosh` and `sinh` grow exponentially while `tanh` stabilizes toward its asymptotes.
 
 
+#### Interpretation of the Exponential Graph
+<img width="866" height="577" alt="exp" src="https://github.com/user-attachments/assets/657cba98-f996-427a-955f-1746e0cdb83d" />
+
 
 
 
