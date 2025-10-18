@@ -295,7 +295,6 @@ For a given input `x` (Q15, range `[-1.0, +1.0]`):
   ```
   asin(x) = atan2(x, sqrt(1 - x²))
   ```
-<img width="739" height="91" alt="image" src="https://github.com/user-attachments/assets/53f13fde-6afe-41b5-8e15-3125558254eb" />
 
   First, the value `t = 1 - x²` is computed in extended 32-bit precision to avoid overflow. Its square root is then obtained in Q15 using `fxp16_sqrt()`. Finally, `fxp16_atan2(x, c)` is called with `c = sqrt(1 - x²)` to obtain the result in π-normalized Q15 format.
   The output range of `fxp16_asin()` is `[-0.5, +0.5]`, corresponding to `[-π/2, +π/2]`.
@@ -306,7 +305,6 @@ For a given input `x` (Q15, range `[-1.0, +1.0]`):
   ```
   acos(x) = atan2(sqrt(1 - x²), x)
   ```
-<img width="770" height="87" alt="image" src="https://github.com/user-attachments/assets/973fa4f1-c4b4-43dd-8e41-c886de33887b" />
 
   The same intermediate value `c = sqrt(1 - x²)` is reused, but the arguments are passed in reversed order to `fxp16_atan2()`.
   The output range of `fxp16_acos()` is `[0.0, +1.0]`, corresponding to `[0, π]`.
